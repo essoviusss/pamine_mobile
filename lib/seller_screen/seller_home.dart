@@ -51,17 +51,17 @@ class _seller_screenState extends State<seller_home> {
             backgroundColor: Colors.blue,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category),
+            icon: Icon(Icons.shopping_cart),
             label: "Products",
             backgroundColor: Colors.blue,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.video_settings),
+            icon: Icon(Icons.play_circle),
             label: "Videos",
             backgroundColor: Colors.blue,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notification_add),
+            icon: Icon(Icons.notifications),
             label: "Notification",
             backgroundColor: Colors.blue,
           ),
