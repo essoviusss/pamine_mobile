@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "227308749344",
+    "project_id": "pamineproject101",
+    "storage_bucket": "pamineproject101.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227308749344:android:63ae1d840f2b4d68853245",
+        "android_client_info": {
+          "package_name": "com.example.pamine_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "227308749344-1goaf9dl58p4vf0r663r134urucifttu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.pamine_mobile",
+            "certificate_hash": "fbe6869c47793b8fc8c6f3c7657ce5b1cc501fce"
+          }
+        },
+        {
+          "client_id": "227308749344-06sh4mo59dbfeljd84ur9dpe373tpctb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnNuK3lQLKvKftb91VROyn0oueSdhcGTw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "227308749344-06sh4mo59dbfeljd84ur9dpe373tpctb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
