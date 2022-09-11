@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pamine_mobile/model/seller_user_model.dart';
 import 'package:pamine_mobile/seller_screen/seller_home.dart';
+import 'package:pamine_mobile/seller_screen/seller_verification.dart';
 import 'seller_signup.dart';
 
 class seller_login extends StatefulWidget {
@@ -84,7 +85,7 @@ class _LoginScreenState extends State<seller_login> {
         .then((value) {
       Fluttertoast.showToast(msg: "Google Authentication Successful");
       Navigator.of(context).pushNamedAndRemoveUntil(
-          seller_home.id, (Route<dynamic> route) => false);
+          seller_verification.id, (Route<dynamic> route) => false);
     });
   }
 

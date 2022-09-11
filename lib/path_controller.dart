@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pamine_mobile/buyer_screen/home_screen.dart';
-import 'package:pamine_mobile/screens/front.dart';
+import 'package:pamine_mobile/seller_screen/approval_contoller.dart';
 import 'package:pamine_mobile/seller_screen/seller_home.dart';
 import 'package:pamine_mobile/splashScreen.dart';
 
@@ -37,13 +37,25 @@ class _pathControllerState extends State<pathController> {
                     builder:
                         (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
-                        if (snapshot.data!['role'] == "Buyer" &&
-                            snapshot.data!['uid'] == auth.currentUser?.uid) {
+                        if (snapshot.data?['role'] == "Buyer" &&
+                            snapshot.data?['uid'] == auth.currentUser?.uid) {
                           return const home_screen();
-                        } else if (snapshot.data!['uid'] ==
+                        } else if (snapshot.data?['uid'] ==
                                 auth.currentUser?.uid &&
-                            snapshot.data!['role'] == "Seller") {
-                          return const seller_home();
+                            snapshot.data?['role'] == "Seller") {
+                          return StreamBuilder(
+                              stream: FirebaseFirestore.instance
+                                  .collection("seller_info")
+                                  .doc(auth.currentUser?.uid)
+                                  .snapshots(),
+                              builder: (context,
+                                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                                if (snapshot.data?['status'] == "verified") {
+                                  return const seller_home();
+                                } else {
+                                  return const approval_controller();
+                                }
+                              });
                         } else {
                           return const SplashScreen();
                         }
