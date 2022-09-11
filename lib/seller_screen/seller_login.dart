@@ -33,7 +33,7 @@ class _LoginScreenState extends State<seller_login> {
           .then((uid) => {
                 Fluttertoast.showToast(msg: "Login Successful"),
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => const seller_home())),
+                    builder: (context) => const seller_verification())),
               })
           .catchError((e) {
         Fluttertoast.showToast(msg: e!.message);
