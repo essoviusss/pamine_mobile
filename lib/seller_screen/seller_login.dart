@@ -84,8 +84,8 @@ class _LoginScreenState extends State<seller_login> {
         .set(providerModel.toMap())
         .then((value) {
       Fluttertoast.showToast(msg: "Google Authentication Successful");
-      Navigator.of(context).pushNamedAndRemoveUntil(
-          seller_verification.id, (Route<dynamic> route) => false);
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const seller_verification()));
     });
   }
 

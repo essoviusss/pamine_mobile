@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/seller_screen/approval_screen.dart';
 import 'package:pamine_mobile/seller_screen/seller_home.dart';
 import 'package:pamine_mobile/seller_screen/seller_verification.dart';
@@ -28,7 +29,7 @@ class _approval_controllerState extends State<approval_controller> {
               ? StreamBuilder(
                   stream: FirebaseFirestore.instance
                       .collection("seller_info")
-                      .doc(auth.currentUser?.uid)
+                      .doc(auth.currentUser!.uid)
                       .snapshots(),
                   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                     if (snapshot.data?['status'] == "not verified") {

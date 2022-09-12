@@ -37,16 +37,16 @@ class _pathControllerState extends State<pathController> {
                     builder:
                         (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
-                        if (snapshot.data?['role'] == "Buyer" &&
-                            snapshot.data?['uid'] == auth.currentUser?.uid) {
+                        if (snapshot.data!['role'] == "Buyer" &&
+                            snapshot.data!['uid'] == auth.currentUser?.uid) {
                           return const home_screen();
-                        } else if (snapshot.data?['uid'] ==
-                                auth.currentUser?.uid &&
+                        } else if (snapshot.data!['uid'] ==
+                                auth.currentUser!.uid &&
                             snapshot.data?['role'] == "Seller") {
                           return StreamBuilder(
                               stream: FirebaseFirestore.instance
                                   .collection("seller_info")
-                                  .doc(auth.currentUser?.uid)
+                                  .doc(auth.currentUser!.uid)
                                   .snapshots(),
                               builder: (context,
                                   AsyncSnapshot<DocumentSnapshot> snapshot) {
