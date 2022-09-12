@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "227308749344",
+    "firebase_url": "https://pamineproject101-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "pamineproject101",
     "storage_bucket": "pamineproject101.appspot.com"
   },
@@ -19,6 +20,14 @@
           "android_info": {
             "package_name": "com.example.pamine_mobile",
             "certificate_hash": "fbe6869c47793b8fc8c6f3c7657ce5b1cc501fce"
+          }
+        },
+        {
+          "client_id": "227308749344-ldqq87rsmrmc7k5fcgtfqvevh69n4nl0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.pamine_mobile",
+            "certificate_hash": "9b5e12a77891847b572feb008668ef96da4311b4"
           }
         },
         {

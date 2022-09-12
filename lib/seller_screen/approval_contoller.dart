@@ -34,8 +34,10 @@ class _approval_controllerState extends State<approval_controller> {
                   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                     if (snapshot.data?['status'] == "not verified") {
                       return const approval_screen();
-                    } else {
+                    } else if (snapshot.data?['status'] == "verified") {
                       return const seller_home();
+                    } else {
+                      return const seller_verification();
                     }
                   },
                 )
