@@ -50,7 +50,7 @@ class _home_screenState extends State<home_screen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.category),
-            label: "Category",
+            label: "Videos",
             backgroundColor: Color(0xFFC21010),
           ),
           BottomNavigationBarItem(

@@ -44,11 +44,14 @@ dependencies:
   flutterfire_ui: ^0.4.3+6
   flat_icons_flutter: ^1.0.2
   path_provider: ^2.0.11
-  icons_plus: ^3.0.0
   image_picker: ^0.8.5+3
   firebase_storage: ^10.3.8
   intl: ^0.17.0
   loading_animation_widget: ^1.2.0+3
+  dotted_border: ^2.0.0+2
+  provider: ^6.0.3
+  file_picker: ^5.2.0
+
   
 
 

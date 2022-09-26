@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pamine_mobile/controllers/approval_controller.dart';
 import 'package:pamine_mobile/model/seller_user_model.dart';
 import 'package:pamine_mobile/seller_screen/seller_home.dart';
 import 'package:pamine_mobile/seller_screen/seller_verification.dart';
@@ -71,22 +72,24 @@ class _LoginScreenState extends State<seller_login> {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     User? user = auth.currentUser;
 
-    ProviderModel providerModel = ProviderModel();
+    ProviderModel providerModel = ProviderModel(displayName: '', uid: '');
 
-    providerModel.uid = user?.uid;
-    providerModel.displayName = user?.displayName;
-    providerModel.email = user?.email;
+    providerModel.uid = user!.uid;
+    providerModel.displayName = user.displayName!;
+    providerModel.email = user.email;
     providerModel.role = "Seller";
 
     await firebaseFirestore
         .collection("users")
-        .doc(user?.uid)
+        .doc(user.uid)
         .set(providerModel.toMap())
-        .then((value) {
-      Fluttertoast.showToast(msg: "Google Authentication Successful");
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const seller_verification()));
-    });
+        .then(
+      (value) {
+        Fluttertoast.showToast(msg: "Google Authentication Successful");
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => const approval_controller()));
+      },
+    );
   }
 
   @override

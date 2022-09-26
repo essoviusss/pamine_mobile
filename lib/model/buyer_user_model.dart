@@ -5,14 +5,20 @@ class UserModel {
   String? email;
   String? role;
 
-  UserModel({this.uid, this.fullName, this.email, this.role});
+  UserModel({
+    this.uid,
+    this.fullName,
+    this.email,
+    this.role,
+  });
   //receive
   factory UserModel.fromMap(map) {
     return UserModel(
-        uid: map['uid'],
-        fullName: map['fullName'],
-        email: map['email'],
-        role: map['role']);
+      uid: map['uid'],
+      fullName: map['fullName'],
+      email: map['email'],
+      role: map['role'],
+    );
   }
   //send
   Map<String, dynamic> toMap() {

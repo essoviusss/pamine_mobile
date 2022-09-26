@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pamine_mobile/model/seller_user_model.dart';
-import 'package:pamine_mobile/seller_screen/approval_contoller.dart';
+import 'package:pamine_mobile/seller_screen/approval_screen.dart';
 
 // ignore: camel_case_types
 class seller_verification extends StatefulWidget {
@@ -36,6 +36,7 @@ class _seller_verificationState extends State<seller_verification> {
   final idPicker = ImagePicker();
   final imagePicker = ImagePicker();
 
+  //Image Picker
   Future imagePickerMethod() async {
     final pick = await imagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
@@ -78,6 +79,7 @@ class _seller_verificationState extends State<seller_verification> {
     await ref1.putFile(id!);
   }
 
+  //Add
   void addDetails() async {
     if (_formKey.currentState!.validate()) {
       await addDetailsToFireStore();
@@ -106,10 +108,11 @@ class _seller_verificationState extends State<seller_verification> {
         .then((value) {
       Fluttertoast.showToast(msg: "Application Submitted");
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const approval_controller()));
+          MaterialPageRoute(builder: (context) => const approval_screen()));
     });
   }
 
+  //Date Picker
   Future _selectDate() async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -396,16 +399,18 @@ class _seller_verificationState extends State<seller_verification> {
                               : IconButton(
                                   icon: const Icon(Icons.clear),
                                   onPressed: () {
-                                    setState(() {
-                                      id = null;
-                                    });
+                                    setState(
+                                      () {
+                                        id = null;
+                                      },
+                                    );
                                   },
                                 ),
                         ),
                       ],
                     ),
                   ],
-                )
+                ),
             ],
           ),
         ),

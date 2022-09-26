@@ -5,8 +5,9 @@ class UserModel {
   String? fullName;
   String? email;
   String? role;
+  String? status;
 
-  UserModel({this.uid, this.fullName, this.email, this.role});
+  UserModel({this.uid, this.fullName, this.email, this.role, this.status});
   //receive
   factory UserModel.fromMap(map) {
     return UserModel(
@@ -14,6 +15,7 @@ class UserModel {
       fullName: map['fullName'],
       email: map['email'],
       role: map['role'],
+      status: map['status'],
     );
   }
   //send
@@ -23,6 +25,7 @@ class UserModel {
       'fullName': fullName,
       'email': email,
       'role': role,
+      'status': status,
     };
   }
 }

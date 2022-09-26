@@ -5,16 +5,21 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:pamine_mobile/buyer_screen/buyer_login.dart';
 import 'package:pamine_mobile/buyer_screen/home_screen.dart';
+import 'package:pamine_mobile/provider/user_provider.dart';
 import 'package:pamine_mobile/screens/front.dart';
 import 'package:pamine_mobile/seller_screen/seller_home.dart';
 import 'package:pamine_mobile/seller_screen/seller_login.dart';
-import 'package:pamine_mobile/splashScreen.dart';
-import 'path_controller.dart';
+import 'package:provider/provider.dart';
+import 'controllers/path_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(
+      create: (_) => UserProvider(),
+    ),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
