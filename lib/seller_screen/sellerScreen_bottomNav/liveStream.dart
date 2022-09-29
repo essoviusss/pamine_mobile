@@ -4,10 +4,9 @@ import 'dart:typed_data';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/broadcast_screen.dart';
-
 import '../../methods/firestore_methods.dart';
 import '../../utils/utils.dart';
+import 'broadcast_screen.dart';
 
 class LiveStreamScreen extends StatefulWidget {
   const LiveStreamScreen({super.key});
@@ -34,7 +33,10 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
       showSnackBar(context, 'Livestream has started successfully!');
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => const BroadcastScreen(),
+          builder: (context) => BroadcastScreen(
+            isBroadcaster: true,
+            channelId: channelId,
+          ),
         ),
       );
     }
@@ -42,8 +44,8 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
+    return Scaffold(
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
           child: Column(

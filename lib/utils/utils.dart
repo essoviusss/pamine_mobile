@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +9,11 @@ void showSnackBar(BuildContext context, String content) {
       content: Text(content),
     ),
   );
+}
+
+showSnackBar1(BuildContext context, String snackText, Duration d) {
+  final snackBar = SnackBar(content: Text(snackText), duration: d);
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
 Future<Uint8List?> pickImage() async {

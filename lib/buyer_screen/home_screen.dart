@@ -37,20 +37,20 @@ class _home_screenState extends State<home_screen> {
       ),
       body: _screens[currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.shifting,
+        type: BottomNavigationBarType.fixed,
         currentIndex: currentIndex,
         onTap: (index) => setState(() => currentIndex = index),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: const Color(0xFFC21010),
+        unselectedItemColor: Colors.black,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
+            icon: Icon(Icons.feed),
+            label: "Feed",
             backgroundColor: Color(0xFFC21010),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: "Videos",
+            icon: Icon(Icons.map),
+            label: "Discover",
             backgroundColor: Color(0xFFC21010),
           ),
           BottomNavigationBarItem(

@@ -39,7 +39,7 @@ class _buyer_signupState extends State<buyer_signup> {
 
     UserModel userModel = UserModel();
 
-    userModel.fullName = fullnameEditingController.text;
+    userModel.displayName = fullnameEditingController.text;
     userModel.email = user!.email;
     userModel.uid = user.uid;
     userModel.role = "Buyer";

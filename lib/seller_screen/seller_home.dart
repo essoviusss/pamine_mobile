@@ -4,7 +4,6 @@ import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/liveStream.da
 import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/notification.dart';
 import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/products.dart';
 import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/profile.dart';
-import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/broadcast_screen.dart';
 
 // ignore: camel_case_types
 class seller_home extends StatefulWidget {

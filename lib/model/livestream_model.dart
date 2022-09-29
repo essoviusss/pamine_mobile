@@ -1,12 +1,11 @@
-
 class LiveStream {
-  final String title;
-  final String image;
-  final String uid;
-  final String username;
+  String title;
+  String image;
+  String uid;
+  String username;
   final startedAt;
-  final int viewers;
-  final String channelId;
+  int viewers;
+  String channelId;
 
   LiveStream({
     required this.title,

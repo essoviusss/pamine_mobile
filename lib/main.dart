@@ -17,7 +17,7 @@ void main() async {
   await Firebase.initializeApp();
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(
-      create: (_) => UserProvider(),
+      create: (_) => GoogleProvider(),
     ),
   ], child: const MyApp()));
 }
@@ -53,6 +53,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        primaryColor: Colors.transparent,
+      ),
       debugShowCheckedModeBanner: false,
       home: const pathController(),
       routes: {

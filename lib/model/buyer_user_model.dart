@@ -1,13 +1,13 @@
 //User Provider
 class UserModel {
   String? uid;
-  String? fullName;
+  String? displayName;
   String? email;
   String? role;
 
   UserModel({
     this.uid,
-    this.fullName,
+    this.displayName,
     this.email,
     this.role,
   });
@@ -15,7 +15,7 @@ class UserModel {
   factory UserModel.fromMap(map) {
     return UserModel(
       uid: map['uid'],
-      fullName: map['fullName'],
+      displayName: map['displayName'],
       email: map['email'],
       role: map['role'],
     );
@@ -24,7 +24,7 @@ class UserModel {
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
-      'fullName': fullName,
+      'displayName': displayName,
       'email': email,
       'role': role,
     };

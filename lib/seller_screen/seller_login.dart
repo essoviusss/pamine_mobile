@@ -7,7 +7,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pamine_mobile/controllers/approval_controller.dart';
 import 'package:pamine_mobile/model/seller_user_model.dart';
-import 'package:pamine_mobile/seller_screen/seller_home.dart';
 import 'package:pamine_mobile/seller_screen/seller_verification.dart';
 import 'seller_signup.dart';
 
@@ -27,18 +26,32 @@ class _LoginScreenState extends State<seller_login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _auth = FirebaseAuth.instance;
+  String? role;
+
+  Future<void> getRole() async {
+    CollectionReference userRole =
+        FirebaseFirestore.instance.collection('users');
+    DocumentSnapshot snapshot =
+        await userRole.doc(FirebaseAuth.instance.currentUser!.uid).get();
+    role = snapshot['role'];
+  }
+
   void signIn(String email, String password) async {
-    if (_formKey.currentState!.validate()) {
-      await _auth
-          .signInWithEmailAndPassword(email: email, password: password)
-          .then((uid) => {
-                Fluttertoast.showToast(msg: "Login Successful"),
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => const seller_verification())),
-              })
-          .catchError((e) {
-        Fluttertoast.showToast(msg: e!.message);
-      });
+    if (role == "Seller") {
+      if (_formKey.currentState!.validate()) {
+        await _auth
+            .signInWithEmailAndPassword(email: email, password: password)
+            .then((uid) => {
+                  Fluttertoast.showToast(msg: "Login Successful"),
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => const approval_controller())),
+                })
+            .catchError((e) {
+          Fluttertoast.showToast(msg: e!.message);
+        });
+      }
+    } else {
+      Fluttertoast.showToast(msg: "No account found!");
     }
   }
 

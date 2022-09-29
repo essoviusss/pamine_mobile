@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pamine_mobile/model/seller_user_model.dart';
 
-class UserProvider extends ChangeNotifier {
+class GoogleProvider extends ChangeNotifier {
   ProviderModel _user = ProviderModel(
     email: '',
     displayName: '',

@@ -1,50 +1,44 @@
-// ignore_for_file: use_build_context_synchronously, must_be_immutable, prefer_interpolation_to_compose_strings
+// ignore_for_file: use_build_context_synchronously, prefer_interpolation_to_compose_strings
 
 import 'dart:convert';
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pamine_mobile/buyer_screen/home_screen.dart';
 import 'package:pamine_mobile/config/appId.dart';
-import 'package:pamine_mobile/model/livestream_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:pamine_mobile/methods/firestore_methods.dart';
 import 'package:pamine_mobile/widgets/chat.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
-import '../../methods/firestore_methods.dart';
 import '../../provider/user_provider.dart';
 
-class BroadcastScreen extends StatefulWidget {
-  bool? isBroadcaster = true;
+class Feed extends StatefulWidget {
   final String channelId;
-  BroadcastScreen({
+  final bool isBroadcaster;
+  const Feed({
     Key? key,
     required this.isBroadcaster,
     required this.channelId,
   }) : super(key: key);
 
   @override
-  State<BroadcastScreen> createState() => _BroadcastScreenState();
+  State<Feed> createState() => _FeedState();
 }
 
-class _BroadcastScreenState extends State<BroadcastScreen> {
+class _FeedState extends State<Feed> {
   late final RtcEngine _engine;
   List<int> remoteUid = [];
-  bool switchCamera = true;
-  bool isMuted = false;
-  bool isScreenSharing = false;
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _initEngine();
-    });
+    _initEngine();
   }
 
   void _initEngine() async {
@@ -54,7 +48,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     await _engine.enableVideo();
     await _engine.startPreview();
     await _engine.setChannelProfile(ChannelProfile.LiveBroadcasting);
-    if (widget.isBroadcaster == true) {
+    if (widget.isBroadcaster) {
       _engine.setClientRole(ClientRole.Broadcaster);
     } else {
       _engine.setClientRole(ClientRole.Audience);
@@ -86,11 +80,9 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
 
   void _joinChannel() async {
     await getToken();
-    if (token != null) {
-      if (defaultTargetPlatform == TargetPlatform.android &&
-          widget.isBroadcaster == true) {
-        await [Permission.microphone, Permission.camera].request();
-      }
+    if (defaultTargetPlatform == TargetPlatform.android &&
+        widget.isBroadcaster == true) {
+      await [Permission.microphone, Permission.camera].request();
     }
     await _engine.joinChannelWithUserAccount(
       token,
@@ -124,36 +116,20 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     }));
   }
 
-  void _switchCamera() {
-    _engine.switchCamera().then((value) {
-      setState(() {
-        switchCamera = !switchCamera;
-      });
-    }).catchError((err) {
-      debugPrint('switchCamera $err');
-    });
-  }
-
-  void onToggleMute() async {
-    setState(() {
-      isMuted = !isMuted;
-    });
-    await _engine.muteLocalAudioStream(isMuted);
-  }
-
   _leaveChannel() async {
     await _engine.leaveChannel();
     if (FirebaseAuth.instance.currentUser!.uid == widget.channelId) {
       await FirestoreMethods().endLiveStream(widget.channelId);
+      Navigator.pushReplacementNamed(context, home_screen.id);
     } else {
       await FirestoreMethods().updateViewCount(widget.channelId, false);
+      Navigator.pushReplacementNamed(context, home_screen.id);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
-    double widthtVar = MediaQuery.of(context).size.width;
     final user = Provider.of<GoogleProvider>(context).user;
     return WillPopScope(
       onWillPop: () async {
@@ -167,54 +143,15 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
               height: heightVar / 1,
               child: _renderVideo(user),
             ),
-            StreamBuilder<dynamic>(
-                stream: FirebaseFirestore.instance
-                    .collection('livestream')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
-                  return Expanded(
-                    child: ListView.builder(
-                        itemCount: 1,
-                        itemBuilder: (context, index) {
-                          LiveStream post = LiveStream.fromMap(
-                              snapshot.data.docs[index].data());
-                          return Center(
-                            child: Text(
-                              '${post.viewers} watching',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          );
-                        }),
-                  );
-                }),
-            if (FirebaseAuth.instance.currentUser!.uid == widget.channelId)
-              Container(
-                margin: EdgeInsets.only(top: heightVar / 1.55),
-                child: Wrap(
-                  spacing: 20,
-                  children: [
-                    InkWell(
-                      onTap: _switchCamera,
-                      child: const Icon(
-                        Icons.cameraswitch,
-                        color: Colors.white,
-                        size: 40,
-                      ),
-                    ),
-                    InkWell(
-                      onTap: onToggleMute,
-                      child: Icon(
-                        isMuted ? Icons.mic_off : Icons.mic_none,
-                        color: Colors.white,
-                        size: 40,
-                      ),
-                    ),
-                  ],
+            Container(
+              margin: EdgeInsets.only(top: heightVar / 3),
+              child: Center(
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: const Text('MINE'),
                 ),
               ),
+            ),
             BottomAppBar(
               color: Colors.transparent,
               child: Container(
@@ -233,7 +170,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   }
 
   _renderVideo(user) {
-    _joinChannel();
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: FirebaseAuth.instance.currentUser!.uid == widget.channelId
