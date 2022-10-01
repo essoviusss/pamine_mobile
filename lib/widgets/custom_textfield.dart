@@ -14,20 +14,24 @@ class CustomTextField extends StatelessWidget {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
     return Container(
-      margin: const EdgeInsets.only(left: 0),
+      padding: EdgeInsets.only(right: widthVar / 5, left: 10),
       child: TextField(
         textInputAction: TextInputAction.done,
-        decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.comment),
+        decoration: const InputDecoration(
+          prefixIcon: Icon(Icons.comment),
           hintText: 'Comments....',
-          hintStyle: const TextStyle(fontSize: 15.0, color: Colors.red),
-          contentPadding: const EdgeInsets.all(15),
+          hintStyle: TextStyle(fontSize: 15.0, color: Colors.red),
+          contentPadding: EdgeInsets.all(0),
           isDense: true,
           filled: true,
-          fillColor: const Color(0xffF7F5F2),
+          fillColor: Color(0xffF7F5F2),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(0),
-            borderSide: const BorderSide(width: 0, color: Colors.white),
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+                bottomRight: Radius.circular(15)),
+            borderSide: BorderSide(width: 0, color: Colors.white),
           ),
         ),
         onSubmitted: onTap,

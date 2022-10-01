@@ -123,12 +123,17 @@ class _FeedState extends State<Feed> {
     } else {
       await FirestoreMethods().updateViewCount(widget.channelId, false);
     }
-    Navigator.pushReplacementNamed(context, home_screen.id);
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const home_screen(),
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
+    double widthVar = MediaQuery.of(context).size.width;
     final user = Provider.of<GoogleProvider>(context).user;
     return WillPopScope(
       onWillPop: () async {
@@ -142,25 +147,46 @@ class _FeedState extends State<Feed> {
               height: heightVar / 1,
               child: _renderVideo(user),
             ),
-            Container(
-              margin: EdgeInsets.only(top: heightVar / 3),
-              child: Center(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('MINE'),
-                ),
-              ),
-            ),
-            BottomAppBar(
-              color: Colors.transparent,
-              child: Container(
-                margin: EdgeInsets.only(top: heightVar / 1.5),
-                color: Colors.white.withOpacity(0.5),
-                height: heightVar / 4,
-                child: Chat(
-                  channelId: widget.channelId,
-                ),
-              ),
+            Row(
+              children: [
+                Stack(
+                  children: [
+                    BottomAppBar(
+                      color: Colors.transparent,
+                      child: Container(
+                        width: widthVar / 1.5,
+                        margin: EdgeInsets.only(top: heightVar / 2.2),
+                        color: Colors.transparent,
+                        height: heightVar / 2,
+                        child: Chat(
+                          channelId: widget.channelId,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(
+                          top: heightVar / 1.24, left: widthVar / 2),
+                      child: Center(
+                        child: TextButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                const Color(0xFFC21010)),
+                            padding: MaterialStateProperty.all<EdgeInsets>(
+                              EdgeInsets.symmetric(
+                                  horizontal: widthVar / 12, vertical: 15),
+                            ),
+                          ),
+                          onPressed: () {},
+                          child: const Text(
+                            'MINE',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
           ],
         ),

@@ -6,6 +6,7 @@ class LiveStream {
   final startedAt;
   int viewers;
   String channelId;
+  List? category = [];
 
   LiveStream({
     required this.title,
@@ -15,6 +16,7 @@ class LiveStream {
     required this.viewers,
     required this.channelId,
     required this.startedAt,
+    required this.category,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,6 +28,7 @@ class LiveStream {
       'viewers': viewers,
       'channelId': channelId,
       'startedAt': startedAt,
+      'category': category,
     };
   }
 
@@ -38,6 +41,7 @@ class LiveStream {
       viewers: map['viewers']?.toInt() ?? 0,
       channelId: map['channelId'] ?? '',
       startedAt: map['startedAt'] ?? '',
+      category: map['category'] ?? [],
     );
   }
 }

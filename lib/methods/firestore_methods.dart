@@ -16,11 +16,11 @@ class FirestoreMethods {
   final StorageMethods _storageMethods = StorageMethods();
   final _auth = FirebaseAuth.instance;
 
-  Future<String> startLiveStream(
-      BuildContext context, String title, Uint8List? image) async {
+  Future<String> startLiveStream(BuildContext context, String title,
+      Uint8List? image, List? selectedItems) async {
     String? channelId = "";
     try {
-      if (title.isNotEmpty && image != null) {
+      if (title.isNotEmpty && image != null && selectedItems != null) {
         if (!((await _firestore
                 .collection('livestream')
                 .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -35,14 +35,14 @@ class FirestoreMethods {
           channelId = FirebaseAuth.instance.currentUser?.uid;
 
           LiveStream liveStream = LiveStream(
-            title: title,
-            image: thumbnailUrl,
-            uid: _auth.currentUser!.uid,
-            username: _auth.currentUser!.displayName!,
-            viewers: 0,
-            channelId: channelId!,
-            startedAt: DateTime.now(),
-          );
+              title: title,
+              image: thumbnailUrl,
+              uid: _auth.currentUser!.uid,
+              username: _auth.currentUser!.displayName!,
+              viewers: 0,
+              channelId: channelId!,
+              startedAt: DateTime.now(),
+              category: selectedItems);
 
           await _firestore
               .collection('livestream')

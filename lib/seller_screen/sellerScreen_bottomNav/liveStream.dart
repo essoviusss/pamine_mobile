@@ -2,6 +2,7 @@
 
 import 'dart:typed_data';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import '../../methods/firestore_methods.dart';
@@ -19,6 +20,7 @@ class LiveStreamScreen extends StatefulWidget {
 class _LiveStreamScreenState extends State<LiveStreamScreen> {
   final TextEditingController _titleController = TextEditingController();
   Uint8List? image;
+  List<String> _selectedItems = [];
 
   @override
   void dispose() {
@@ -28,7 +30,7 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
 
   goLiveStream() async {
     String channelId = await FirestoreMethods()
-        .startLiveStream(context, _titleController.text, image);
+        .startLiveStream(context, _titleController.text, image, _selectedItems);
 
     if (channelId.isNotEmpty) {
       showSnackBar(context, 'Livestream has started successfully!');
@@ -42,8 +44,6 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
       );
     }
   }
-
-  List<String> _selectedItems = [];
 
   void _showMultiSelect() async {
     // a list of selectable items
@@ -199,7 +199,7 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
                                     padding:
                                         MaterialStateProperty.all<EdgeInsets>(
                                       EdgeInsets.symmetric(
-                                          horizontal: widthVar / 15,
+                                          horizontal: widthVar / 25,
                                           vertical: 12),
                                     ),
                                   ),
@@ -209,7 +209,7 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
                                   ),
                                   onPressed: _showMultiSelect,
                                   label: const Text(
-                                    'Select Stream Categories',
+                                    'Select a category',
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -251,7 +251,9 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
                         horizontal: widthVar / 12, vertical: 12),
                   ),
                 ),
-                onPressed: goLiveStream,
+                onPressed: () {
+                  goLiveStream();
+                },
                 child: const Text(
                   'Go Live!',
                   style: TextStyle(

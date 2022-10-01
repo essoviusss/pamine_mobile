@@ -155,7 +155,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
-    double widthtVar = MediaQuery.of(context).size.width;
+    double widthVar = MediaQuery.of(context).size.width;
     final user = Provider.of<GoogleProvider>(context).user;
     return WillPopScope(
       onWillPop: () async {
@@ -174,7 +174,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     .collection('livestream')
                     .snapshots(),
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+                  if (snapshot.connectionState == ConnectionState.none) {
                     return const CircularProgressIndicator();
                   }
                   return Expanded(
@@ -192,42 +192,53 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                         }),
                   );
                 }),
-            if (FirebaseAuth.instance.currentUser!.uid == widget.channelId)
-              Container(
-                margin: EdgeInsets.only(top: heightVar / 1.55),
-                child: Wrap(
-                  spacing: 20,
+            Row(
+              children: [
+                Stack(
                   children: [
-                    InkWell(
-                      onTap: _switchCamera,
-                      child: const Icon(
-                        Icons.cameraswitch,
-                        color: Colors.white,
-                        size: 40,
+                    BottomAppBar(
+                      color: Colors.transparent,
+                      child: Container(
+                        width: widthVar / 1.5,
+                        margin: EdgeInsets.only(top: heightVar / 2.2),
+                        color: Colors.transparent,
+                        height: heightVar / 2,
+                        child: Chat(
+                          channelId: widget.channelId,
+                        ),
                       ),
                     ),
-                    InkWell(
-                      onTap: onToggleMute,
-                      child: Icon(
-                        isMuted ? Icons.mic_off : Icons.mic_none,
-                        color: Colors.white,
-                        size: 40,
+                    if (FirebaseAuth.instance.currentUser!.uid ==
+                        widget.channelId)
+                      Container(
+                        margin: EdgeInsets.only(
+                            top: heightVar / 1.09, left: widthVar / 2),
+                        child: Wrap(
+                          spacing: 20,
+                          children: [
+                            InkWell(
+                              onTap: _switchCamera,
+                              child: const Icon(
+                                Icons.cameraswitch,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                            InkWell(
+                              onTap: onToggleMute,
+                              child: Icon(
+                                isMuted ? Icons.mic_off : Icons.mic_none,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
-              ),
-            BottomAppBar(
-              color: Colors.transparent,
-              child: Container(
-                margin: EdgeInsets.only(top: heightVar / 1.5),
-                color: Colors.white.withOpacity(0.5),
-                height: heightVar / 4,
-                child: Chat(
-                  channelId: widget.channelId,
-                ),
-              ),
-            ),
+              ],
+            )
           ],
         ),
       ),
