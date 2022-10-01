@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pamine_mobile/config/appId.dart';
 import 'package:pamine_mobile/model/livestream_model.dart';
+import 'package:pamine_mobile/seller_screen/seller_home.dart';
 import 'package:pamine_mobile/widgets/chat.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -142,12 +143,13 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   }
 
   _leaveChannel() async {
-    await _engine.leaveChannel();
+    await _engine.leaveChannel(); //error
     if (FirebaseAuth.instance.currentUser!.uid == widget.channelId) {
       await FirestoreMethods().endLiveStream(widget.channelId);
     } else {
       await FirestoreMethods().updateViewCount(widget.channelId, false);
     }
+    Navigator.pushReplacementNamed(context, seller_home.id);
   }
 
   @override

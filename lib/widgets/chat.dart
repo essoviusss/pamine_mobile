@@ -45,7 +45,6 @@ class _ChatState extends State<Chat> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
                 }
-
                 return ListView.builder(
                   itemCount: snapshot.data.docs.length,
                   itemBuilder: (context, index) => ListTile(

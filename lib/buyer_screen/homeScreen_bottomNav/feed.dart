@@ -120,11 +120,10 @@ class _FeedState extends State<Feed> {
     await _engine.leaveChannel();
     if (FirebaseAuth.instance.currentUser!.uid == widget.channelId) {
       await FirestoreMethods().endLiveStream(widget.channelId);
-      Navigator.pushReplacementNamed(context, home_screen.id);
     } else {
       await FirestoreMethods().updateViewCount(widget.channelId, false);
-      Navigator.pushReplacementNamed(context, home_screen.id);
     }
+    Navigator.pushReplacementNamed(context, home_screen.id);
   }
 
   @override
