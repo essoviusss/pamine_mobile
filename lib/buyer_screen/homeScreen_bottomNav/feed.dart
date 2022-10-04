@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:pamine_mobile/buyer_screen/home_screen.dart';
 import 'package:pamine_mobile/config/appId.dart';
 import 'package:http/http.dart' as http;
 import 'package:pamine_mobile/methods/firestore_methods.dart';
+import 'package:pamine_mobile/model/livestream_model.dart';
 import 'package:pamine_mobile/widgets/chat.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
@@ -147,6 +149,44 @@ class _FeedState extends State<Feed> {
               height: heightVar / 1,
               child: _renderVideo(user),
             ),
+            StreamBuilder<dynamic>(
+                stream: FirebaseFirestore.instance
+                    .collection('livestream')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.none) {
+                    return const CircularProgressIndicator();
+                  }
+                  return Expanded(
+                    child: ListView.builder(
+                        itemCount: 1,
+                        itemBuilder: (context, index) {
+                          LiveStream post = LiveStream.fromMap(
+                              snapshot.data?.docs[index].data());
+                          return Center(
+                            child: Text(
+                              '${post.viewers} watching',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          );
+                        }),
+                  );
+                }),
+            Container(
+              alignment: Alignment.topRight,
+              margin: EdgeInsets.only(top: heightVar / 20),
+              padding: EdgeInsets.only(right: widthVar / 40),
+              child: IconButton(
+                onPressed: () {
+                  _leaveChannel();
+                },
+                icon: const Icon(
+                  Icons.exit_to_app,
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+            ),
             Row(
               children: [
                 Stack(
@@ -164,23 +204,22 @@ class _FeedState extends State<Feed> {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(
-                          top: heightVar / 1.24, left: widthVar / 2),
-                      child: Center(
-                        child: TextButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                const Color(0xFFC21010)),
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                              EdgeInsets.symmetric(
-                                  horizontal: widthVar / 12, vertical: 15),
-                            ),
+                      alignment: Alignment.bottomRight,
+                      margin: EdgeInsets.only(left: widthVar / 2),
+                      padding: EdgeInsets.only(bottom: heightVar / 34),
+                      child: TextButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              const Color(0xFFC21010)),
+                          padding: MaterialStateProperty.all<EdgeInsets>(
+                            EdgeInsets.symmetric(
+                                horizontal: widthVar / 12, vertical: 15),
                           ),
-                          onPressed: () {},
-                          child: const Text(
-                            'MINE',
-                            style: TextStyle(color: Colors.white),
-                          ),
+                        ),
+                        onPressed: () {},
+                        child: const Text(
+                          'MINE',
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                     ),

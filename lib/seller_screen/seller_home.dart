@@ -20,24 +20,17 @@ class _seller_screenState extends State<seller_home> {
   int currentIndex = 0;
   //contents
   static const List<Widget> _screens = <Widget>[
-    LiveStreamScreen(),
-    products(),
+    ProductPage(),
+    homePage(),
     notificationPage(),
     profile(),
     LiveStreamScreen(),
-    homePage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.red,
-          automaticallyImplyLeading: false,
-          title: const Center(
-            child: Text("Seller Home Screen"),
-          ),
-        ),
+        resizeToAvoidBottomInset: false,
         body: _screens[currentIndex],
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton(
@@ -83,9 +76,9 @@ class _seller_screenState extends State<seller_home> {
                 Material(
                   child: Center(
                     child: InkWell(
-                      focusColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
+                      focusColor: Colors.red,
+                      hoverColor: Colors.red,
+                      highlightColor: Colors.red,
                       onTap: () {
                         setState(() {
                           currentIndex = 1;
@@ -94,7 +87,7 @@ class _seller_screenState extends State<seller_home> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.shopping_cart),
+                          Icon(Icons.add),
                           Text("Products"),
                           //const Padding(padding: EdgeInsets.only(left: 10))
                         ],

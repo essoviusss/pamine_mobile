@@ -7,8 +7,15 @@ class homePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        automaticallyImplyLeading: false,
+        title: const Center(
+          child: Text("Seller Home Screen"),
+        ),
+      ),
+      body: const Center(
         child: Text('Seller Dashboard'),
       ),
     );

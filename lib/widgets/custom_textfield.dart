@@ -21,7 +21,7 @@ class CustomTextField extends StatelessWidget {
           prefixIcon: Icon(Icons.comment),
           hintText: 'Comments....',
           hintStyle: TextStyle(fontSize: 15.0, color: Colors.red),
-          contentPadding: EdgeInsets.all(0),
+          contentPadding: EdgeInsets.all(15),
           isDense: true,
           filled: true,
           fillColor: Color(0xffF7F5F2),

@@ -35,6 +35,7 @@ class _seller_verificationState extends State<seller_verification> {
   File? id;
   final idPicker = ImagePicker();
   final imagePicker = ImagePicker();
+  String? permitUrl, idUrl;
 
   //Image Picker
   Future imagePickerMethod() async {
@@ -72,11 +73,13 @@ class _seller_verificationState extends State<seller_verification> {
         .child("${authID?.uid}/images")
         .child("post_$postID");
     await ref.putFile(image!);
+    permitUrl = await ref.getDownloadURL();
     Reference ref1 = FirebaseStorage.instance
         .ref()
         .child("${authID?.uid}/images")
         .child("post1_$postID");
     await ref1.putFile(id!);
+    idUrl = await ref.getDownloadURL();
   }
 
   //Add
@@ -87,6 +90,7 @@ class _seller_verificationState extends State<seller_verification> {
   }
 
   addDetailsToFireStore() async {
+    await uploadImage();
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     User? user = _auth.currentUser;
 
@@ -100,6 +104,8 @@ class _seller_verificationState extends State<seller_verification> {
     addModel.permitExpDate = _dtiExpDateController.text;
     addModel.uid = user?.uid;
     addModel.status = "not verified";
+    addModel.permitUrl = permitUrl;
+    addModel.idUrl = idUrl;
 
     await firebaseFirestore
         .collection("seller_info")
@@ -423,7 +429,6 @@ class _seller_verificationState extends State<seller_verification> {
                 padding: const EdgeInsets.all(5.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    uploadImage();
                     addDetails();
                   },
                   child: const Text('Submit'),

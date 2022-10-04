@@ -68,16 +68,21 @@ class AddModel {
   String? permitExpDate;
   String? uid;
   String? status;
+  String? permitUrl;
+  String? idUrl;
 
-  AddModel(
-      {this.businessName,
-      this.phoneNumber,
-      this.address,
-      this.zipCode,
-      this.dtiCertNumber,
-      this.permitExpDate,
-      this.uid,
-      this.status});
+  AddModel({
+    this.businessName,
+    this.phoneNumber,
+    this.address,
+    this.zipCode,
+    this.dtiCertNumber,
+    this.permitExpDate,
+    this.uid,
+    this.status,
+    this.permitUrl,
+    this.idUrl,
+  });
 
   factory AddModel.fromMap(map) {
     return AddModel(
@@ -89,6 +94,8 @@ class AddModel {
       permitExpDate: map['permitExpDate'],
       uid: map['uid'],
       status: map['status'],
+      permitUrl: map['permitUrl'],
+      idUrl: map['idUrl'],
     );
   }
   Map<String, dynamic> toMap() {
@@ -101,6 +108,8 @@ class AddModel {
       'permitExpDate': permitExpDate,
       'uid': uid,
       'status': status,
+      'permitUrl': permitUrl,
+      'idUrl': idUrl,
     };
   }
 }

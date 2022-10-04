@@ -28,13 +28,6 @@ class _home_screenState extends State<home_screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFC21010),
-        automaticallyImplyLeading: false,
-        title: const Center(
-          child: Text("Buyer Home Screen"),
-        ),
-      ),
       body: _screens[currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,

@@ -18,6 +18,7 @@ import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:http/http.dart' as http;
 
 import '../../methods/firestore_methods.dart';
+import '../../model/product_model.dart';
 import '../../provider/user_provider.dart';
 
 class BroadcastScreen extends StatefulWidget {
@@ -143,7 +144,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   }
 
   _leaveChannel() async {
-    await _engine.leaveChannel(); //error
+    await _engine.leaveChannel();
     if (FirebaseAuth.instance.currentUser!.uid == widget.channelId) {
       await FirestoreMethods().endLiveStream(widget.channelId);
     } else {
@@ -182,7 +183,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                         itemCount: 1,
                         itemBuilder: (context, index) {
                           LiveStream post = LiveStream.fromMap(
-                              snapshot.data.docs[index].data());
+                              snapshot.data?.docs[index].data());
                           return Center(
                             child: Text(
                               '${post.viewers} watching',
@@ -192,6 +193,21 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                         }),
                   );
                 }),
+            Container(
+              alignment: Alignment.topRight,
+              margin: EdgeInsets.only(top: heightVar / 20),
+              padding: EdgeInsets.only(right: widthVar / 40),
+              child: IconButton(
+                onPressed: () {
+                  _leaveChannel();
+                },
+                icon: const Icon(
+                  Icons.exit_to_app,
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+            ),
             Row(
               children: [
                 Stack(
@@ -211,10 +227,10 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                     if (FirebaseAuth.instance.currentUser!.uid ==
                         widget.channelId)
                       Container(
-                        margin: EdgeInsets.only(
-                            top: heightVar / 1.09, left: widthVar / 2),
-                        child: Wrap(
-                          spacing: 20,
+                        alignment: Alignment.bottomRight,
+                        padding: EdgeInsets.only(bottom: heightVar / 27),
+                        margin: EdgeInsets.only(left: widthVar / 2),
+                        child: Row(
                           children: [
                             InkWell(
                               onTap: _switchCamera,
@@ -222,6 +238,11 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                 Icons.cameraswitch,
                                 color: Colors.white,
                                 size: 40,
+                              ),
+                            ),
+                            SizedBox(
+                              child: Padding(
+                                padding: EdgeInsets.only(right: widthVar / 20),
                               ),
                             ),
                             InkWell(
@@ -232,6 +253,196 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                 size: 40,
                               ),
                             ),
+                            SizedBox(
+                              child: Padding(
+                                padding: EdgeInsets.only(right: widthVar / 20),
+                              ),
+                            ),
+                            InkWell(
+                              child: const Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                              onTap: () {
+                                showModalBottomSheet<void>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                      color: Colors.white,
+                                      height: heightVar / 2,
+                                      child: Center(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            SizedBox(
+                                              child: Padding(
+                                                  padding: EdgeInsets.only(
+                                                      top: heightVar / 60)),
+                                            ),
+                                            Stack(
+                                              children: [
+                                                const Center(
+                                                  child: Text(
+                                                    "Pin a product",
+                                                    style: TextStyle(
+                                                        color: Colors.red,
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  alignment: Alignment.topRight,
+                                                  child: IconButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(context),
+                                                    icon: const Icon(
+                                                        Icons.cancel),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              child: Padding(
+                                                  padding: EdgeInsets.only(
+                                                      top: heightVar / 60)),
+                                            ),
+                                            StreamBuilder<dynamic>(
+                                              stream: FirebaseFirestore.instance
+                                                  .collection('seller_info')
+                                                  .doc(FirebaseAuth.instance
+                                                      .currentUser!.uid)
+                                                  .collection("products")
+                                                  .snapshots(),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  return const CircularProgressIndicator();
+                                                }
+                                                return Expanded(
+                                                  child: GridView.builder(
+                                                    gridDelegate:
+                                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                                      childAspectRatio:
+                                                          ((widthVar / 2.2) /
+                                                              (heightVar /
+                                                                  3.8)),
+                                                      crossAxisCount: 2,
+                                                      mainAxisSpacing: 5,
+                                                      crossAxisSpacing: 5,
+                                                    ),
+                                                    shrinkWrap: true,
+                                                    itemCount: snapshot
+                                                        .data.docs.length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      Products post =
+                                                          Products.fromMap(
+                                                              snapshot.data
+                                                                  .docs[index]
+                                                                  .data());
+
+                                                      return Card(
+                                                        child: Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            border: Border.all(
+                                                                width: 3.0,
+                                                                color: Colors
+                                                                    .grey
+                                                                    .shade300),
+                                                            borderRadius:
+                                                                const BorderRadius
+                                                                        .all(
+                                                                    Radius.circular(
+                                                                        5.0)),
+                                                          ),
+                                                          child: Stack(
+                                                            children: [
+                                                              Column(
+                                                                children: [
+                                                                  Column(
+                                                                    children: [
+                                                                      AspectRatio(
+                                                                        aspectRatio:
+                                                                            1 / 1,
+                                                                        child: Image.network(
+                                                                            post.productImageUrl!),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        child: Padding(
+                                                                            padding:
+                                                                                EdgeInsets.only(top: heightVar / 99)),
+                                                                      ),
+                                                                      Text(
+                                                                        post.productName!,
+                                                                        style: const TextStyle(
+                                                                            color: Colors
+                                                                                .black,
+                                                                            fontSize:
+                                                                                20,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      ),
+                                                                      Text(
+                                                                          post
+                                                                              .productPrice!,
+                                                                          style: const TextStyle(
+                                                                              color: Colors.black,
+                                                                              fontSize: 15,
+                                                                              fontWeight: FontWeight.bold)),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Container(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        0.3),
+                                                                child: Column(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .center,
+                                                                  children: [
+                                                                    Center(
+                                                                      child:
+                                                                          IconButton(
+                                                                        splashColor:
+                                                                            Colors.blue,
+                                                                        icon: const Icon(
+                                                                            Icons.add),
+                                                                        iconSize:
+                                                                            60,
+                                                                        color: Colors
+                                                                            .red,
+                                                                        onPressed:
+                                                                            () {},
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            )
                           ],
                         ),
                       ),
