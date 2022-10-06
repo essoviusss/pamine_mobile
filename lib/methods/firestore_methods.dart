@@ -61,6 +61,12 @@ class FirestoreMethods {
     return channelId!;
   }
 
+  //To do later.....
+  //pinned product method
+  //get data from group collection products
+  //store data to livestream sub collection named pinned product
+  //Walang matutulog pag di nagawa
+
   Future<void> chat(String text, String id, BuildContext context) async {
     CollectionReference userBuyer =
         FirebaseFirestore.instance.collection('users');

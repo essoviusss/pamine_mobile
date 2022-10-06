@@ -20,3 +20,4 @@ class StorageMethods {
     return downloadUrl;
   }
 }
+

@@ -4,6 +4,7 @@ class Products {
   String? productPrice;
   String? productDescription;
   String? productImageUrl;
+  String? productStatus;
 
   Products({
     this.productName,
@@ -11,6 +12,7 @@ class Products {
     this.productPrice,
     this.productDescription,
     this.productImageUrl,
+    this.productStatus,
   });
 
   factory Products.fromMap(map) {
@@ -20,6 +22,7 @@ class Products {
       productPrice: map["productPrice"],
       productDescription: map["productDescription"],
       productImageUrl: map["productImageUrl"],
+      productStatus: map['productStatus'],
     );
   }
   //send
@@ -30,6 +33,7 @@ class Products {
       "productPrice": productPrice,
       "productDescription": productDescription,
       "productImageUrl": productImageUrl,
+      "productStatus": productStatus,
     };
   }
 }

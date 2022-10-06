@@ -78,6 +78,7 @@ class _AddProductsState extends State<AddProducts> {
     products.productPrice = productPriceController.text;
     products.productDescription = productDescriptionController.text;
     products.productImageUrl = downloadUrl!;
+    products.productStatus = "none";
 
     await firebaseFirestore
         .collection("seller_info")
