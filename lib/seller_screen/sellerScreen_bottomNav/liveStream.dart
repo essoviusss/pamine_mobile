@@ -79,6 +79,13 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
         dividerColor: Colors.transparent,
       ),
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.red,
+          automaticallyImplyLeading: false,
+          title: const Center(
+            child: Text("Start Livestreaming"),
+          ),
+        ),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0),

@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/buyer_screen/home_screen.dart';
 import 'package:pamine_mobile/config/appId.dart';
 import 'package:http/http.dart' as http;
@@ -132,11 +133,30 @@ class _FeedState extends State<Feed> {
         ));
   }
 
+  Future<void> updateProduct() async {
+    CollectionReference products = FirebaseFirestore.instance
+        .collection("seller_info")
+        .doc(widget.channelId)
+        .collection("products");
+
+    return products.doc().update({
+      "productStatus": "mined",
+    }).then((value) {
+      Fluttertoast.showToast(msg: "Product Info Updated");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
     final user = Provider.of<GoogleProvider>(context).user;
+    String? productName,
+        productCategory,
+        productPrice,
+        productDescription,
+        productImageUrl;
+    bool? isPinned;
     return WillPopScope(
       onWillPop: () async {
         await _leaveChannel();
@@ -172,26 +192,102 @@ class _FeedState extends State<Feed> {
                         }),
                   );
                 }),
-            Container(
-              alignment: Alignment.topRight,
-              margin: EdgeInsets.only(top: heightVar / 20),
-              padding: EdgeInsets.only(right: widthVar / 40),
-              child: IconButton(
-                onPressed: () {
-                  _leaveChannel();
-                },
-                icon: const Icon(
-                  Icons.exit_to_app,
-                  color: Colors.white,
-                  size: 40,
+            Wrap(
+              spacing: widthVar / 8,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(top: heightVar / 15),
+                  padding: EdgeInsets.only(left: widthVar / 40),
+                  child: StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection("livestream")
+                          .doc(widget.channelId)
+                          .collection("pinned_item")
+                          .doc("pinnedItem")
+                          .snapshots(),
+                      builder:
+                          (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.none) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (!snapshot.data!.exists) {
+                          return SizedBox(
+                            width: widthVar / 1.5,
+                            child: const Text(""),
+                          );
+                        }
+                        isPinned = !snapshot.data!.exists;
+                        productName = snapshot.data?['productName'];
+                        productCategory = snapshot.data?['productCategory'];
+                        productPrice = snapshot.data?['productPrice'];
+                        productDescription =
+                            snapshot.data?['productDescription'];
+                        productImageUrl = snapshot.data?['productImageUrl'];
+                        return Container(
+                          height: heightVar / 30,
+                          color: Colors.purple.withOpacity(0.6),
+                          child: Container(
+                            alignment: Alignment.center,
+                            width: widthVar / 1.5,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  Wrap(
+                                    spacing: 20,
+                                    children: [
+                                      Text(
+                                        "Product: ${snapshot.data?['productName']}",
+                                        style: const TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.white,
+                                            fontStyle: FontStyle.italic),
+                                      ),
+                                      Text(
+                                        "Price: ₱${snapshot.data?['productPrice']}",
+                                        style: const TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.white,
+                                            fontStyle: FontStyle.italic),
+                                      ),
+                                      Text(
+                                        "Category: ${snapshot.data?['productCategory']}",
+                                        style: const TextStyle(
+                                            fontSize: 15,
+                                            color: Colors.white,
+                                            fontStyle: FontStyle.italic),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
                 ),
-              ),
+                Container(
+                  margin: EdgeInsets.only(top: heightVar / 20),
+                  padding: EdgeInsets.only(right: widthVar / 40),
+                  child: IconButton(
+                    onPressed: () {
+                      _leaveChannel();
+                    },
+                    icon: const Icon(
+                      Icons.exit_to_app,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                ),
+              ],
             ),
             Row(
               children: [
                 Stack(
                   children: [
                     BottomAppBar(
+                      elevation: 0,
                       color: Colors.transparent,
                       child: Container(
                         width: widthVar / 1.5,
@@ -203,25 +299,133 @@ class _FeedState extends State<Feed> {
                         ),
                       ),
                     ),
-                    Container(
-                      alignment: Alignment.bottomRight,
-                      margin: EdgeInsets.only(left: widthVar / 2),
-                      padding: EdgeInsets.only(bottom: heightVar / 34),
-                      child: TextButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              const Color(0xFFC21010)),
-                          padding: MaterialStateProperty.all<EdgeInsets>(
-                            EdgeInsets.symmetric(
-                                horizontal: widthVar / 12, vertical: 15),
-                          ),
-                        ),
-                        onPressed: () {},
-                        child: const Text(
-                          'MINE',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
+                    StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection("livestream")
+                          .doc(widget.channelId)
+                          .collection("pinned_item")
+                          .doc("pinnedItem")
+                          .snapshots(),
+                      builder:
+                          (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        if (snapshot.data!.exists) {
+                          return Row(
+                            children: [
+                              Container(
+                                alignment: Alignment.bottomRight,
+                                margin: EdgeInsets.only(left: widthVar / 2),
+                                padding:
+                                    EdgeInsets.only(bottom: heightVar / 34),
+                                child: TextButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            const Color(0xFFC21010)),
+                                    padding:
+                                        MaterialStateProperty.all<EdgeInsets>(
+                                      EdgeInsets.symmetric(
+                                          horizontal: widthVar / 12,
+                                          vertical: 15),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    CollectionReference getPinnedProd =
+                                        FirebaseFirestore.instance
+                                            .collection("buyer_info");
+
+                                    getPinnedProd
+                                        .doc(FirebaseAuth
+                                            .instance.currentUser!.uid)
+                                        .collection("mined_products")
+                                        .doc()
+                                        .set(
+                                      {
+                                        "productName": productName,
+                                        "productCategory": productCategory,
+                                        "productPrice": productPrice,
+                                        "productDescription":
+                                            productDescription,
+                                        "productImageUrl": productImageUrl,
+                                        "productStatus": "mined",
+                                      },
+                                    ).then(
+                                      (value) {
+                                        FirebaseFirestore.instance
+                                            .collection("livestream")
+                                            .doc(widget.channelId)
+                                            .collection("pinned_item")
+                                            .doc("pinnedItem")
+                                            .delete();
+                                        Fluttertoast.showToast(
+                                            msg: "The product is yours!!");
+                                      },
+                                    );
+                                  },
+                                  child: const Text(
+                                    'MINE',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                alignment: Alignment.bottomRight,
+                                padding:
+                                    EdgeInsets.only(bottom: heightVar / 25),
+                                child: IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(
+                                    Icons.shopping_bag,
+                                    color: Colors.white,
+                                    size: 50,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Row(
+                            children: [
+                              Container(
+                                alignment: Alignment.bottomRight,
+                                margin: EdgeInsets.only(left: widthVar / 2),
+                                padding:
+                                    EdgeInsets.only(bottom: heightVar / 34),
+                                child: TextButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colors.grey),
+                                    padding:
+                                        MaterialStateProperty.all<EdgeInsets>(
+                                      EdgeInsets.symmetric(
+                                          horizontal: widthVar / 12,
+                                          vertical: 15),
+                                    ),
+                                  ),
+                                  onPressed: null,
+                                  child: const Text(
+                                    'MINE',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                alignment: Alignment.bottomRight,
+                                padding:
+                                    EdgeInsets.only(bottom: heightVar / 25),
+                                child: IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(
+                                    Icons.shopping_bag,
+                                    color: Colors.white,
+                                    size: 50,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                      },
                     ),
                   ],
                 )
