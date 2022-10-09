@@ -1,8 +1,10 @@
 // ignore_for_file: use_build_context_synchronously, prefer_interpolation_to_compose_strings
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -13,6 +15,7 @@ import 'package:pamine_mobile/config/appId.dart';
 import 'package:http/http.dart' as http;
 import 'package:pamine_mobile/methods/firestore_methods.dart';
 import 'package:pamine_mobile/model/livestream_model.dart';
+import 'package:pamine_mobile/model/product_model.dart';
 import 'package:pamine_mobile/widgets/chat.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
@@ -35,6 +38,7 @@ class Feed extends StatefulWidget {
 }
 
 class _FeedState extends State<Feed> {
+  bool isClicked = true;
   late final RtcEngine _engine;
   List<int> remoteUid = [];
 
@@ -131,19 +135,6 @@ class _FeedState extends State<Feed> {
         MaterialPageRoute(
           builder: (context) => const home_screen(),
         ));
-  }
-
-  Future<void> updateProduct() async {
-    CollectionReference products = FirebaseFirestore.instance
-        .collection("seller_info")
-        .doc(widget.channelId)
-        .collection("products");
-
-    return products.doc().update({
-      "productStatus": "mined",
-    }).then((value) {
-      Fluttertoast.showToast(msg: "Product Info Updated");
-    });
   }
 
   @override
@@ -308,7 +299,8 @@ class _FeedState extends State<Feed> {
                           .snapshots(),
                       builder:
                           (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                        if (snapshot.data!.exists) {
+                        bool isPinned = snapshot.data!.exists;
+                        if (isPinned) {
                           return Row(
                             children: [
                               Container(
@@ -329,37 +321,47 @@ class _FeedState extends State<Feed> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    CollectionReference getPinnedProd =
-                                        FirebaseFirestore.instance
-                                            .collection("buyer_info");
+                                    if (isClicked) {
+                                      setState(() {
+                                        isClicked = false;
+                                      });
+                                      CollectionReference getPinnedProd =
+                                          FirebaseFirestore.instance
+                                              .collection("buyer_info");
 
-                                    getPinnedProd
-                                        .doc(FirebaseAuth
-                                            .instance.currentUser!.uid)
-                                        .collection("mined_products")
-                                        .doc()
-                                        .set(
-                                      {
-                                        "productName": productName,
-                                        "productCategory": productCategory,
-                                        "productPrice": productPrice,
-                                        "productDescription":
-                                            productDescription,
-                                        "productImageUrl": productImageUrl,
-                                        "productStatus": "mined",
-                                      },
-                                    ).then(
-                                      (value) {
-                                        FirebaseFirestore.instance
-                                            .collection("livestream")
-                                            .doc(widget.channelId)
-                                            .collection("pinned_item")
-                                            .doc("pinnedItem")
-                                            .delete();
-                                        Fluttertoast.showToast(
-                                            msg: "The product is yours!!");
-                                      },
-                                    );
+                                      getPinnedProd
+                                          .doc(FirebaseAuth
+                                              .instance.currentUser!.uid)
+                                          .collection("mined_products")
+                                          .doc()
+                                          .set(
+                                        {
+                                          "productName": productName,
+                                          "productCategory": productCategory,
+                                          "productPrice": productPrice,
+                                          "productDescription":
+                                              productDescription,
+                                          "productImageUrl": productImageUrl,
+                                          "productStatus": "mined",
+                                        },
+                                      ).then(
+                                        (value) {
+                                          FirebaseFirestore.instance
+                                              .collection("livestream")
+                                              .doc(widget.channelId)
+                                              .collection("pinned_item")
+                                              .doc("pinnedItem")
+                                              .delete();
+                                          Fluttertoast.showToast(
+                                              msg: "The product is yours!!");
+                                        },
+                                      );
+                                    }
+                                    Timer(const Duration(seconds: 3), () {
+                                      setState(() {
+                                        isClicked = true;
+                                      });
+                                    });
                                   },
                                   child: const Text(
                                     'MINE',
@@ -371,13 +373,32 @@ class _FeedState extends State<Feed> {
                                 alignment: Alignment.bottomRight,
                                 padding:
                                     EdgeInsets.only(bottom: heightVar / 25),
-                                child: IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.shopping_bag,
-                                    color: Colors.white,
-                                    size: 50,
-                                  ),
+                                child: StreamBuilder(
+                                  stream: FirebaseFirestore.instance
+                                      .collection("buyer_info")
+                                      .doc(FirebaseAuth
+                                          .instance.currentUser!.uid)
+                                      .collection("mined_products")
+                                      .snapshots(),
+                                  builder: (context,
+                                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                                    int count =
+                                        snapshot.data!.docChanges.length;
+
+                                    return Badge(
+                                      animationDuration:
+                                          const Duration(seconds: 1),
+                                      badgeContent: Text('$count'),
+                                      child: IconButton(
+                                        onPressed: () {},
+                                        icon: const Icon(
+                                          Icons.shopping_bag,
+                                          color: Colors.white,
+                                          size: 50,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                             ],
@@ -409,16 +430,170 @@ class _FeedState extends State<Feed> {
                                   ),
                                 ),
                               ),
+                              SizedBox(
+                                child: Padding(
+                                    padding:
+                                        EdgeInsets.only(right: widthVar / 50)),
+                              ),
                               Container(
                                 alignment: Alignment.bottomRight,
                                 padding:
-                                    EdgeInsets.only(bottom: heightVar / 25),
-                                child: IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.shopping_bag,
-                                    color: Colors.white,
-                                    size: 50,
+                                    EdgeInsets.only(bottom: heightVar / 34),
+                                child: InkWell(
+                                  onTap: () {
+                                    showModalBottomSheet<void>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return Container(
+                                          height: heightVar / 2,
+                                          color: Colors.white,
+                                          child: Center(
+                                            child: Column(
+                                              children: [
+                                                SizedBox(
+                                                  child: Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: heightVar / 60),
+                                                  ),
+                                                ),
+                                                const Text(
+                                                  'Mined Items',
+                                                  style: TextStyle(
+                                                      color: Colors.red,
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                SizedBox(
+                                                  child: Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: heightVar / 60),
+                                                  ),
+                                                ),
+                                                StreamBuilder<dynamic>(
+                                                  stream: FirebaseFirestore
+                                                      .instance
+                                                      .collection('buyer_info')
+                                                      .doc(FirebaseAuth.instance
+                                                          .currentUser!.uid)
+                                                      .collection(
+                                                          "mined_products")
+                                                      .snapshots(),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot
+                                                            .connectionState ==
+                                                        ConnectionState
+                                                            .waiting) {
+                                                      return const CircularProgressIndicator();
+                                                    }
+                                                    return Expanded(
+                                                      child: GridView.builder(
+                                                        gridDelegate:
+                                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                                          childAspectRatio:
+                                                              ((widthVar /
+                                                                      2.2) /
+                                                                  (heightVar /
+                                                                      3.8)),
+                                                          crossAxisCount: 2,
+                                                          mainAxisSpacing: 5,
+                                                          crossAxisSpacing: 5,
+                                                        ),
+                                                        shrinkWrap: true,
+                                                        itemCount: snapshot
+                                                            .data.docs.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          Products post =
+                                                              Products.fromMap(
+                                                                  snapshot
+                                                                      .data
+                                                                      .docs[
+                                                                          index]
+                                                                      .data());
+                                                          return Card(
+                                                            child: Container(
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                border: Border.all(
+                                                                    width: 3.0,
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade300),
+                                                                borderRadius:
+                                                                    const BorderRadius
+                                                                            .all(
+                                                                        Radius.circular(
+                                                                            5.0)),
+                                                              ),
+                                                              child: Stack(
+                                                                children: [
+                                                                  Column(
+                                                                    children: [
+                                                                      Column(
+                                                                        children: [
+                                                                          AspectRatio(
+                                                                            aspectRatio:
+                                                                                1 / 1,
+                                                                            child:
+                                                                                Image.network(post.productImageUrl!),
+                                                                          ),
+                                                                          SizedBox(
+                                                                            child:
+                                                                                Padding(padding: EdgeInsets.only(top: heightVar / 99)),
+                                                                          ),
+                                                                          Text(
+                                                                            post.productName!,
+                                                                            style: const TextStyle(
+                                                                                color: Colors.black,
+                                                                                fontSize: 20,
+                                                                                fontWeight: FontWeight.bold),
+                                                                          ),
+                                                                          Text(
+                                                                              post.productPrice!,
+                                                                              style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: StreamBuilder(
+                                    stream: FirebaseFirestore.instance
+                                        .collection("buyer_info")
+                                        .doc(FirebaseAuth
+                                            .instance.currentUser!.uid)
+                                        .collection("mined_products")
+                                        .snapshots(),
+                                    builder: (context,
+                                        AsyncSnapshot<QuerySnapshot> snapshot) {
+                                      int count = snapshot.data!.docs.length;
+
+                                      return Badge(
+                                        animationDuration:
+                                            const Duration(seconds: 1),
+                                        badgeContent: Text('$count'),
+                                        child: const Icon(
+                                          Icons.shopping_bag,
+                                          color: Colors.white,
+                                          size: 55,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                               ),

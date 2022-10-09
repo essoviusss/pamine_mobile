@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/model/product_model.dart';
 
 class ProductList extends StatefulWidget {
@@ -11,6 +12,10 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
+  CollectionReference prod = FirebaseFirestore.instance
+      .collection("seller_info")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .collection("products");
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -21,11 +26,7 @@ class _ProductListState extends State<ProductList> {
         children: [
           SizedBox(height: size.height * 0.03),
           StreamBuilder<dynamic>(
-            stream: FirebaseFirestore.instance
-                .collection('seller_info')
-                .doc(FirebaseAuth.instance.currentUser!.uid)
-                .collection("products")
-                .snapshots(),
+            stream: prod.snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
@@ -103,7 +104,12 @@ class _ProductListState extends State<ProductList> {
                                   IconButton(
                                     icon: const Icon(Icons.delete),
                                     color: Colors.red,
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      prod.doc().delete().then((value) {
+                                        Fluttertoast.showToast(
+                                            msg: "Product Deleted");
+                                      });
+                                    },
                                   ),
                                 ],
                               ),

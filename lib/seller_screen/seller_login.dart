@@ -1,13 +1,13 @@
-// ignore_for_file: avoid_print, duplicate_ignore, camel_case_types, no_leading_underscores_for_local_identifiers, use_build_context_synchronously
+// ignore_for_file: avoid_print, duplicate_ignore, camel_case_types, no_leading_underscores_for_local_identifiers, use_build_context_synchronously, depend_on_referenced_packages
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pamine_mobile/controllers/approval_controller.dart';
 import 'package:pamine_mobile/model/seller_user_model.dart';
-import 'package:pamine_mobile/seller_screen/seller_verification.dart';
 import 'seller_signup.dart';
 
 class seller_login extends StatefulWidget {
