@@ -606,7 +606,7 @@ class _FeedState extends State<Feed> {
                                                       color: Colors.white),
                                                 )
                                               : const Text(
-                                                  'GRAB',
+                                                  'CONFIRM',
                                                   style: TextStyle(
                                                       color: Colors.white),
                                                 ),
