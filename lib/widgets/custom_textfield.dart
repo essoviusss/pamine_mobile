@@ -14,7 +14,10 @@ class CustomTextField extends StatelessWidget {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
     return Container(
-      padding: EdgeInsets.only(right: widthVar / 5, left: 10),
+      alignment: Alignment.center,
+      width: widthVar / 2.2,
+      height: heightVar / 16,
+      padding: EdgeInsets.only(right: widthVar / 50, left: widthVar / 60),
       child: TextField(
         textInputAction: TextInputAction.done,
         decoration: const InputDecoration(

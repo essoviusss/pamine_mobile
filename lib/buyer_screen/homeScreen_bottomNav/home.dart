@@ -95,7 +95,7 @@ class _homePageState extends State<homePage> {
                                             height: heightVar / 5,
                                             width: widthVar / 2.2,
                                             child: AspectRatio(
-                                              aspectRatio: 16 / 9,
+                                              aspectRatio: 1 / 1,
                                               child: Image.network(
                                                 post.image,
                                               ),

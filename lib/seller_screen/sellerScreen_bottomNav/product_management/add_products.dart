@@ -11,8 +11,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pamine_mobile/model/product_model.dart';
 import 'package:pamine_mobile/seller_screen/seller_home.dart';
 
-import '../../../utils/utils.dart';
-
 class AddProducts extends StatefulWidget {
   const AddProducts({super.key});
 
@@ -27,6 +25,8 @@ class _AddProductsState extends State<AddProducts> {
   final TextEditingController productCategoryController =
       TextEditingController();
   final TextEditingController productPriceController = TextEditingController();
+  final TextEditingController productQuantityController =
+      TextEditingController();
   final TextEditingController productDescriptionController =
       TextEditingController();
 
@@ -76,6 +76,7 @@ class _AddProductsState extends State<AddProducts> {
     products.productName = productNameController.text;
     products.productCategory = productCategoryController.text;
     products.productPrice = productPriceController.text;
+    products.productQuantity = productQuantityController.text;
     products.productDescription = productDescriptionController.text;
     products.productImageUrl = downloadUrl!;
     products.productStatus = "none";
@@ -209,6 +210,36 @@ class _AddProductsState extends State<AddProducts> {
                     },
                     decoration: InputDecoration(
                       hintText: "Product Price (PHP)",
+                      hintStyle:
+                          TextStyle(fontSize: 15.0, color: Colors.red.shade300),
+                      contentPadding: const EdgeInsets.all(15),
+                      isDense: true,
+                      filled: true,
+                      fillColor: const Color.fromARGB(255, 229, 229, 229),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            const BorderSide(width: 0, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: widthVar / 15, vertical: 0),
+                  margin: EdgeInsets.only(top: heigthVar / 80),
+                  child: TextFormField(
+                    controller: productQuantityController,
+                    textInputAction: TextInputAction.next,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return ("Field Required");
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      hintText: "Product Quantity",
                       hintStyle:
                           TextStyle(fontSize: 15.0, color: Colors.red.shade300),
                       contentPadding: const EdgeInsets.all(15),

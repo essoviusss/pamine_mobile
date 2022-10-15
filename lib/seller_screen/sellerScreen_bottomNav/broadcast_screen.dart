@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, must_be_immutable, prefer_interpolation_to_compose_strings
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
@@ -21,6 +22,7 @@ import 'package:http/http.dart' as http;
 import '../../methods/firestore_methods.dart';
 import '../../model/product_model.dart';
 import '../../provider/user_provider.dart';
+import '../../widgets/custom_textfield.dart';
 
 class BroadcastScreen extends StatefulWidget {
   bool? isBroadcaster = true;
@@ -154,55 +156,24 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     Navigator.pushReplacementNamed(context, seller_home.id);
   }
 
-  pinProduct() async {
-    String? productName;
-    String? productCategory;
-    String? productPrice;
-    String? productDescription;
-    String? productImageUrl;
+  final TextEditingController _chatController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  bool _needsScroll = false;
 
-    CollectionReference sellerProducts = FirebaseFirestore.instance
-        .collection('seller_info')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('products');
-
-    await sellerProducts.doc().get().then((DocumentSnapshot documentSnapshot) {
-      if (!documentSnapshot.exists) {
-        return Fluttertoast.showToast(
-            msg: 'Document data: ${documentSnapshot.data()}');
-      } else {
-        productName = documentSnapshot['productName'];
-        productCategory = documentSnapshot['productCategory'];
-        productPrice = documentSnapshot['productPrice'];
-        productDescription = documentSnapshot['productDescription'];
-        productImageUrl = documentSnapshot['productImageUrl'];
-
-        CollectionReference pinProd =
-            FirebaseFirestore.instance.collection("livestream");
-
-        return pinProd
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection("pinned_item")
-            .doc()
-            .set({
-          "productName": productName,
-          "productCategory": productCategory,
-          "productPrice": productPrice,
-          "productDescription": productDescription,
-          "productImageUrl": productImageUrl,
-        }).then((value) {
-          Fluttertoast.showToast(msg: "Product Pinned");
-          Navigator.pop(context);
-        });
-      }
-    });
+  @override
+  void dispose() {
+    _chatController.dispose();
+    super.dispose();
   }
+
+  final ScrollController _myController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
     final user = Provider.of<GoogleProvider>(context).user;
+    final size = MediaQuery.of(context).size;
     return WillPopScope(
       onWillPop: () async {
         await _leaveChannel();
@@ -325,303 +296,404 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
               children: [
                 Stack(
                   children: [
+                    //chat
                     BottomAppBar(
                       elevation: 0,
                       color: Colors.transparent,
                       child: Container(
-                        width: widthVar / 1.5,
+                        width: widthVar / 1,
                         margin: EdgeInsets.only(top: heightVar / 2.2),
                         color: Colors.transparent,
                         height: heightVar / 2,
-                        child: Chat(
-                          channelId: widget.channelId,
-                        ),
-                      ),
-                    ),
-                    if (FirebaseAuth.instance.currentUser!.uid ==
-                        widget.channelId)
-                      Container(
-                        alignment: Alignment.bottomRight,
-                        padding: EdgeInsets.only(bottom: heightVar / 27),
-                        margin: EdgeInsets.only(left: widthVar / 2),
-                        child: Row(
-                          children: [
-                            InkWell(
-                              onTap: _switchCamera,
-                              child: const Icon(
-                                Icons.cameraswitch,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ),
-                            SizedBox(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: widthVar / 20),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: onToggleMute,
-                              child: Icon(
-                                isMuted ? Icons.mic_off : Icons.mic_none,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ),
-                            SizedBox(
-                              child: Padding(
-                                padding: EdgeInsets.only(right: widthVar / 20),
-                              ),
-                            ),
-                            InkWell(
-                              child: const Icon(
-                                Icons.add,
-                                color: Colors.blue,
-                                size: 40,
-                              ),
-                              onTap: () {
-                                showModalBottomSheet<void>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return Container(
-                                      color: Colors.white,
-                                      height: heightVar / 2,
-                                      child: Center(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            SizedBox(
-                                              child: Padding(
-                                                padding: EdgeInsets.only(
-                                                    top: heightVar / 60),
-                                              ),
+                        child: SizedBox(
+                          width: size.width > 600
+                              ? size.width * 0.25
+                              : double.infinity,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: StreamBuilder<dynamic>(
+                                  stream: FirebaseFirestore.instance
+                                      .collection('livestream')
+                                      .doc(widget.channelId)
+                                      .collection('comments')
+                                      .orderBy('createdAt', descending: false)
+                                      .snapshots(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.none) {
+                                      return const CircularProgressIndicator();
+                                    }
+                                    Timer(
+                                        const Duration(milliseconds: 500),
+                                        () => _myController.jumpTo(_myController
+                                            .position.maxScrollExtent));
+                                    return ListView.builder(
+                                      controller: _myController,
+                                      itemCount: snapshot.data.docs.length,
+                                      itemBuilder: (context, index) =>
+                                          Container(
+                                        margin: EdgeInsets.only(
+                                            top: 8, right: widthVar / 2),
+                                        decoration: BoxDecoration(
+                                            color: Colors.grey.withOpacity(0.1),
+                                            border: Border.all(
+                                                color: Colors.transparent,
+                                                width: 3.0),
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(10.0)),
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                  blurRadius: 10,
+                                                  color: Colors.transparent,
+                                                  offset: Offset(1, 3))
+                                            ]),
+                                        child: ListTile(
+                                          dense: true,
+                                          contentPadding: const EdgeInsets.only(
+                                              left: 10,
+                                              right: 0.0,
+                                              top: 0,
+                                              bottom: 10),
+                                          visualDensity: const VisualDensity(
+                                              horizontal: 0, vertical: -4),
+                                          title: Text(
+                                            snapshot.data.docs[index]
+                                                ['username'],
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: snapshot.data.docs[index]
+                                                          ['uid'] ==
+                                                      FirebaseAuth.instance
+                                                          .currentUser!.uid
+                                                  ? const Color.fromARGB(
+                                                      255, 99, 9, 3)
+                                                  : Colors.blue,
                                             ),
-                                            Stack(
-                                              children: [
-                                                const Center(
-                                                  child: Text(
-                                                    "Pin a product",
-                                                    style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  alignment: Alignment.topRight,
-                                                  child: IconButton(
-                                                    onPressed: () =>
-                                                        Navigator.pop(context),
-                                                    icon: const Icon(
-                                                        Icons.cancel),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(
-                                              child: Padding(
-                                                padding: EdgeInsets.only(
-                                                    top: heightVar / 60),
-                                              ),
-                                            ),
-                                            StreamBuilder<dynamic>(
-                                              stream: FirebaseFirestore.instance
-                                                  .collection('seller_info')
-                                                  .doc(FirebaseAuth.instance
-                                                      .currentUser!.uid)
-                                                  .collection("products")
-                                                  .snapshots(),
-                                              builder: (context, snapshot) {
-                                                if (snapshot.connectionState ==
-                                                    ConnectionState.waiting) {
-                                                  return const CircularProgressIndicator();
-                                                }
-                                                return Expanded(
-                                                  child: GridView.builder(
-                                                    gridDelegate:
-                                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                                      childAspectRatio:
-                                                          ((widthVar / 2.2) /
-                                                              (heightVar /
-                                                                  3.8)),
-                                                      crossAxisCount: 2,
-                                                      mainAxisSpacing: 5,
-                                                      crossAxisSpacing: 5,
-                                                    ),
-                                                    shrinkWrap: true,
-                                                    itemCount: snapshot
-                                                        .data.docs.length,
-                                                    itemBuilder:
-                                                        (context, index) {
-                                                      Products post =
-                                                          Products.fromMap(
-                                                              snapshot.data
-                                                                  .docs[index]
-                                                                  .data());
-
-                                                      return InkWell(
-                                                        onTap: () {
-                                                          CollectionReference
-                                                              pinProd =
-                                                              FirebaseFirestore
-                                                                  .instance
-                                                                  .collection(
-                                                                      "livestream");
-
-                                                          pinProd
-                                                              .doc(FirebaseAuth
-                                                                  .instance
-                                                                  .currentUser!
-                                                                  .uid)
-                                                              .collection(
-                                                                  "pinned_item")
-                                                              .doc("pinnedItem")
-                                                              .set(
-                                                            {
-                                                              "productName": post
-                                                                  .productName,
-                                                              "productCategory":
-                                                                  post.productCategory,
-                                                              "productPrice": post
-                                                                  .productPrice,
-                                                              "productDescription":
-                                                                  post.productDescription,
-                                                              "productImageUrl":
-                                                                  post.productImageUrl,
-                                                              "productStatus":
-                                                                  "pinned",
-                                                            },
-                                                          ).then(
-                                                            (value) {
-                                                              Fluttertoast
-                                                                  .showToast(
-                                                                      msg:
-                                                                          "Product Pinned");
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                          );
-                                                        },
-                                                        child: Card(
-                                                          child: Container(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              border: Border.all(
-                                                                  width: 3.0,
-                                                                  color: Colors
-                                                                      .grey
-                                                                      .shade300),
-                                                              borderRadius:
-                                                                  const BorderRadius
-                                                                          .all(
-                                                                      Radius.circular(
-                                                                          5.0)),
-                                                            ),
-                                                            child: Stack(
-                                                              children: [
-                                                                Column(
-                                                                  children: [
-                                                                    Column(
-                                                                      children: [
-                                                                        AspectRatio(
-                                                                          aspectRatio:
-                                                                              1 / 1,
-                                                                          child:
-                                                                              Image.network(post.productImageUrl!),
-                                                                        ),
-                                                                        SizedBox(
-                                                                          child:
-                                                                              Padding(padding: EdgeInsets.only(top: heightVar / 99)),
-                                                                        ),
-                                                                        Text(
-                                                                          post.productName!,
-                                                                          style: const TextStyle(
-                                                                              color: Colors.black,
-                                                                              fontSize: 20,
-                                                                              fontWeight: FontWeight.bold),
-                                                                        ),
-                                                                        Text(
-                                                                            post
-                                                                                .productPrice!,
-                                                                            style: const TextStyle(
-                                                                                color: Colors.black,
-                                                                                fontSize: 15,
-                                                                                fontWeight: FontWeight.bold)),
-                                                                      ],
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                                Container(
-                                                                  color: Colors
-                                                                      .black
-                                                                      .withOpacity(
-                                                                          0.3),
-                                                                  child: Column(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .center,
-                                                                    children: [
-                                                                      Center(
-                                                                        child:
-                                                                            IconButton(
-                                                                          splashColor:
-                                                                              Colors.blue,
-                                                                          icon:
-                                                                              const Icon(Icons.add),
-                                                                          iconSize:
-                                                                              60,
-                                                                          color:
-                                                                              Colors.red,
-                                                                          onPressed:
-                                                                              () {
-                                                                            CollectionReference
-                                                                                pinProd =
-                                                                                FirebaseFirestore.instance.collection("livestream");
-
-                                                                            pinProd.doc(FirebaseAuth.instance.currentUser!.uid).collection("pinned_item").doc("pinnedItem").set(
-                                                                              {
-                                                                                "productName": post.productName,
-                                                                                "productCategory": post.productCategory,
-                                                                                "productPrice": post.productPrice,
-                                                                                "productDescription": post.productDescription,
-                                                                                "productImageUrl": post.productImageUrl,
-                                                                                "productStatus": "pinned",
-                                                                              },
-                                                                            ).then(
-                                                                              (value) {
-                                                                                Fluttertoast.showToast(msg: "Product Pinned");
-                                                                                Navigator.pop(context);
-                                                                              },
-                                                                            );
-                                                                          },
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                )
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ],
+                                          ),
+                                          subtitle: Text(
+                                            snapshot.data.docs[index]
+                                                ['message'],
+                                            style: const TextStyle(
+                                                color: Colors.white),
+                                          ),
                                         ),
                                       ),
                                     );
                                   },
-                                );
-                              },
-                            )
-                          ],
+                                ),
+                              ),
+                              const SizedBox(
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 20),
+                                ),
+                              ),
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  CustomTextField(
+                                    controller: _chatController,
+                                    onTap: (val) {
+                                      FirestoreMethods().chat(
+                                        _chatController.text,
+                                        widget.channelId,
+                                        context,
+                                      );
+                                      setState(() {
+                                        _chatController.text = "";
+                                      });
+                                    },
+                                  ),
+                                  if (FirebaseAuth.instance.currentUser!.uid ==
+                                      widget.channelId)
+                                    InkWell(
+                                      onTap: _switchCamera,
+                                      child: const Icon(
+                                        Icons.cameraswitch,
+                                        color: Colors.white,
+                                        size: 40,
+                                      ),
+                                    ),
+                                  SizedBox(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.only(right: widthVar / 20),
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: onToggleMute,
+                                    child: Icon(
+                                      isMuted ? Icons.mic_off : Icons.mic_none,
+                                      color: Colors.white,
+                                      size: 40,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.only(right: widthVar / 20),
+                                    ),
+                                  ),
+                                  InkWell(
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: Colors.blue,
+                                      size: 40,
+                                    ),
+                                    onTap: () {
+                                      showModalBottomSheet<void>(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return Container(
+                                            color: Colors.white,
+                                            height: heightVar / 2,
+                                            child: Center(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  SizedBox(
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: heightVar / 60),
+                                                    ),
+                                                  ),
+                                                  Stack(
+                                                    children: [
+                                                      const Center(
+                                                        child: Text(
+                                                          "Pin a product",
+                                                          style: TextStyle(
+                                                              color: Colors.red,
+                                                              fontSize: 20,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                      ),
+                                                      Container(
+                                                        alignment:
+                                                            Alignment.topRight,
+                                                        child: IconButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  context),
+                                                          icon: const Icon(
+                                                              Icons.cancel),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  SizedBox(
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: heightVar / 60),
+                                                    ),
+                                                  ),
+                                                  StreamBuilder<dynamic>(
+                                                    stream: FirebaseFirestore
+                                                        .instance
+                                                        .collection(
+                                                            'seller_info')
+                                                        .doc(FirebaseAuth
+                                                            .instance
+                                                            .currentUser!
+                                                            .uid)
+                                                        .collection("products")
+                                                        .snapshots(),
+                                                    builder:
+                                                        (context, snapshot) {
+                                                      if (snapshot
+                                                              .connectionState ==
+                                                          ConnectionState
+                                                              .waiting) {
+                                                        return const CircularProgressIndicator();
+                                                      }
+                                                      return Expanded(
+                                                        child: GridView.builder(
+                                                          gridDelegate:
+                                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                                            childAspectRatio:
+                                                                ((widthVar /
+                                                                        2.2) /
+                                                                    (heightVar /
+                                                                        3.8)),
+                                                            crossAxisCount: 2,
+                                                            mainAxisSpacing: 5,
+                                                            crossAxisSpacing: 5,
+                                                          ),
+                                                          shrinkWrap: true,
+                                                          itemCount: snapshot
+                                                              .data.docs.length,
+                                                          itemBuilder:
+                                                              (context, index) {
+                                                            Products post =
+                                                                Products.fromMap(
+                                                                    snapshot
+                                                                        .data
+                                                                        .docs[
+                                                                            index]
+                                                                        .data());
+                                                            if (post.productStatus ==
+                                                                "none") {
+                                                              return InkWell(
+                                                                onTap: () {
+                                                                  CollectionReference
+                                                                      pinProd =
+                                                                      FirebaseFirestore
+                                                                          .instance
+                                                                          .collection(
+                                                                              "livestream");
+
+                                                                  pinProd
+                                                                      .doc(FirebaseAuth
+                                                                          .instance
+                                                                          .currentUser!
+                                                                          .uid)
+                                                                      .collection(
+                                                                          "pinned_item")
+                                                                      .doc(
+                                                                          "pinnedItem")
+                                                                      .set(
+                                                                    {
+                                                                      "productName":
+                                                                          post.productName,
+                                                                      "productCategory":
+                                                                          post.productCategory,
+                                                                      "productPrice":
+                                                                          post.productPrice,
+                                                                      "productDescription":
+                                                                          post.productDescription,
+                                                                      "productImageUrl":
+                                                                          post.productImageUrl,
+                                                                      "productStatus":
+                                                                          "pinned",
+                                                                    },
+                                                                  ).then(
+                                                                    (value) {
+                                                                      Fluttertoast
+                                                                          .showToast(
+                                                                              msg: "Product Pinned");
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                  );
+                                                                },
+                                                                child: Card(
+                                                                  child:
+                                                                      Container(
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      border: Border.all(
+                                                                          width:
+                                                                              3.0,
+                                                                          color: Colors
+                                                                              .grey
+                                                                              .shade300),
+                                                                      borderRadius: const BorderRadius
+                                                                              .all(
+                                                                          Radius.circular(
+                                                                              5.0)),
+                                                                    ),
+                                                                    child:
+                                                                        Stack(
+                                                                      children: [
+                                                                        Column(
+                                                                          children: [
+                                                                            Column(
+                                                                              children: [
+                                                                                AspectRatio(
+                                                                                  aspectRatio: 1 / 1,
+                                                                                  child: Image.network(post.productImageUrl!),
+                                                                                ),
+                                                                                SizedBox(
+                                                                                  child: Padding(padding: EdgeInsets.only(top: heightVar / 99)),
+                                                                                ),
+                                                                                Text(
+                                                                                  post.productName!,
+                                                                                  style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+                                                                                ),
+                                                                                Text(post.productPrice!, style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
+                                                                              ],
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                        Container(
+                                                                          color: Colors
+                                                                              .black
+                                                                              .withOpacity(0.3),
+                                                                          child:
+                                                                              Column(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.center,
+                                                                            children: [
+                                                                              Center(
+                                                                                child: IconButton(
+                                                                                  splashColor: Colors.blue,
+                                                                                  icon: const Icon(Icons.add),
+                                                                                  iconSize: 60,
+                                                                                  color: Colors.red,
+                                                                                  onPressed: () {
+                                                                                    CollectionReference pinProd = FirebaseFirestore.instance.collection("livestream");
+
+                                                                                    pinProd.doc(FirebaseAuth.instance.currentUser!.uid).collection("pinned_item").doc("pinnedItem").set(
+                                                                                      {
+                                                                                        "productName": post.productName,
+                                                                                        "productCategory": post.productCategory,
+                                                                                        "productPrice": post.productPrice,
+                                                                                        "productDescription": post.productDescription,
+                                                                                        "productImageUrl": post.productImageUrl,
+                                                                                        "productStatus": "pinned",
+                                                                                      },
+                                                                                    ).then(
+                                                                                      (value) {
+                                                                                        Fluttertoast.showToast(msg: "Product Pinned");
+                                                                                        Navigator.pop(context);
+                                                                                      },
+                                                                                    );
+                                                                                  },
+                                                                                ),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            } else {
+                                                              return Container();
+                                                            }
+                                                          },
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  )
+                                ],
+                              ),
+                              const SizedBox(
+                                child: Padding(
+                                  padding: EdgeInsets.only(bottom: 10),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
+                    ),
+                    //end of chat
                   ],
                 ),
               ],

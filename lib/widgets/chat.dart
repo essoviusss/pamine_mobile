@@ -102,19 +102,6 @@ class _ChatState extends State<Chat> {
               padding: EdgeInsets.only(top: 20),
             ),
           ),
-          CustomTextField(
-            controller: _chatController,
-            onTap: (val) {
-              FirestoreMethods().chat(
-                _chatController.text,
-                widget.channelId,
-                context,
-              );
-              setState(() {
-                _chatController.text = "";
-              });
-            },
-          ),
           const SizedBox(
             child: Padding(
               padding: EdgeInsets.only(bottom: 10),

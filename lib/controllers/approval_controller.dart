@@ -52,12 +52,12 @@ class _approval_controllerState extends State<approval_controller> {
                               AsyncSnapshot<DocumentSnapshot> snapshot) {
                             if (isSubmitted == "Seller" &&
                                 snapshot.data?.exists == false) {
-                              return const seller_verification(); //add streambuilder later
+                              return const seller_verification();
                             } else if (snapshot.data?['status'] ==
                                 "not verified") {
-                              return const approval_screen(); //add streambuilder later
+                              return const approval_screen();
                             } else if (snapshot.data?['status'] == "verified") {
-                              return const seller_home(); //add streambuilder later
+                              return const seller_home();
                             } else if (snapshot.data?['status'] == "rejected") {
                               Fluttertoast.showToast(
                                   msg: "Application Rejected");
