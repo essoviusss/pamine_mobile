@@ -9,7 +9,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/buyer_screen/home_screen.dart';
 import 'package:pamine_mobile/config/appId.dart';
@@ -17,10 +16,10 @@ import 'package:http/http.dart' as http;
 import 'package:pamine_mobile/methods/firestore_methods.dart';
 import 'package:pamine_mobile/model/livestream_model.dart';
 import 'package:pamine_mobile/model/product_model.dart';
-import 'package:pamine_mobile/widgets/chat.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:provider/provider.dart';
 
 import '../../provider/user_provider.dart';
@@ -432,13 +431,18 @@ class _FeedState extends State<Feed> {
                                       if (isPinned) {
                                         return TextButton(
                                           style: ButtonStyle(
-                                            backgroundColor:
-                                                productStatus == "pinned"
+                                            backgroundColor: productStatus ==
+                                                    "pinned"
+                                                ? MaterialStateProperty.all<
+                                                        Color>(
+                                                    const Color(0xFFC21010))
+                                                : productStatus ==
+                                                        FirebaseAuth.instance
+                                                            .currentUser!.uid
                                                     ? MaterialStateProperty.all<
-                                                            Color>(
-                                                        const Color(0xFFC21010))
+                                                        Color>(Colors.blue)
                                                     : MaterialStateProperty.all<
-                                                        Color>(Colors.blue),
+                                                        Color>(Colors.grey),
                                             padding: MaterialStateProperty.all<
                                                 EdgeInsets>(
                                               EdgeInsets.symmetric(
@@ -493,6 +497,36 @@ class _FeedState extends State<Feed> {
                                                           FirebaseService()
                                                               .mine,
                                                     );
+
+                                                    //mine product list
+                                                    FirebaseService()
+                                                        .mineProdList(
+                                                      data: {
+                                                        "buyerName":
+                                                            FirebaseAuth
+                                                                .instance
+                                                                .currentUser!
+                                                                .displayName,
+                                                        "productName":
+                                                            productName,
+                                                        "productCategory":
+                                                            productCategory,
+                                                        "productPrice":
+                                                            productPrice,
+                                                        "productDescription":
+                                                            productDescription,
+                                                        "productImageUrl":
+                                                            productImageUrl,
+                                                        "productStatus":
+                                                            "mined",
+                                                      },
+                                                      reference: FirebaseService()
+                                                          .list
+                                                          .doc(widget.channelId)
+                                                          .collection(
+                                                              "mined_products_list"),
+                                                    );
+
                                                     FirebaseFirestore.instance
                                                         .collection(
                                                             "livestream")
@@ -605,11 +639,19 @@ class _FeedState extends State<Feed> {
                                                   style: TextStyle(
                                                       color: Colors.white),
                                                 )
-                                              : const Text(
-                                                  'CONFIRM',
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                ),
+                                              : productStatus ==
+                                                      FirebaseAuth.instance
+                                                          .currentUser!.uid
+                                                  ? const Text(
+                                                      'CONFIRM',
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    )
+                                                  : const Text(
+                                                      'MINE',
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
                                         );
                                       } else {
                                         return TextButton(

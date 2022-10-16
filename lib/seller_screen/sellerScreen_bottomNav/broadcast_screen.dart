@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -174,6 +175,60 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     double widthVar = MediaQuery.of(context).size.width;
     final user = Provider.of<GoogleProvider>(context).user;
     final size = MediaQuery.of(context).size;
+    //rowheader
+    Widget rowHeader({int? flex, String? text}) {
+      return Expanded(
+        flex: flex!,
+        child: Container(
+          margin: EdgeInsets.only(top: heightVar / 40),
+          height: heightVar / 20,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            color: Colors.red,
+          ),
+          child: Center(
+            child: Text(
+              text!,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontStyle: FontStyle.italic,
+                  fontSize: 15),
+            ),
+          ),
+        ),
+      );
+    }
+
+    //row content
+    Widget rowContent({int? flex, String? text, Widget? widget}) {
+      return Expanded(
+        flex: flex!,
+        child: Container(
+          height: heightVar / 13,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            color: Colors.white,
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: widthVar / 50, vertical: heightVar / 40),
+            child: Center(
+              child: widget ??
+                  Text(
+                    text!,
+                    textScaleFactor: 1,
+                    style: const TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    //build
     return WillPopScope(
       onWillPop: () async {
         await _leaveChannel();
@@ -212,6 +267,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
             Wrap(
               spacing: widthVar / 8,
               children: [
+                //pinned product
                 Container(
                   margin: EdgeInsets.only(top: heightVar / 15),
                   padding: EdgeInsets.only(left: widthVar / 40),
@@ -276,27 +332,149 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                         );
                       }),
                 ),
-                Container(
-                  margin: EdgeInsets.only(top: heightVar / 20),
-                  padding: EdgeInsets.only(right: widthVar / 40),
-                  child: IconButton(
-                    onPressed: () {
-                      _leaveChannel();
-                    },
-                    icon: const Icon(
-                      Icons.exit_to_app,
-                      color: Colors.white,
-                      size: 40,
+                //leave and list button
+                Column(
+                  children: [
+                    //leave button
+                    Container(
+                      margin: EdgeInsets.only(top: heightVar / 20),
+                      padding: EdgeInsets.only(right: widthVar / 40),
+                      child: IconButton(
+                        onPressed: () {
+                          _leaveChannel();
+                        },
+                        icon: const Icon(
+                          Icons.exit_to_app,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                    SizedBox(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: heightVar / 3),
+                      ),
+                    ),
+                    //view list button
+                    InkWell(
+                      onTap: () {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Container(
+                              height: heightVar / 1,
+                              color: Colors.white,
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: heightVar / 60),
+                                      ),
+                                    ),
+                                    const Text(
+                                      "Buyer's List",
+                                      style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: heightVar / 60),
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        rowHeader(flex: 2, text: "Buyer Name"),
+                                        rowHeader(
+                                            flex: 2, text: "Product Name"),
+                                        rowHeader(flex: 1, text: "Price")
+                                      ],
+                                    ),
+                                    StreamBuilder<dynamic>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('seller_info')
+                                          .doc(FirebaseAuth
+                                              .instance.currentUser!.uid)
+                                          .collection("mined_product_list")
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const CircularProgressIndicator();
+                                        }
+                                        return Expanded(
+                                          child: ListView.builder(
+                                              itemCount:
+                                                  snapshot.data.docs.length,
+                                              itemBuilder: (context, index) {
+                                                return Row(
+                                                  children: [
+                                                    rowContent(
+                                                      flex: 2,
+                                                      text: snapshot
+                                                              .data!.docs[index]
+                                                          ['buyerName'],
+                                                    ),
+                                                    rowContent(
+                                                      flex: 2,
+                                                      text: snapshot
+                                                              .data!.docs[index]
+                                                          ['productName'],
+                                                    ),
+                                                    rowContent(
+                                                      flex: 1,
+                                                      text:
+                                                          "₱${snapshot.data!.docs[index]['productPrice']}",
+                                                    ),
+                                                  ],
+                                                );
+                                              }),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection("seller_info")
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .collection("mined_product_list")
+                            .snapshots(),
+                        builder:
+                            (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                          int count = snapshot.data!.docs.length;
+
+                          return Badge(
+                            badgeColor: Colors.blue,
+                            animationDuration: const Duration(seconds: 1),
+                            badgeContent: Text('$count'),
+                            child: const Icon(
+                              Icons.book,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
             Row(
               children: [
                 Stack(
                   children: [
-                    //chat
+                    //comments and buttons
                     BottomAppBar(
                       elevation: 0,
                       color: Colors.transparent,
@@ -438,8 +616,8 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                   ),
                                   InkWell(
                                     child: const Icon(
-                                      Icons.add,
-                                      color: Colors.blue,
+                                      Icons.add_circle_outline,
+                                      color: Colors.white,
                                       size: 40,
                                     ),
                                     onTap: () {

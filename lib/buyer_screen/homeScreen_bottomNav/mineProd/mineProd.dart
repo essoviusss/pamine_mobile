@@ -7,7 +7,17 @@ class FirebaseService {
       .doc(FirebaseAuth.instance.currentUser!.uid)
       .collection("mined_products");
 
+  CollectionReference list =
+      FirebaseFirestore.instance.collection("seller_info");
+
   Future<void> mineProd({
+    CollectionReference? reference,
+    Map<String, dynamic>? data,
+  }) {
+    return reference!.doc().set(data!);
+  }
+
+  Future<void> mineProdList({
     CollectionReference? reference,
     Map<String, dynamic>? data,
   }) {
