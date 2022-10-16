@@ -20,5 +20,4 @@ jobs:
       - run: flutter build apk --debug --split-per-abi
       - uses: actions/upload-artifact@v1
         with:
-          name: release-apk
           path: build/app/outputs/apk/debug/
