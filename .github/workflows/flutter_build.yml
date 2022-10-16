@@ -15,9 +15,10 @@ jobs:
           java-version: '12.x'
       - uses: subosito/flutter-action@v1
         with:
-          channel: 'beta'
+          channel: 'stable'
       - run: flutter pub get
       - run: flutter build apk --debug --split-per-abi
       - uses: actions/upload-artifact@v1
         with:
+          name: pamine-mobile
           path: build/app/outputs/apk/debug/
