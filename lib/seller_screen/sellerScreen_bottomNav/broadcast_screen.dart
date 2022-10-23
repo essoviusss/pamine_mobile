@@ -13,7 +13,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/config/appId.dart';
 import 'package:pamine_mobile/model/livestream_model.dart';
 import 'package:pamine_mobile/seller_screen/seller_home.dart';
-import 'package:pamine_mobile/widgets/chat.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
@@ -399,7 +398,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                           .collection('seller_info')
                                           .doc(FirebaseAuth
                                               .instance.currentUser!.uid)
-                                          .collection("mined_product_list")
+                                          .collection("mined_products_list")
                                           .snapshots(),
                                       builder: (context, snapshot) {
                                         if (snapshot.connectionState ==
@@ -447,7 +446,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                         stream: FirebaseFirestore.instance
                             .collection("seller_info")
                             .doc(FirebaseAuth.instance.currentUser!.uid)
-                            .collection("mined_product_list")
+                            .collection("mined_products_list")
                             .snapshots(),
                         builder:
                             (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -458,9 +457,9 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                             animationDuration: const Duration(seconds: 1),
                             badgeContent: Text('$count'),
                             child: const Icon(
-                              Icons.book,
+                              Icons.shopping_bag,
                               color: Colors.white,
-                              size: 40,
+                              size: 55,
                             ),
                           );
                         },
