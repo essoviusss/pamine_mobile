@@ -527,6 +527,35 @@ class _FeedState extends State<Feed> {
                                                               "mined_products_list"),
                                                     );
 
+                                                    //live list only
+                                                    FirebaseService()
+                                                        .newmineProdList(
+                                                      data: {
+                                                        "buyerName":
+                                                            FirebaseAuth
+                                                                .instance
+                                                                .currentUser!
+                                                                .displayName,
+                                                        "productName":
+                                                            productName,
+                                                        "productCategory":
+                                                            productCategory,
+                                                        "productPrice":
+                                                            productPrice,
+                                                        "productDescription":
+                                                            productDescription,
+                                                        "productImageUrl":
+                                                            productImageUrl,
+                                                        "productStatus":
+                                                            "mined",
+                                                      },
+                                                      reference: FirebaseService()
+                                                          .newList
+                                                          .doc(widget.channelId)
+                                                          .collection(
+                                                              "new_mined_products_list"),
+                                                    );
+
                                                     FirebaseFirestore.instance
                                                         .collection(
                                                             "livestream")

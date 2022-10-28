@@ -140,15 +140,15 @@ class _seller_verificationState extends State<seller_verification> {
     double heigthVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: const Center(child: Text("Seller's Verification")),
+      ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                color: Colors.blue,
-                height: heigthVar / 3.5,
-              ),
               Container(
                 padding: EdgeInsets.symmetric(
                     horizontal: widthVar / 10, vertical: 0),
@@ -232,7 +232,6 @@ class _seller_verificationState extends State<seller_verification> {
                     if (value!.isEmpty) {
                       return ("Please Enter your Zip Code");
                       // ignore: unnecessary_string_escapes
-
                     } else {
                       return null;
                     }
@@ -345,11 +344,20 @@ class _seller_verificationState extends State<seller_verification> {
                       padding: EdgeInsets.symmetric(
                           horizontal: widthVar / 10, vertical: 0),
                       margin: EdgeInsets.only(top: heigthVar / 80),
-                      child: ElevatedButton(
+                      child: TextButton(
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.red),
+                          padding: MaterialStateProperty.all<EdgeInsets>(
+                            EdgeInsets.symmetric(
+                                horizontal: widthVar / 10, vertical: 10),
+                          ),
+                        ),
                         onPressed: () {
                           imagePickerMethod();
                         },
-                        child: const Text('Insert Picture of DTI Permit'),
+                        child: const Text('Insert Picture of DTI Permit',
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ),
                     Column(
@@ -360,7 +368,9 @@ class _seller_verificationState extends State<seller_verification> {
                           child: Expanded(
                               child: image == null
                                   ? const Center(
-                                      child: Text("No Image Selected"))
+                                      child: Text(
+                                      "No Image Selected",
+                                    ))
                                   : Image.file(image!)),
                         ),
                         Container(
@@ -382,10 +392,19 @@ class _seller_verificationState extends State<seller_verification> {
                           horizontal: widthVar / 10, vertical: 0),
                       margin: EdgeInsets.only(top: heigthVar / 80),
                       child: ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.red),
+                          padding: MaterialStateProperty.all<EdgeInsets>(
+                            EdgeInsets.symmetric(
+                                horizontal: widthVar / 10, vertical: 10),
+                          ),
+                        ),
                         onPressed: () {
                           imagePickerMethod1();
                         },
-                        child: const Text('Insert Government ID Picture'),
+                        child: const Text('Insert Government ID Picture',
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ),
                     Column(
@@ -427,11 +446,22 @@ class _seller_verificationState extends State<seller_verification> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: ElevatedButton(
+                child: TextButton(
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.red),
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                      EdgeInsets.symmetric(
+                          horizontal: widthVar / 3.9, vertical: 10),
+                    ),
+                  ),
                   onPressed: () {
                     addDetails();
                   },
-                  child: const Text('Submit'),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ),

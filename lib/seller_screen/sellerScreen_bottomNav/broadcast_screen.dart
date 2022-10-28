@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, must_be_immutable, prefer_interpolation_to_compose_strings
+// ignore_for_file: use_build_context_synchronously, must_be_immutable, prefer_interpolation_to_compose_strings, avoid_function_literals_in_foreach_calls
 
 import 'dart:async';
 import 'dart:convert';
@@ -150,6 +150,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     await _engine.leaveChannel();
     if (FirebaseAuth.instance.currentUser!.uid == widget.channelId) {
       await FirestoreMethods().endLiveStream(widget.channelId);
+      await FirestoreMethods().endLiveStream1(widget.channelId);
     } else {
       await FirestoreMethods().updateViewCount(widget.channelId, false);
     }
@@ -168,12 +169,26 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
 
   final ScrollController _myController = ScrollController();
 
+  Future<void> deleteNewList() async {
+    CollectionReference newList =
+        FirebaseFirestore.instance.collection("livestream");
+
+    final list = newList
+        .doc(widget.channelId)
+        .collection("new_mined_products_list")
+        .get();
+    await list.then((value) => value.docs.forEach((element) {
+          element.reference.delete();
+        }));
+  }
+
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
     final user = Provider.of<GoogleProvider>(context).user;
     final size = MediaQuery.of(context).size;
+
     //rowheader
     Widget rowHeader({int? flex, String? text}) {
       return Expanded(
@@ -226,6 +241,10 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
         ),
       );
     }
+
+    //To do...
+    //create a list that can be renewed every livestream
+    //create a list of all buyers who mined products outside the livestream
 
     //build
     return WillPopScope(
@@ -340,6 +359,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                       padding: EdgeInsets.only(right: widthVar / 40),
                       child: IconButton(
                         onPressed: () {
+                          deleteNewList();
                           _leaveChannel();
                         },
                         icon: const Icon(
@@ -395,10 +415,10 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                     ),
                                     StreamBuilder<dynamic>(
                                       stream: FirebaseFirestore.instance
-                                          .collection('seller_info')
+                                          .collection('livestream')
                                           .doc(FirebaseAuth
                                               .instance.currentUser!.uid)
-                                          .collection("mined_products_list")
+                                          .collection("new_mined_products_list")
                                           .snapshots(),
                                       builder: (context, snapshot) {
                                         if (snapshot.connectionState ==
@@ -444,9 +464,9 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                       },
                       child: StreamBuilder(
                         stream: FirebaseFirestore.instance
-                            .collection("seller_info")
+                            .collection("livestream")
                             .doc(FirebaseAuth.instance.currentUser!.uid)
-                            .collection("mined_products_list")
+                            .collection("new_mined_products_list")
                             .snapshots(),
                         builder:
                             (context, AsyncSnapshot<QuerySnapshot> snapshot) {

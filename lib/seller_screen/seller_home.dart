@@ -20,8 +20,8 @@ class _seller_screenState extends State<seller_home> {
   int currentIndex = 0;
   //contents
   static const List<Widget> _screens = <Widget>[
-    ProductPage(),
     homePage(),
+    ProductPage(),
     notificationPage(),
     profile(),
     LiveStreamScreen(),

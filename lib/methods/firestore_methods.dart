@@ -123,7 +123,31 @@ class FirestoreMethods {
             )
             .delete();
       }
+
       await _firestore.collection('livestream').doc(channelId).delete();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<void> endLiveStream1(String channelId) async {
+    try {
+      QuerySnapshot snap = await _firestore
+          .collection('livestream')
+          .doc(channelId)
+          .collection('new_mined_products_list')
+          .get();
+
+      for (int i = 0; i < snap.docs.length; i++) {
+        await _firestore
+            .collection('livestream')
+            .doc(channelId)
+            .collection('new_mined_products_list')
+            .doc(
+              (snap.docs[i].data()! as dynamic),
+            )
+            .delete();
+      }
     } catch (e) {
       debugPrint(e.toString());
     }

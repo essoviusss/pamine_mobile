@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -34,6 +35,8 @@ class _AddProductsState extends State<AddProducts> {
   final imagePicker = ImagePicker();
   String? downloadUrl;
   CroppedFile? croppedImage;
+
+  bool isClick = true;
 
   Future imagePickerMethod() async {
     final pick = await imagePicker.pickImage(source: ImageSource.gallery);
@@ -98,6 +101,7 @@ class _AddProductsState extends State<AddProducts> {
   Widget build(BuildContext context) {
     double heigthVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
+
     return Theme(
       data: ThemeData().copyWith(
         dividerColor: Colors.transparent,
@@ -389,7 +393,12 @@ class _AddProductsState extends State<AddProducts> {
                     ),
                   ),
                   onPressed: () {
-                    addProducts();
+                    if (isClick) {
+                      setState(() {
+                        isClick = false;
+                      });
+                      addProducts();
+                    }
                   },
                   child: const Text(
                     'Add',

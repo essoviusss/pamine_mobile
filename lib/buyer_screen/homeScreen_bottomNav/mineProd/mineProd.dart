@@ -10,6 +10,9 @@ class FirebaseService {
   CollectionReference list =
       FirebaseFirestore.instance.collection("seller_info");
 
+  CollectionReference newList =
+      FirebaseFirestore.instance.collection("livestream");
+
   Future<void> mineProd({
     CollectionReference? reference,
     Map<String, dynamic>? data,
@@ -18,6 +21,13 @@ class FirebaseService {
   }
 
   Future<void> mineProdList({
+    CollectionReference? reference,
+    Map<String, dynamic>? data,
+  }) {
+    return reference!.doc().set(data!);
+  }
+
+  Future<void> newmineProdList({
     CollectionReference? reference,
     Map<String, dynamic>? data,
   }) {
