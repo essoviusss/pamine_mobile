@@ -61,12 +61,6 @@ class FirestoreMethods {
     return channelId!;
   }
 
-  //To do later.....
-  //pinned product method
-  //get data from group collection products
-  //store data to livestream sub collection named pinned product
-  //Walang matutulog pag di nagawa
-
   Future<void> chat(String text, String id, BuildContext context) async {
     CollectionReference userBuyer =
         FirebaseFirestore.instance.collection('users');
@@ -125,29 +119,6 @@ class FirestoreMethods {
       }
 
       await _firestore.collection('livestream').doc(channelId).delete();
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  Future<void> endLiveStream1(String channelId) async {
-    try {
-      QuerySnapshot snap = await _firestore
-          .collection('livestream')
-          .doc(channelId)
-          .collection('new_mined_products_list')
-          .get();
-
-      for (int i = 0; i < snap.docs.length; i++) {
-        await _firestore
-            .collection('livestream')
-            .doc(channelId)
-            .collection('new_mined_products_list')
-            .doc(
-              (snap.docs[i].data()! as dynamic),
-            )
-            .delete();
-      }
     } catch (e) {
       debugPrint(e.toString());
     }

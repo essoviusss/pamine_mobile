@@ -59,11 +59,13 @@ class ProviderModel {
 }
 
 class AddModel {
+  String? logoUrl;
   String? businessName;
+  String? businessOwnerName;
   String? phoneNumber;
   String? address;
   String? zipCode;
-
+  String? dtiRegistered;
   String? dtiCertNumber;
   String? permitExpDate;
   String? uid;
@@ -72,10 +74,13 @@ class AddModel {
   String? idUrl;
 
   AddModel({
+    this.logoUrl,
     this.businessName,
+    this.businessOwnerName,
     this.phoneNumber,
     this.address,
     this.zipCode,
+    this.dtiRegistered,
     this.dtiCertNumber,
     this.permitExpDate,
     this.uid,
@@ -86,10 +91,13 @@ class AddModel {
 
   factory AddModel.fromMap(map) {
     return AddModel(
+      logoUrl: map['logoUrl'],
       businessName: map['businessName'],
+      businessOwnerName: map['businessOwnerName'],
       phoneNumber: map['phoneNumber'],
       address: map['address'],
       zipCode: map['zipCode'],
+      dtiRegistered: map['dtiRegistered'],
       dtiCertNumber: map['dtiCertNumber'],
       permitExpDate: map['permitExpDate'],
       uid: map['uid'],
@@ -100,10 +108,13 @@ class AddModel {
   }
   Map<String, dynamic> toMap() {
     return {
+      'logoUrl': logoUrl,
       'businessName': businessName,
+      'businessOwnerName': businessOwnerName,
       'phoneNumber': phoneNumber,
       'address': address,
       'zipCode': zipCode,
+      'dtiRegistered': dtiRegistered,
       'dtiCertNumber': dtiCertNumber,
       'permitExpDate': permitExpDate,
       'uid': uid,

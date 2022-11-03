@@ -110,7 +110,7 @@ class _seller_screenState extends State<seller_home> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
-                            Icon(Icons.ring_volume),
+                            Icon(Icons.notifications),
                             Text("Notification"),
                             //const Padding(padding: EdgeInsets.only(right: 10))
                           ],

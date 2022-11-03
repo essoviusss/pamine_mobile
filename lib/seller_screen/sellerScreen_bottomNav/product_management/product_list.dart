@@ -99,7 +99,6 @@ class _ProductListState extends State<ProductList> {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
     final size = MediaQuery.of(context).size;
-    DocumentSnapshot prodID;
 
     return SafeArea(
       child: Column(

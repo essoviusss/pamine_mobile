@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pamine_mobile/model/seller_user_model.dart';
 import 'package:pamine_mobile/seller_screen/approval_screen.dart';
@@ -24,6 +26,8 @@ class _seller_verificationState extends State<seller_verification> {
   final _auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _businessController = TextEditingController();
+  final TextEditingController _businessOwnerController =
+      TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _zipCodeController = TextEditingController();
@@ -91,15 +95,19 @@ class _seller_verificationState extends State<seller_verification> {
 
   addDetailsToFireStore() async {
     await uploadImage();
+    await uploadImage2();
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     User? user = _auth.currentUser;
 
     AddModel addModel = AddModel();
 
+    addModel.logoUrl = downloadUrl;
     addModel.businessName = _businessController.text;
+    addModel.businessOwnerName = _businessOwnerController.text;
     addModel.phoneNumber = _phoneNumberController.text;
     addModel.address = _addressController.text;
     addModel.zipCode = _zipCodeController.text;
+    addModel.dtiRegistered = taxStatus;
     addModel.dtiCertNumber = _dtiNumberController.text;
     addModel.permitExpDate = _dtiExpDateController.text;
     addModel.uid = user?.uid;
@@ -135,6 +143,36 @@ class _seller_verificationState extends State<seller_verification> {
     }
   }
 
+  File? logo;
+  final imagePicker1 = ImagePicker();
+  String? downloadUrl;
+  CroppedFile? croppedImage;
+
+  Future imagePickerMethod2() async {
+    final pick = await imagePicker.pickImage(source: ImageSource.gallery);
+    if (pick == null) return logo = File(pick!.path);
+    croppedImage = await ImageCropper()
+        .cropImage(sourcePath: pick.path, aspectRatioPresets: [
+      CropAspectRatioPreset.square,
+    ]);
+    if (croppedImage != null) {
+      setState(() {
+        logo = File(croppedImage!.path);
+      });
+    }
+  }
+
+  uploadImage2() async {
+    final authID = FirebaseAuth.instance.currentUser;
+    final postID = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference ref = FirebaseStorage.instance
+        .ref()
+        .child("${authID?.uid}/images")
+        .child("post_$postID");
+    await ref.putFile(logo!);
+    downloadUrl = await ref.getDownloadURL();
+  }
+
   @override
   Widget build(BuildContext context) {
     double heigthVar = MediaQuery.of(context).size.height;
@@ -150,6 +188,59 @@ class _seller_verificationState extends State<seller_verification> {
           child: Column(
             children: [
               Container(
+                padding:
+                    EdgeInsets.symmetric(horizontal: widthVar / 5, vertical: 0),
+                margin: EdgeInsets.only(top: heigthVar / 30),
+                child: GestureDetector(
+                  onTap: imagePickerMethod2,
+                  child: DottedBorder(
+                    borderType: BorderType.RRect,
+                    radius: const Radius.circular(10),
+                    dashPattern: const [10, 4],
+                    strokeCap: StrokeCap.round,
+                    color: Colors.red,
+                    child: Container(
+                      width: double.infinity,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          logo == null
+                              ? Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.image,
+                                      color: Colors.red,
+                                      size: 40,
+                                    ),
+                                    const SizedBox(height: 15),
+                                    Text(
+                                      'Select Business Logo',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.grey.shade500,
+                                      ),
+                                    )
+                                  ],
+                                )
+                              : SizedBox(
+                                  height: 150,
+                                  width: double.infinity,
+                                  child: Image.file(
+                                    logo!,
+                                  ),
+                                ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
                 padding: EdgeInsets.symmetric(
                     horizontal: widthVar / 10, vertical: 0),
                 margin: EdgeInsets.only(top: heigthVar / 30),
@@ -164,8 +255,31 @@ class _seller_verificationState extends State<seller_verification> {
                     return null;
                   },
                   decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.person),
+                    prefixIcon: Icon(Icons.business),
                     hintText: "Business Name",
+                    hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
+                    contentPadding: EdgeInsets.all(15),
+                    isDense: true,
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: widthVar / 10, vertical: 0),
+                margin: EdgeInsets.only(top: heigthVar / 80),
+                child: TextFormField(
+                  controller: _businessOwnerController,
+                  textInputAction: TextInputAction.next,
+                  keyboardType: TextInputType.text,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return ("Please Enter your Business Name");
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.person),
+                    hintText: "Business Owner Name",
                     hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
                     contentPadding: EdgeInsets.all(15),
                     isDense: true,

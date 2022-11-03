@@ -477,6 +477,7 @@ class _FeedState extends State<Feed> {
                                                     });
 
                                                     //mine the product
+                                                    //buyer's list
                                                     Navigator.of(context).pop();
                                                     FirebaseService().mineProd(
                                                       data: {
@@ -498,7 +499,7 @@ class _FeedState extends State<Feed> {
                                                               .mine,
                                                     );
 
-                                                    //mine product list
+                                                    //gen mine product list
                                                     FirebaseService()
                                                         .mineProdList(
                                                       data: {

@@ -43,6 +43,8 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
   bool switchCamera = true;
   bool isMuted = false;
   bool isScreenSharing = false;
+  final cam = Permission.camera.isGranted;
+  final mic = Permission.microphone.isGranted;
 
   @override
   void initState() {
@@ -150,7 +152,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     await _engine.leaveChannel();
     if (FirebaseAuth.instance.currentUser!.uid == widget.channelId) {
       await FirestoreMethods().endLiveStream(widget.channelId);
-      await FirestoreMethods().endLiveStream1(widget.channelId);
     } else {
       await FirestoreMethods().updateViewCount(widget.channelId, false);
     }
@@ -241,10 +242,6 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
         ),
       );
     }
-
-    //To do...
-    //create a list that can be renewed every livestream
-    //create a list of all buyers who mined products outside the livestream
 
     //build
     return WillPopScope(

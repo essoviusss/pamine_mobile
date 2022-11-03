@@ -31,12 +31,12 @@ class _AddProductsState extends State<AddProducts> {
   final TextEditingController productDescriptionController =
       TextEditingController();
 
+  bool isClick = true;
+
   File? productImage;
   final imagePicker = ImagePicker();
   String? downloadUrl;
   CroppedFile? croppedImage;
-
-  bool isClick = true;
 
   Future imagePickerMethod() async {
     final pick = await imagePicker.pickImage(source: ImageSource.gallery);

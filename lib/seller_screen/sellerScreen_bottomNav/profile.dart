@@ -1,10 +1,11 @@
-// ignore_for_file: use_build_context_synchronously, camel_case_types
+// ignore_for_file: use_build_context_synchronously, camel_case_types, depend_on_referenced_packages
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pamine_mobile/seller_screen/profile_components/profilecontents.dart';
 
 import '../../screens/front.dart';
 
@@ -31,42 +32,10 @@ class _profileState extends State<profile> {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: Form(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.only(top: heightVar / 2.5),
-                child: TextButton(
-                  onPressed: () async {
-                    await signOut();
-                    await Fluttertoast.showToast(
-                        msg: "You have been logged out!");
-                    Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) {
-                      return const front();
-                    }), ModalRoute.withName('/'));
-                  },
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.blue),
-                    padding: MaterialStateProperty.all<EdgeInsets>(
-                      EdgeInsets.symmetric(
-                          horizontal: widthVar / 3.9, vertical: 10),
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "Logout",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+        appBar: AppBar(
+          title: const Center(child: Text("My Profile")),
+          backgroundColor: Colors.red,
         ),
-      ),
-    );
+        body: const Body());
   }
 }
