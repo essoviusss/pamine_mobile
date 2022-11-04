@@ -4,15 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:pamine_mobile/buyer_screen/profile_components/profilecontents.dart';
 
 // ignore: camel_case_types
-class profilePage extends StatefulWidget {
+class profilePage extends StatelessWidget {
   const profilePage({Key? key}) : super(key: key);
 
-  @override
-  State<profilePage> createState() => _profilePageState();
-}
-
-// ignore: camel_case_types
-class _profilePageState extends State<profilePage> {
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -21,6 +15,7 @@ class _profilePageState extends State<profilePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Center(
           child: Text(
             "My Profile",

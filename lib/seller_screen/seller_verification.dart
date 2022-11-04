@@ -580,7 +580,7 @@ class _seller_verificationState extends State<seller_verification> {
               ),
             ),
           ],
-        )
+        ),
       ],
     );
   }

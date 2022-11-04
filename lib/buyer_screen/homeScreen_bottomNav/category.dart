@@ -45,7 +45,15 @@ class _categoryPageState extends State<categoryPage> {
         body: const TabBarView(
           children: [
             Categories(),
-            Marketplace(),
+            Marketplace(
+              productCategory: '',
+              productDescription: '',
+              productImageUrl: '',
+              productName: '',
+              productPrice: '',
+              productQuantity: '',
+              sellerUid: '',
+            ),
           ],
         ),
       ),

@@ -59,6 +59,8 @@ dependencies:
   image_cropper: ^3.0.0
   flutter_easyloading: ^3.0.5
   badges: ^2.0.3
+  quantity_input: ^1.0.2
+ 
 
 
   

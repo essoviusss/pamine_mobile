@@ -33,7 +33,9 @@ class _profileState extends State<profile> {
     double widthVar = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
-          title: const Center(child: Text("My Profile")),
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          title: const Text("My Profile"),
           backgroundColor: Colors.red,
         ),
         body: const Body());

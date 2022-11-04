@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 class Products {
   String? productName;
   String? productCategory;
@@ -6,6 +8,7 @@ class Products {
   String? productDescription;
   String? productImageUrl;
   String? productStatus;
+  String? sellerUid;
 
   Products({
     this.productName,
@@ -15,6 +18,7 @@ class Products {
     this.productDescription,
     this.productImageUrl,
     this.productStatus,
+    this.sellerUid,
   });
 
   factory Products.fromMap(map) {
@@ -26,6 +30,7 @@ class Products {
       productDescription: map["productDescription"],
       productImageUrl: map["productImageUrl"],
       productStatus: map['productStatus'],
+      sellerUid: map['sellerUid'],
     );
   }
   //send
@@ -38,6 +43,7 @@ class Products {
       "productDescription": productDescription,
       "productImageUrl": productImageUrl,
       "productStatus": productStatus,
+      "sellerUid": sellerUid,
     };
   }
 }

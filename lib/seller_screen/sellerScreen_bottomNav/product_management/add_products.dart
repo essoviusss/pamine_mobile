@@ -74,6 +74,8 @@ class _AddProductsState extends State<AddProducts> {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     User? user = _auth.currentUser;
 
+    user != null;
+
     Products products = Products();
 
     products.productName = productNameController.text;
@@ -83,6 +85,7 @@ class _AddProductsState extends State<AddProducts> {
     products.productDescription = productDescriptionController.text;
     products.productImageUrl = downloadUrl!;
     products.productStatus = "none";
+    products.sellerUid = user!.uid;
 
     await firebaseFirestore
         .collection("seller_info")

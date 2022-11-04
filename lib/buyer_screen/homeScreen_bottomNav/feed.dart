@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, prefer_interpolation_to_compose_strings
+// ignore_for_file: use_build_context_synchronously, prefer_interpolation_to_compose_strings, unused_import
 
 import 'dart:async';
 import 'dart:convert';

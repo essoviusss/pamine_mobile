@@ -11,15 +11,9 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../utils/fontsize.dart';
 
 // ignore: camel_case_types
-class homePage extends StatefulWidget {
+class homePage extends StatelessWidget {
   const homePage({Key? key}) : super(key: key);
 
-  @override
-  State<homePage> createState() => _homePageState();
-}
-
-// ignore: camel_case_types
-class _homePageState extends State<homePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

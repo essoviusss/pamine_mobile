@@ -2,17 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../model/product_model.dart';
 
-class MyProducts extends StatefulWidget {
+class MyProducts extends StatelessWidget {
   const MyProducts({super.key});
 
-  @override
-  State<MyProducts> createState() => _MyProductsState();
-}
-
-class _MyProductsState extends State<MyProducts> {
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -20,6 +16,8 @@ class _MyProductsState extends State<MyProducts> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: true,
+        centerTitle: true,
         backgroundColor: Colors.red,
         title: const Text("My Products"),
       ),
@@ -30,8 +28,11 @@ class _MyProductsState extends State<MyProducts> {
             .collection("products")
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.none) {
-            Fluttertoast.showToast(msg: "Loading...");
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            LoadingAnimationWidget.waveDots(
+              color: Colors.blue,
+              size: 50,
+            );
           } else {
             return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -44,7 +45,7 @@ class _MyProductsState extends State<MyProducts> {
               itemCount: snapshot.data?.docs.length,
               itemBuilder: (context, index) {
                 Products post =
-                    Products.fromMap(snapshot.data!.docs[index].data());
+                    Products.fromMap(snapshot.data?.docs[index].data());
 
                 return Card(
                   child: Container(

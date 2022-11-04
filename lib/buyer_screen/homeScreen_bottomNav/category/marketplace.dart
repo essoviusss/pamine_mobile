@@ -1,10 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/productdescription.dart';
 
 import '../../../model/product_model.dart';
 
 class Marketplace extends StatefulWidget {
-  const Marketplace({super.key});
+  final String productImageUrl;
+  final String productName;
+  final String productPrice;
+  final String productQuantity;
+  final String productDescription;
+  final String productCategory;
+  final String sellerUid;
+
+  const Marketplace({
+    super.key,
+    required this.productImageUrl,
+    required this.productName,
+    required this.productPrice,
+    required this.productQuantity,
+    required this.productDescription,
+    required this.productCategory,
+    required this.sellerUid,
+  });
 
   @override
   State<Marketplace> createState() => _MarketplaceState();
@@ -19,31 +37,6 @@ class _MarketplaceState extends State<Marketplace> {
     return SafeArea(
       child: Column(
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: widthVar / 4),
-            margin: EdgeInsets.only(top: heightVar / 60),
-            child: TextField(
-              decoration: InputDecoration(
-                  hintStyle: const TextStyle(fontSize: 15.0, color: Colors.red),
-                  contentPadding: const EdgeInsets.all(0),
-                  isDense: true,
-                  filled: true,
-                  fillColor: Colors.grey.shade300,
-                  enabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(15),
-                        topLeft: Radius.circular(15),
-                        topRight: Radius.circular(15),
-                        bottomRight: Radius.circular(15)),
-                    borderSide: BorderSide(width: 0, color: Colors.white),
-                  ),
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: 'Search...'),
-              onChanged: (val) {
-                setState(() {});
-              },
-            ),
-          ),
           SizedBox(height: size.height * 0.03),
           StreamBuilder<dynamic>(
             stream: FirebaseFirestore.instance
@@ -68,7 +61,21 @@ class _MarketplaceState extends State<Marketplace> {
                         Products.fromMap(snapshot.data.docs[index].data());
 
                     return InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ProductDescription(
+                              productName: post.productName!,
+                              productPrice: post.productPrice!,
+                              productCategory: post.productCategory!,
+                              productDescription: post.productDescription!,
+                              productImageUrl: post.productImageUrl!,
+                              productQuantity: post.productQuantity!,
+                              sellerUid: post.sellerUid!,
+                            ),
+                          ),
+                        );
+                      },
                       child: Card(
                         child: Container(
                           decoration: BoxDecoration(

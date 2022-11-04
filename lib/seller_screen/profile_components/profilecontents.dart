@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/profilemenu.dart';
+import 'package:pamine_mobile/seller_screen/profile_components/profilepage_contents/buyerslist.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/profilepage_contents/myproducts.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/profilepic.dart';
 
@@ -52,7 +53,13 @@ class _BodyState extends State<Body> {
           ProfileMenu(
             text: "Buyer's List",
             icon: const Icon(Icons.list, color: Colors.red),
-            press: () {},
+            press: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const BuyersList(),
+                ),
+              );
+            },
           ),
           ProfileMenu(
             text: "Sold Items",
