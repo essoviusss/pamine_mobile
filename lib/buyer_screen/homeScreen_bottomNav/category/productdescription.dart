@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/cart.dart';
 
 class ProductDescription extends StatefulWidget {
   final String productImageUrl;
@@ -30,6 +31,22 @@ class ProductDescription extends StatefulWidget {
 class _ProductDescriptionState extends State<ProductDescription> {
   bool heart = false;
   bool isClicked = false;
+  bool isAddedToCart = true;
+
+  CollectionReference cart = FirebaseFirestore.instance
+      .collection("buyer_info")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .collection("cart");
+
+  addToCart() async {
+    cart.doc().set({
+      "productName": widget.productName,
+      "productPrice": widget.productPrice,
+      "productImageUrl": widget.productImageUrl,
+    }).then((value) {
+      Fluttertoast.showToast(msg: "Product Added to Cart");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,29 +60,39 @@ class _ProductDescriptionState extends State<ProductDescription> {
         backgroundColor: const Color(0xFFC21010),
         title: const Text("Description"),
         actions: [
+          //There is a null check error here, will fix later
           Container(
             margin: EdgeInsets.only(right: widthVar / 40),
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection("buyer_info")
-                  .doc(FirebaseAuth.instance.currentUser!.uid)
-                  .collection("mined_products")
-                  .snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                int count = snapshot.data!.docs.length;
-
-                return Badge(
-                  badgeColor: Color.fromARGB(255, 158, 158, 158),
-                  position: BadgePosition.topEnd(top: 0, end: -3),
-                  animationDuration: const Duration(seconds: 1),
-                  badgeContent: Text('$count'),
-                  child: const Icon(
-                    Icons.shopping_cart,
-                    color: Colors.white,
-                    size: 35,
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const Cart(),
                   ),
                 );
               },
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("buyer_info")
+                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                    .collection("cart")
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  int count = snapshot.data!.docs.length;
+
+                  return Badge(
+                    badgeColor: const Color.fromARGB(255, 158, 158, 158),
+                    position: BadgePosition.topEnd(top: 0, end: -3),
+                    animationDuration: const Duration(seconds: 1),
+                    badgeContent: Text('$count'),
+                    child: const Icon(
+                      Icons.shopping_cart,
+                      color: Colors.white,
+                      size: 35,
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -284,7 +311,14 @@ class _ProductDescriptionState extends State<ProductDescription> {
                       horizontal: widthVar / 7, vertical: heightVar / 60),
                 ),
               ),
-              onPressed: () {},
+              onPressed: () {
+                if (isAddedToCart) {
+                  setState(() {
+                    isAddedToCart = false;
+                    addToCart();
+                  });
+                }
+              },
               child: const Text(
                 'Add to Cart',
                 style: TextStyle(color: Colors.white),
