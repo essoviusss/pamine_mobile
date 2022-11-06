@@ -30,6 +30,8 @@ class _AddProductsState extends State<AddProducts> {
       TextEditingController();
   final TextEditingController productDescriptionController =
       TextEditingController();
+  int? productPrice;
+  int? productQuantity;
 
   bool isClick = true;
 
@@ -80,8 +82,8 @@ class _AddProductsState extends State<AddProducts> {
 
     products.productName = productNameController.text;
     products.productCategory = productCategoryController.text;
-    products.productPrice = productPriceController.text;
-    products.productQuantity = productQuantityController.text;
+    products.productPrice = productPrice;
+    products.productQuantity = productQuantity;
     products.productDescription = productDescriptionController.text;
     products.productImageUrl = downloadUrl!;
     products.productStatus = "none";
@@ -206,6 +208,9 @@ class _AddProductsState extends State<AddProducts> {
                       horizontal: widthVar / 15, vertical: 0),
                   margin: EdgeInsets.only(top: heigthVar / 80),
                   child: TextFormField(
+                    onChanged: (value) {
+                      productPrice = int.parse(value);
+                    },
                     controller: productPriceController,
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.number,
@@ -236,6 +241,9 @@ class _AddProductsState extends State<AddProducts> {
                       horizontal: widthVar / 15, vertical: 0),
                   margin: EdgeInsets.only(top: heigthVar / 80),
                   child: TextFormField(
+                    onChanged: (value) {
+                      productQuantity = int.parse(value);
+                    },
                     controller: productQuantityController,
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.number,

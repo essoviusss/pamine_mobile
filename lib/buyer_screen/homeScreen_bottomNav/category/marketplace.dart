@@ -66,11 +66,11 @@ class _MarketplaceState extends State<Marketplace> {
                           MaterialPageRoute(
                             builder: (context) => ProductDescription(
                               productName: post.productName!,
-                              productPrice: post.productPrice!,
+                              productPrice: post.productPrice!.toString(),
                               productCategory: post.productCategory!,
                               productDescription: post.productDescription!,
                               productImageUrl: post.productImageUrl!,
-                              productQuantity: post.productQuantity!,
+                              productQuantity: post.productQuantity!.toString(),
                               sellerUid: post.sellerUid!,
                             ),
                           ),

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pamine_mobile/model/cart_model.dart';
 
 class Cart extends StatefulWidget {
@@ -58,8 +58,11 @@ class _CartState extends State<Cart> {
                   .collection("cart")
                   .snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.none) {
-                  Fluttertoast.showToast(msg: "waiting...");
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return LoadingAnimationWidget.waveDots(
+                    color: Colors.blue,
+                    size: 50,
+                  );
                 } else {
                   return SingleChildScrollView(
                     child: Container(
@@ -69,7 +72,7 @@ class _CartState extends State<Cart> {
                         right: widthVar / 25,
                       ),
                       child: ListView.builder(
-                          itemCount: snapshot.data!.docs.length,
+                          itemCount: snapshot.data.docs.length,
                           itemBuilder: (context, index) {
                             CartModel cartItem = CartModel.fromMap(
                                 snapshot.data.docs[index].data());
@@ -146,13 +149,15 @@ class _CartState extends State<Cart> {
                     ),
                   );
                 }
-                return Container();
               },
             ),
             Container(
               alignment: Alignment.centerLeft,
-              margin:
-                  EdgeInsets.only(left: widthVar / 25, right: widthVar / 25),
+              margin: EdgeInsets.only(
+                left: widthVar / 25,
+                right: widthVar / 25,
+                top: heightVar / 70,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -200,7 +205,7 @@ class _CartState extends State<Cart> {
                         const Color(0xFFC21010)),
                     padding: MaterialStateProperty.all<EdgeInsets>(
                       EdgeInsets.symmetric(
-                          horizontal: widthVar / 3.9, vertical: heightVar / 50),
+                          horizontal: widthVar / 3.9, vertical: heightVar / 60),
                     ),
                   ),
                   onPressed: () {},

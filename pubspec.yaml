@@ -60,6 +60,9 @@ dependencies:
   flutter_easyloading: ^3.0.5
   badges: ^2.0.3
   quantity_input: ^1.0.2
+  counter_button: ^1.0.1
+  contained_tab_bar_view: ^0.8.0
+  google_fonts: ^3.0.1
  
 
 

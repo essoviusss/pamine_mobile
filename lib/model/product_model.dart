@@ -1,10 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
-
 class Products {
   String? productName;
   String? productCategory;
-  String? productPrice;
-  String? productQuantity;
+  int? productPrice;
+  int? productQuantity;
   String? productDescription;
   String? productImageUrl;
   String? productStatus;
@@ -20,7 +18,7 @@ class Products {
     this.productStatus,
     this.sellerUid,
   });
-
+  //receive
   factory Products.fromMap(map) {
     return Products(
       productName: map["productName"],

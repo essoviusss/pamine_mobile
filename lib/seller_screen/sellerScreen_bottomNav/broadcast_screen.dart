@@ -810,7 +810,12 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                                                                   post.productName!,
                                                                                   style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
                                                                                 ),
-                                                                                Text(post.productPrice!, style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
+                                                                                Text(post.productPrice!.toString(),
+                                                                                    style: const TextStyle(
+                                                                                      color: Colors.black,
+                                                                                      fontSize: 15,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                    )),
                                                                               ],
                                                                             ),
                                                                           ],

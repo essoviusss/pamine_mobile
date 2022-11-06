@@ -815,7 +815,7 @@ class _FeedState extends State<Feed> {
                                                                               post.productName!,
                                                                               style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
                                                                             ),
-                                                                            Text(post.productPrice!,
+                                                                            Text(post.productPrice!.toString(),
                                                                                 style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
                                                                           ],
                                                                         ),

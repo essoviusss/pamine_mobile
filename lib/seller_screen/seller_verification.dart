@@ -179,6 +179,7 @@ class _seller_verificationState extends State<seller_verification> {
     double widthVar = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.red,
         title: const Center(child: Text("Seller's Verification")),
       ),

@@ -1,9 +1,12 @@
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:counter_button/counter_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/cart.dart';
+import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/viewshop.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProductDescription extends StatefulWidget {
   final String productImageUrl;
@@ -32,6 +35,11 @@ class _ProductDescriptionState extends State<ProductDescription> {
   bool heart = false;
   bool isClicked = false;
   bool isAddedToCart = true;
+  int qtyValue = 0;
+  bool isExceeded = true;
+  String? businessName;
+  String? logoUrl;
+  String? sellerUid;
 
   CollectionReference cart = FirebaseFirestore.instance
       .collection("buyer_info")
@@ -78,6 +86,9 @@ class _ProductDescriptionState extends State<ProductDescription> {
                     .collection("cart")
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    print("waiting...");
+                  }
                   int count = snapshot.data!.docs.length;
 
                   return Badge(
@@ -139,6 +150,9 @@ class _ProductDescriptionState extends State<ProductDescription> {
                         .snapshots(),
                     builder:
                         (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      businessName = snapshot.data?['businessName'];
+                      logoUrl = snapshot.data?['logoUrl'];
+                      sellerUid = snapshot.data?['uid'];
                       if (snapshot.connectionState == ConnectionState.none) {
                         Fluttertoast.showToast(msg: "waiting...");
                       } else {
@@ -197,15 +211,25 @@ class _ProductDescriptionState extends State<ProductDescription> {
                   ),
                   TextButton(
                     style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.red),
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          const Color(0xFFC21010)),
                       padding: MaterialStateProperty.all<EdgeInsets>(
                         EdgeInsets.symmetric(
                             horizontal: widthVar / 20,
                             vertical: heightVar / 60),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ViewShop(
+                            businessName: businessName,
+                            logoUrl: logoUrl,
+                            sellerUid: sellerUid,
+                          ),
+                        ),
+                      );
+                    },
                     child: const Text(
                       "View Shop",
                       style: TextStyle(color: Colors.white),
@@ -302,13 +326,42 @@ class _ProductDescriptionState extends State<ProductDescription> {
       ),
       persistentFooterButtons: [
         Wrap(
+          spacing: widthVar / 6,
           children: [
+            StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection("seller_info")
+                  .doc(widget.sellerUid)
+                  .collection("products")
+                  .doc()
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (snapshot.connectionState == ConnectionState.none) {
+                  print("Waiting...");
+                } else {
+                  return CounterButton(
+                    loading: false,
+                    onChange: (int val) {
+                      setState(() {
+                        qtyValue = val;
+                      });
+                    },
+                    count: qtyValue,
+                    countColor: const Color(0xFFC21010),
+                    buttonColor: const Color(0xFFC21010),
+                    progressColor: const Color(0xFFC21010),
+                  );
+                }
+                return Container();
+              },
+            ),
             TextButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(const Color(0xFFC21010)),
                 padding: MaterialStateProperty.all<EdgeInsets>(
                   EdgeInsets.symmetric(
-                      horizontal: widthVar / 7, vertical: heightVar / 60),
+                      horizontal: widthVar / 10, vertical: heightVar / 60),
                 ),
               ),
               onPressed: () {
