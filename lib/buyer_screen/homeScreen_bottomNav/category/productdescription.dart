@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/cart.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/viewshop.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pamine_mobile/model/cart_model.dart';
 
 class ProductDescription extends StatefulWidget {
   final String productImageUrl;
@@ -40,27 +41,35 @@ class _ProductDescriptionState extends State<ProductDescription> {
   String? businessName;
   String? logoUrl;
   String? sellerUid;
-
-  CollectionReference cart = FirebaseFirestore.instance
-      .collection("buyer_info")
-      .doc(FirebaseAuth.instance.currentUser!.uid)
-      .collection("cart");
+  int? subtotal;
 
   addToCart() async {
-    cart.doc().set({
-      "productName": widget.productName,
-      "productPrice": widget.productPrice,
-      "productImageUrl": widget.productImageUrl,
-    }).then((value) {
-      Fluttertoast.showToast(msg: "Product Added to Cart");
-    });
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    User? user = FirebaseAuth.instance.currentUser;
+
+    CartModel cartModel = CartModel();
+
+    cartModel.productImageUrl = widget.productImageUrl;
+    cartModel.productName = widget.productName;
+    cartModel.productPrice = int.parse(widget.productPrice);
+    cartModel.productQuantity = qtyValue;
+    cartModel.subtotal = subtotal;
+
+    await firebaseFirestore
+        .collection("buyer_info")
+        .doc(user?.uid)
+        .collection("cart")
+        .doc()
+        .set(cartModel.toMap())
+        .then(
+            (value) => {Fluttertoast.showToast(msg: "Product added to cart")});
   }
 
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
-
+    subtotal = qtyValue * int.parse(widget.productPrice);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -156,51 +165,54 @@ class _ProductDescriptionState extends State<ProductDescription> {
                       if (snapshot.connectionState == ConnectionState.none) {
                         Fluttertoast.showToast(msg: "waiting...");
                       } else {
-                        return Row(
-                          children: [
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              height: 70,
-                              width: 70,
-                              child: Stack(
-                                fit: StackFit.expand,
-                                clipBehavior: Clip.none,
-                                children: [
-                                  CircleAvatar(
-                                    backgroundImage:
-                                        NetworkImage(snapshot.data?['logoUrl']),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: widthVar / 50,
-                            ),
-                            Column(
-                              children: [
-                                Text(
-                                  snapshot.data?['businessName'],
-                                  style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Wrap(
-                                  crossAxisAlignment: WrapCrossAlignment.center,
+                        return Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                height: 70,
+                                width: 70,
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  clipBehavior: Clip.none,
                                   children: [
-                                    const Icon(
-                                      Icons.pin_drop_outlined,
-                                      size: 20,
-                                    ),
-                                    Text(
-                                      snapshot.data?['address'],
-                                      style: const TextStyle(
-                                          fontStyle: FontStyle.italic),
+                                    CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                          snapshot.data?['logoUrl']),
                                     ),
                                   ],
-                                )
-                              ],
-                            ),
-                          ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: widthVar / 50,
+                              ),
+                              Column(
+                                children: [
+                                  Text(
+                                    snapshot.data?['businessName'],
+                                    style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.pin_drop_outlined,
+                                        size: 20,
+                                      ),
+                                      Text(
+                                        snapshot.data?['address'],
+                                        style: const TextStyle(
+                                            fontStyle: FontStyle.italic),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
                         );
                       }
                       return Container();
@@ -267,43 +279,51 @@ class _ProductDescriptionState extends State<ProductDescription> {
             SizedBox(
               height: heightVar / 100,
             ),
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: widthVar / 1.9,
-              children: [
-                IconButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    if (isClicked == false) {
-                      setState(() {
-                        heart = true;
-                        isClicked = true;
-                      });
-                    } else {
-                      setState(() {
-                        heart = false;
-                        isClicked = false;
-                      });
-                    }
-                  },
-                  icon: heart == false
-                      ? const Icon(
-                          Icons.favorite_border_sharp,
-                          color: Colors.red,
-                          size: 50,
-                        )
-                      : const Icon(
-                          Icons.favorite,
-                          color: Colors.red,
-                          size: 50,
-                        ),
-                ),
-                Text(
-                  "Only ${widget.productQuantity} item/s left",
-                  style: const TextStyle(
-                      color: Colors.red, fontStyle: FontStyle.italic),
-                ),
-              ],
+            Container(
+              margin:
+                  EdgeInsets.only(left: widthVar / 25, right: widthVar / 25),
+              alignment: Alignment.centerLeft,
+              child: Row(
+                children: [
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      if (isClicked == false) {
+                        setState(() {
+                          heart = true;
+                          isClicked = true;
+                        });
+                      } else {
+                        setState(() {
+                          heart = false;
+                          isClicked = false;
+                        });
+                      }
+                    },
+                    icon: heart == false
+                        ? const Icon(
+                            Icons.favorite_border_sharp,
+                            color: Colors.red,
+                            size: 50,
+                          )
+                        : const Icon(
+                            Icons.favorite,
+                            color: Colors.red,
+                            size: 50,
+                          ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        "Only ${widget.productQuantity} item/s left",
+                        style: const TextStyle(
+                            color: Colors.red, fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             SizedBox(
               height: heightVar / 100,
@@ -325,57 +345,93 @@ class _ProductDescriptionState extends State<ProductDescription> {
         ),
       ),
       persistentFooterButtons: [
-        Wrap(
-          spacing: widthVar / 6,
+        Row(
           children: [
-            StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection("seller_info")
-                  .doc(widget.sellerUid)
-                  .collection("products")
-                  .doc()
-                  .snapshots(),
-              builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                if (snapshot.connectionState == ConnectionState.none) {
-                  print("Waiting...");
-                } else {
-                  return CounterButton(
-                    loading: false,
-                    onChange: (int val) {
-                      setState(() {
-                        qtyValue = val;
-                      });
-                    },
-                    count: qtyValue,
-                    countColor: const Color(0xFFC21010),
-                    buttonColor: const Color(0xFFC21010),
-                    progressColor: const Color(0xFFC21010),
-                  );
-                }
-                return Container();
-              },
+            Container(
+              alignment: Alignment.center,
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("seller_info")
+                    .doc(widget.sellerUid)
+                    .collection("products")
+                    .doc()
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.none) {
+                    print("Waiting...");
+                  } else {
+                    return widget.productQuantity == "1"
+                        ? Container()
+                        : CounterButton(
+                            loading: false,
+                            onChange: (int val) {
+                              if (val > int.parse(widget.productQuantity)) {
+                                setState(() {
+                                  Fluttertoast.showToast(
+                                      msg: "Total Quantity Exceeded");
+                                });
+                              }
+                              setState(() {
+                                qtyValue = val;
+                              });
+                            },
+                            count: qtyValue,
+                            countColor: const Color(0xFFC21010),
+                            buttonColor: const Color(0xFFC21010),
+                            progressColor: const Color(0xFFC21010),
+                          );
+                  }
+                  return Container();
+                },
+              ),
             ),
-            TextButton(
-              style: ButtonStyle(
-                backgroundColor:
-                    MaterialStateProperty.all<Color>(const Color(0xFFC21010)),
-                padding: MaterialStateProperty.all<EdgeInsets>(
-                  EdgeInsets.symmetric(
-                      horizontal: widthVar / 10, vertical: heightVar / 60),
-                ),
-              ),
-              onPressed: () {
-                if (isAddedToCart) {
-                  setState(() {
-                    isAddedToCart = false;
-                    addToCart();
-                  });
-                }
-              },
-              child: const Text(
-                'Add to Cart',
-                style: TextStyle(color: Colors.white),
-              ),
+            widget.productQuantity == "1"
+                ? Container()
+                : SizedBox(
+                    width: widthVar / 30,
+                  ),
+            Expanded(
+              child:
+                  qtyValue > int.parse(widget.productQuantity) || qtyValue < 1
+                      ? TextButton(
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.grey),
+                            padding: MaterialStateProperty.all<EdgeInsets>(
+                              EdgeInsets.symmetric(
+                                  horizontal: widthVar / 8,
+                                  vertical: heightVar / 50),
+                            ),
+                          ),
+                          onPressed: null,
+                          child: const Text(
+                            'Add to Cart',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        )
+                      : TextButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                const Color(0xFFC21010)),
+                            padding: MaterialStateProperty.all<EdgeInsets>(
+                              EdgeInsets.symmetric(
+                                  horizontal: widthVar / 8,
+                                  vertical: heightVar / 50),
+                            ),
+                          ),
+                          onPressed: () {
+                            if (isAddedToCart) {
+                              setState(() {
+                                isAddedToCart = false;
+                                addToCart();
+                              });
+                            }
+                          },
+                          child: const Text(
+                            'Add to Cart',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
             ),
           ],
         ),

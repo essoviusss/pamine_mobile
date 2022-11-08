@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:contained_tab_bar_view/contained_tab_bar_view.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/viewshoptabs/shopproducts.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/viewshoptabs/shopsoldproducts.dart';
 

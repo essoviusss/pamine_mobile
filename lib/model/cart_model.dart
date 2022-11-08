@@ -1,12 +1,16 @@
 class CartModel {
   String? productImageUrl;
   String? productName;
-  String? productPrice;
+  int? productPrice;
+  int? productQuantity;
+  int? subtotal;
 
   CartModel({
-    required this.productImageUrl,
-    required this.productName,
-    required this.productPrice,
+    this.productImageUrl,
+    this.productName,
+    this.productPrice,
+    this.productQuantity,
+    this.subtotal,
   });
 
   factory CartModel.fromMap(map) {
@@ -14,6 +18,8 @@ class CartModel {
       productImageUrl: map['productImageUrl'],
       productName: map['productName'],
       productPrice: map['productPrice'],
+      productQuantity: map['productQuantity'],
+      subtotal: map['subtotal'],
     );
   }
   Map<String, dynamic> toMap() {
@@ -21,6 +27,8 @@ class CartModel {
       'productImageUrl': productImageUrl,
       'productName': productName,
       'productPrice': productPrice,
+      'productQuantity': productQuantity,
+      'subtotal': subtotal,
     };
   }
 }

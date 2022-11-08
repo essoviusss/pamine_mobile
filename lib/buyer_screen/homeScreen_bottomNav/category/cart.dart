@@ -23,10 +23,14 @@ class _CartState extends State<Cart> {
     await cartItemDel.doc(itemId).delete();
   }
 
+  int basetotal = 0;
+  int? subtotal1;
+
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -34,7 +38,7 @@ class _CartState extends State<Cart> {
         title: const Text("My Cart"),
         centerTitle: true,
       ),
-      body: SafeArea(
+      body: SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(
@@ -58,6 +62,17 @@ class _CartState extends State<Cart> {
                   .collection("cart")
                   .snapshots(),
               builder: (context, snapshot) {
+                final cartItems =
+                    snapshot.data.docs.map((DocumentSnapshot doc) {
+                  CartModel.fromMap(doc.data());
+                  subtotal1 = doc.get("subtotal");
+                });
+
+                basetotal = cartItems.fold(
+                    0, (subtotal, index) => subtotal + subtotal1);
+
+                print(basetotal);
+
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return LoadingAnimationWidget.waveDots(
                     color: Colors.blue,
@@ -65,130 +80,167 @@ class _CartState extends State<Cart> {
                   );
                 } else {
                   return SingleChildScrollView(
-                    child: Container(
-                      height: heightVar / 2,
-                      margin: EdgeInsets.only(
-                        left: widthVar / 25,
-                        right: widthVar / 25,
-                      ),
-                      child: ListView.builder(
-                          itemCount: snapshot.data.docs.length,
-                          itemBuilder: (context, index) {
-                            CartModel cartItem = CartModel.fromMap(
-                                snapshot.data.docs[index].data());
-                            return Container(
-                              height: heightVar / 10,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    spreadRadius: 0.1,
-                                    blurStyle: BlurStyle.normal,
-                                    color: Colors.grey,
-                                    blurRadius: 10,
-                                    offset: Offset(4, 8), // Shadow position
-                                  ),
-                                ],
-                              ),
-                              margin: EdgeInsets.only(
-                                bottom: heightVar / 80,
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    margin:
-                                        EdgeInsets.only(left: widthVar / 20),
-                                    child: Image.network(
-                                      cartItem.productImageUrl!,
-                                      height: 60,
-                                      width: 60,
+                      child: Column(
+                    children: [
+                      Container(
+                        height: heightVar / 2,
+                        margin: EdgeInsets.only(
+                          left: widthVar / 25,
+                          right: widthVar / 25,
+                        ),
+                        child: ListView.builder(
+                            itemCount: cartItems.length,
+                            itemBuilder: (context, index) {
+                              CartModel cartItem = CartModel.fromMap(
+                                  snapshot.data.docs[index].data());
+
+                              return Container(
+                                height: heightVar / 10,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      spreadRadius: 0.1,
+                                      blurStyle: BlurStyle.normal,
+                                      color: Colors.grey,
+                                      blurRadius: 10,
+                                      offset: Offset(4, 8), // Shadow position
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: widthVar / 6,
-                                  ),
-                                  Wrap(
-                                    spacing: widthVar / 20,
-                                    children: [
-                                      SizedBox(
-                                        width: widthVar / 3,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              cartItem.productName!,
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                                "₱${cartItem.productPrice!}.00"),
-                                            Text("Quantity: "),
-                                          ],
-                                        ),
+                                  ],
+                                ),
+                                margin: EdgeInsets.only(
+                                  bottom: heightVar / 80,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      margin:
+                                          EdgeInsets.only(left: widthVar / 20),
+                                      child: Image.network(
+                                        cartItem.productImageUrl!,
+                                        height: 60,
+                                        width: 60,
                                       ),
-                                      IconButton(
-                                        onPressed: () {
-                                          itemDelete(
-                                              snapshot.data!.docs[index].id);
-                                        },
-                                        icon: const Icon(
-                                          Icons.delete,
-                                          color: Color(0xFFC21010),
+                                    ),
+                                    SizedBox(
+                                      width: widthVar / 6,
+                                    ),
+                                    Wrap(
+                                      spacing: widthVar / 20,
+                                      children: [
+                                        SizedBox(
+                                          width: widthVar / 3,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                cartItem.productName!,
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              Text(
+                                                  "₱${cartItem.productPrice.toString()}.00"),
+                                              Text(
+                                                  "Qty: ${cartItem.productQuantity}"),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                    ),
-                  );
+                                        IconButton(
+                                          onPressed: () {
+                                            itemDelete(
+                                                snapshot.data!.docs[index].id);
+                                          },
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Color(0xFFC21010),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                      ),
+                    ],
+                  ));
                 }
               },
             ),
-            Container(
-              alignment: Alignment.centerLeft,
-              margin: EdgeInsets.only(
-                left: widthVar / 25,
-                right: widthVar / 25,
-                top: heightVar / 70,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Price Breakdown",
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  Wrap(
-                    children: [
-                      const Text(
-                        "Base Price",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      Text(""),
-                    ],
-                  ),
-                  Text("Taxes",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  Text("Delivery Fee",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  Text("Total",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                ],
-              ),
+            //item 1 price: 10000
+            //item 2 price: 798
+            //expected output: 10798
+
+            StreamBuilder<dynamic>(
+              stream: FirebaseFirestore.instance
+                  .collection("buyer_info")
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .collection("cart")
+                  .doc()
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  print("waiting...");
+                } else {
+                  return Container(
+                    alignment: Alignment.centerLeft,
+                    margin: EdgeInsets.only(
+                      left: widthVar / 25,
+                      right: widthVar / 25,
+                      top: heightVar / 70,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Price Breakdown",
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: const Text(
+                                "Base Price",
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(
+                                alignment: Alignment.centerRight,
+                                child: Text("₱$basetotal.00",
+                                    style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFFC21010))),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text("Taxes",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text("Delivery Fee",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text("Total",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  );
+                }
+                return Container();
+              },
             ),
           ],
         ),

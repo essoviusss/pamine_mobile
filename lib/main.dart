@@ -11,6 +11,7 @@ import 'package:pamine_mobile/seller_screen/seller_home.dart';
 import 'package:pamine_mobile/seller_screen/seller_login.dart';
 import 'package:provider/provider.dart';
 import 'controllers/path_controller.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +55,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
+        fontFamily: GoogleFonts.raleway().fontFamily,
         primaryColor: Colors.transparent,
       ),
       debugShowCheckedModeBanner: false,
