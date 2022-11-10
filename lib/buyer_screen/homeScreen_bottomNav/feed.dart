@@ -4,6 +4,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:animated_icon/animate_icon.dart';
+import 'package:animated_icon/animate_icons.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -164,6 +166,19 @@ class _FeedState extends State<Feed> {
     });
   }
 
+  updataStatusCancelled() async {
+    CollectionReference update =
+        FirebaseFirestore.instance.collection("livestream");
+
+    await update
+        .doc(widget.channelId)
+        .collection("pinned_item")
+        .doc("pinnedItem")
+        .update({
+      "productStatus": "pinned",
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -172,11 +187,10 @@ class _FeedState extends State<Feed> {
     final size = MediaQuery.of(context).size;
     String? productName,
         productCategory,
-        productPrice,
         productDescription,
         productImageUrl,
         productStatus;
-    bool? isPinned;
+    int? productPrice;
     return WillPopScope(
       onWillPop: () async {
         await _leaveChannel();
@@ -236,7 +250,6 @@ class _FeedState extends State<Feed> {
                             child: const Text(""),
                           );
                         }
-                        isPinned = !snapshot.data!.exists;
                         productName = snapshot.data?['productName'];
                         productCategory = snapshot.data?['productCategory'];
                         productPrice = snapshot.data?['productPrice'];
@@ -245,8 +258,21 @@ class _FeedState extends State<Feed> {
                         productImageUrl = snapshot.data?['productImageUrl'];
                         productStatus = snapshot.data?['productStatus'];
                         return Container(
-                          height: heightVar / 30,
-                          color: Colors.purple.withOpacity(0.6),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(35),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment(0.8, 1),
+                              colors: <Color>[
+                                Color(0xffca485c),
+                                Color(0xffe16b5c),
+                                Color(0xfff39060),
+                                Color(0xffffb56b),
+                              ], // Gradient from https://learnui.design/tools/gradient-generator.html
+                              tileMode: TileMode.mirror,
+                            ),
+                          ),
+                          height: heightVar / 18,
                           child: Container(
                             alignment: Alignment.center,
                             width: widthVar / 1.5,
@@ -254,7 +280,28 @@ class _FeedState extends State<Feed> {
                               scrollDirection: Axis.horizontal,
                               child: Row(
                                 children: [
+                                  SizedBox(
+                                    width: widthVar / 60,
+                                  ),
+                                  CircleAvatar(
+                                    backgroundColor:
+                                        Color.fromARGB(255, 255, 4, 4),
+                                    child: AnimateIcon(
+                                      key: UniqueKey(),
+                                      onTap: () {},
+                                      iconType: IconType.continueAnimation,
+                                      height: 30,
+                                      width: 30,
+                                      color: Colors.white,
+                                      animateIcon: AnimateIcons.bell,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: widthVar / 50,
+                                  ),
                                   Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
                                     spacing: 20,
                                     children: [
                                       Text(
@@ -262,21 +309,16 @@ class _FeedState extends State<Feed> {
                                         style: const TextStyle(
                                             fontSize: 15,
                                             color: Colors.white,
-                                            fontStyle: FontStyle.italic),
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         "Price: ₱${snapshot.data?['productPrice']}",
                                         style: const TextStyle(
                                             fontSize: 15,
                                             color: Colors.white,
-                                            fontStyle: FontStyle.italic),
-                                      ),
-                                      Text(
-                                        "Category: ${snapshot.data?['productCategory']}",
-                                        style: const TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                            fontStyle: FontStyle.italic),
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   )
@@ -303,6 +345,7 @@ class _FeedState extends State<Feed> {
                 ),
               ],
             ),
+            //comments
             Row(
               children: [
                 Stack(
@@ -339,59 +382,67 @@ class _FeedState extends State<Feed> {
                                         const Duration(milliseconds: 500),
                                         () => _myController.jumpTo(_myController
                                             .position.maxScrollExtent));
-                                    return ListView.builder(
-                                      controller: _myController,
-                                      itemCount: snapshot.data.docs.length,
-                                      itemBuilder: (context, index) =>
-                                          Container(
-                                        margin: EdgeInsets.only(
-                                            top: 8, right: widthVar / 2),
-                                        decoration: BoxDecoration(
-                                            color: Colors.grey.withOpacity(0.1),
-                                            border: Border.all(
-                                                color: Colors.transparent,
-                                                width: 3.0),
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(10.0)),
-                                            boxShadow: const [
-                                              BoxShadow(
-                                                  blurRadius: 10,
+                                    if (snapshot.hasData) {
+                                      return ListView.builder(
+                                        controller: _myController,
+                                        itemCount: snapshot.data?.docs.length,
+                                        itemBuilder: (context, index) =>
+                                            Container(
+                                          margin: EdgeInsets.only(
+                                              top: 8, right: widthVar / 2),
+                                          decoration: BoxDecoration(
+                                              color:
+                                                  Colors.grey.withOpacity(0.1),
+                                              border: Border.all(
                                                   color: Colors.transparent,
-                                                  offset: Offset(1, 3))
-                                            ]),
-                                        child: ListTile(
-                                          dense: true,
-                                          contentPadding: const EdgeInsets.only(
-                                              left: 10,
-                                              right: 0.0,
-                                              top: 0,
-                                              bottom: 10),
-                                          visualDensity: const VisualDensity(
-                                              horizontal: 0, vertical: -4),
-                                          title: Text(
-                                            snapshot.data.docs[index]
-                                                ['username'],
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: snapshot.data.docs[index]
-                                                          ['uid'] ==
-                                                      FirebaseAuth.instance
-                                                          .currentUser!.uid
-                                                  ? const Color.fromARGB(
-                                                      255, 99, 9, 3)
-                                                  : Colors.blue,
+                                                  width: 3.0),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(10.0)),
+                                              boxShadow: const [
+                                                BoxShadow(
+                                                    blurRadius: 10,
+                                                    color: Colors.transparent,
+                                                    offset: Offset(1, 3))
+                                              ]),
+                                          child: ListTile(
+                                            dense: true,
+                                            contentPadding:
+                                                const EdgeInsets.only(
+                                                    left: 10,
+                                                    right: 0.0,
+                                                    top: 0,
+                                                    bottom: 10),
+                                            visualDensity: const VisualDensity(
+                                                horizontal: 0, vertical: -4),
+                                            title: Text(
+                                              snapshot.data?.docs[index]
+                                                  ['username'],
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    snapshot.data.docs?[index]
+                                                                ['uid'] ==
+                                                            FirebaseAuth
+                                                                .instance
+                                                                .currentUser!
+                                                                .uid
+                                                        ? const Color.fromARGB(
+                                                            255, 99, 9, 3)
+                                                        : Colors.blue,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              snapshot.data?.docs[index]
+                                                  ['message'],
+                                              style: const TextStyle(
+                                                  color: Colors.white),
                                             ),
                                           ),
-                                          subtitle: Text(
-                                            snapshot.data.docs[index]
-                                                ['message'],
-                                            style: const TextStyle(
-                                                color: Colors.white),
-                                          ),
                                         ),
-                                      ),
-                                    );
+                                      );
+                                    }
+                                    return Container();
                                   },
                                 ),
                               ),
@@ -465,11 +516,28 @@ class _FeedState extends State<Feed> {
                                               Widget cancelButton = TextButton(
                                                 child: const Text("Cancel"),
                                                 onPressed: () {
+                                                  updataStatusCancelled();
                                                   Navigator.of(context).pop();
                                                 },
                                               );
                                               Widget mineButton = TextButton(
-                                                child: const Text("Confirm"),
+                                                style: ButtonStyle(
+                                                  backgroundColor:
+                                                      MaterialStateProperty.all<
+                                                          Color>(Colors.blue),
+                                                  padding: MaterialStateProperty
+                                                      .all<EdgeInsets>(
+                                                    EdgeInsets.symmetric(
+                                                        horizontal:
+                                                            widthVar / 12,
+                                                        vertical: 15),
+                                                  ),
+                                                ),
+                                                child: const Text(
+                                                  "Confirm",
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
                                                 onPressed: () {
                                                   if (isClicked) {
                                                     setState(() {
@@ -613,28 +681,42 @@ class _FeedState extends State<Feed> {
                                                                           top: heightVar /
                                                                               99)),
                                                                 ),
-                                                                Text(
-                                                                  snapshot.data?[
-                                                                      'productName'],
-                                                                  style: const TextStyle(
-                                                                      color: Colors
-                                                                          .black,
-                                                                      fontSize:
-                                                                          20,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                ),
-                                                                Text(
+                                                                Container(
+                                                                  margin: EdgeInsets.only(
+                                                                      left: widthVar /
+                                                                          25),
+                                                                  alignment:
+                                                                      Alignment
+                                                                          .centerLeft,
+                                                                  child: Text(
                                                                     snapshot.data?[
-                                                                        'productPrice'],
+                                                                        'productName'],
                                                                     style: const TextStyle(
                                                                         color: Colors
                                                                             .black,
                                                                         fontSize:
-                                                                            15,
+                                                                            20,
                                                                         fontWeight:
-                                                                            FontWeight.bold)),
+                                                                            FontWeight.bold),
+                                                                  ),
+                                                                ),
+                                                                Container(
+                                                                  margin: EdgeInsets.only(
+                                                                      left: widthVar /
+                                                                          25),
+                                                                  alignment:
+                                                                      Alignment
+                                                                          .centerLeft,
+                                                                  child: Text(
+                                                                      "Price: ₱$productPrice.00",
+                                                                      style: const TextStyle(
+                                                                          color: Colors
+                                                                              .red,
+                                                                          fontSize:
+                                                                              15,
+                                                                          fontWeight:
+                                                                              FontWeight.bold)),
+                                                                ),
                                                               ],
                                                             ),
                                                           ],
@@ -706,7 +788,7 @@ class _FeedState extends State<Feed> {
                                       }
                                     },
                                   ),
-                                  //cart button
+                                  //nined items
                                   InkWell(
                                     onTap: () {
                                       showModalBottomSheet<void>(
@@ -803,6 +885,8 @@ class _FeedState extends State<Feed> {
                                                                     Column(
                                                                       children: [
                                                                         Column(
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.start,
                                                                           children: [
                                                                             AspectRatio(
                                                                               aspectRatio: 1 / 1,
@@ -811,12 +895,17 @@ class _FeedState extends State<Feed> {
                                                                             SizedBox(
                                                                               child: Padding(padding: EdgeInsets.only(top: heightVar / 99)),
                                                                             ),
-                                                                            Text(
-                                                                              post.productName!,
-                                                                              style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+                                                                            Container(
+                                                                              margin: EdgeInsets.only(left: widthVar / 25),
+                                                                              child: Text(
+                                                                                post.productName!,
+                                                                                style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+                                                                              ),
                                                                             ),
-                                                                            Text(post.productPrice!.toString(),
-                                                                                style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
+                                                                            Container(
+                                                                              margin: EdgeInsets.only(left: widthVar / 25),
+                                                                              child: Text("₱${post.productPrice!}.00", style: const TextStyle(color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold)),
+                                                                            ),
                                                                           ],
                                                                         ),
                                                                       ],
@@ -847,18 +936,24 @@ class _FeedState extends State<Feed> {
                                       builder: (context,
                                           AsyncSnapshot<QuerySnapshot>
                                               snapshot) {
-                                        int count = snapshot.data!.docs.length;
-
-                                        return Badge(
-                                          animationDuration:
-                                              const Duration(seconds: 1),
-                                          badgeContent: Text('$count'),
-                                          child: const Icon(
-                                            Icons.shopping_bag,
-                                            color: Colors.white,
-                                            size: 55,
-                                          ),
-                                        );
+                                        int? count = snapshot.data?.docs.length;
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          print("waiting...");
+                                        }
+                                        if (snapshot.hasData) {
+                                          return Badge(
+                                            animationDuration:
+                                                const Duration(seconds: 1),
+                                            badgeContent: Text('$count'),
+                                            child: const Icon(
+                                              Icons.shopping_bag,
+                                              color: Colors.white,
+                                              size: 55,
+                                            ),
+                                          );
+                                        }
+                                        return Container();
                                       },
                                     ),
                                   ),

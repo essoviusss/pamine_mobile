@@ -1,12 +1,10 @@
-import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:counter_button/counter_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/cart.dart';
+import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/cart_button/cart_button.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/viewshop.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:pamine_mobile/model/cart_model.dart';
 
 class ProductDescription extends StatefulWidget {
@@ -76,45 +74,8 @@ class _ProductDescriptionState extends State<ProductDescription> {
         centerTitle: true,
         backgroundColor: const Color(0xFFC21010),
         title: const Text("Description"),
-        actions: [
-          //There is a null check error here, will fix later
-          Container(
-            margin: EdgeInsets.only(right: widthVar / 40),
-            child: InkWell(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const Cart(),
-                  ),
-                );
-              },
-              child: StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection("buyer_info")
-                    .doc(FirebaseAuth.instance.currentUser!.uid)
-                    .collection("cart")
-                    .snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    print("waiting...");
-                  }
-                  int count = snapshot.data!.docs.length;
-
-                  return Badge(
-                    badgeColor: const Color.fromARGB(255, 158, 158, 158),
-                    position: BadgePosition.topEnd(top: 0, end: -3),
-                    animationDuration: const Duration(seconds: 1),
-                    badgeContent: Text('$count'),
-                    child: const Icon(
-                      Icons.shopping_cart,
-                      color: Colors.white,
-                      size: 35,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
+        actions: const [
+          CartButton(),
         ],
       ),
       body: SingleChildScrollView(

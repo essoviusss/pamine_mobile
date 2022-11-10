@@ -109,16 +109,14 @@ class _ViewShopState extends State<ViewShop> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      Container(
-                        child: const TabBar(
-                          indicatorColor: Color(0xFFC21010),
-                          labelColor: Color(0xFFC21010),
-                          unselectedLabelColor: Colors.black,
-                          tabs: [
-                            Tab(text: 'Products'),
-                            Tab(text: 'Sold Products'),
-                          ],
-                        ),
+                      const TabBar(
+                        indicatorColor: Color(0xFFC21010),
+                        labelColor: Color(0xFFC21010),
+                        unselectedLabelColor: Colors.black,
+                        tabs: [
+                          Tab(text: 'Products'),
+                          Tab(text: 'Sold Products'),
+                        ],
                       ),
                       Container(
                         height: 400, //height of TabBarView
@@ -135,7 +133,7 @@ class _ViewShopState extends State<ViewShop> {
                       )
                     ],
                   ),
-                )
+                ),
               ],
             ),
           );

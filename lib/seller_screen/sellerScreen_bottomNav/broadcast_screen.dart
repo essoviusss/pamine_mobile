@@ -2,8 +2,11 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:animated_icon/animate_icon.dart';
+import 'package:animated_icon/animate_icons.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -305,8 +308,21 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                           );
                         }
                         return Container(
-                          height: heightVar / 30,
-                          color: Colors.purple.withOpacity(0.6),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(35),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment(0.8, 1),
+                              colors: <Color>[
+                                Color(0xffca485c),
+                                Color(0xffe16b5c),
+                                Color(0xfff39060),
+                                Color(0xffffb56b),
+                              ], // Gradient from https://learnui.design/tools/gradient-generator.html
+                              tileMode: TileMode.mirror,
+                            ),
+                          ),
+                          height: heightVar / 18,
                           child: Container(
                             alignment: Alignment.center,
                             width: widthVar / 1.5,
@@ -314,7 +330,28 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                               scrollDirection: Axis.horizontal,
                               child: Row(
                                 children: [
+                                  SizedBox(
+                                    width: widthVar / 60,
+                                  ),
+                                  CircleAvatar(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 255, 4, 4),
+                                    child: AnimateIcon(
+                                      key: UniqueKey(),
+                                      onTap: () {},
+                                      iconType: IconType.continueAnimation,
+                                      height: 30,
+                                      width: 30,
+                                      color: Colors.white,
+                                      animateIcon: AnimateIcons.bell,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: widthVar / 50,
+                                  ),
                                   Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
                                     spacing: 20,
                                     children: [
                                       Text(
@@ -322,21 +359,16 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                         style: const TextStyle(
                                             fontSize: 15,
                                             color: Colors.white,
-                                            fontStyle: FontStyle.italic),
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         "Price: ₱${snapshot.data?['productPrice']}",
                                         style: const TextStyle(
                                             fontSize: 15,
                                             color: Colors.white,
-                                            fontStyle: FontStyle.italic),
-                                      ),
-                                      Text(
-                                        "Category: ${snapshot.data?['productCategory']}",
-                                        style: const TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                            fontStyle: FontStyle.italic),
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   )
@@ -470,7 +502,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                           int count = snapshot.data!.docs.length;
 
                           return Badge(
-                            badgeColor: Colors.blue,
+                            badgeColor: Colors.red,
                             animationDuration: const Duration(seconds: 1),
                             badgeContent: Text('$count'),
                             child: const Icon(
@@ -798,6 +830,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                                                         Column(
                                                                           children: [
                                                                             Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
                                                                               children: [
                                                                                 AspectRatio(
                                                                                   aspectRatio: 1 / 1,
@@ -806,16 +839,22 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                                                                 SizedBox(
                                                                                   child: Padding(padding: EdgeInsets.only(top: heightVar / 99)),
                                                                                 ),
-                                                                                Text(
-                                                                                  post.productName!,
-                                                                                  style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+                                                                                Container(
+                                                                                  margin: EdgeInsets.only(left: widthVar / 25),
+                                                                                  child: Text(
+                                                                                    post.productName!,
+                                                                                    style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+                                                                                  ),
                                                                                 ),
-                                                                                Text(post.productPrice!.toString(),
-                                                                                    style: const TextStyle(
-                                                                                      color: Colors.black,
-                                                                                      fontSize: 15,
-                                                                                      fontWeight: FontWeight.bold,
-                                                                                    )),
+                                                                                Container(
+                                                                                  margin: EdgeInsets.only(left: widthVar / 25),
+                                                                                  child: Text("₱${post.productPrice!}.oo",
+                                                                                      style: const TextStyle(
+                                                                                        color: Colors.red,
+                                                                                        fontSize: 15,
+                                                                                        fontWeight: FontWeight.bold,
+                                                                                      )),
+                                                                                ),
                                                                               ],
                                                                             ),
                                                                           ],

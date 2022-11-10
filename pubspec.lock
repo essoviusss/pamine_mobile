@@ -8,6 +8,34 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.3.0"
+  anim_search_app_bar:
+    dependency: "direct main"
+    description:
+      name: anim_search_app_bar
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
+  animated_icon:
+    dependency: "direct main"
+    description:
+      name: animated_icon
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
+  animated_toggle_switch:
+    dependency: "direct main"
+    description:
+      name: animated_toggle_switch
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.2"
+  archive:
+    dependency: transitive
+    description:
+      name: archive
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.3.2"
   async:
     dependency: transitive
     description:
@@ -518,6 +546,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0+3"
+  lottie:
+    dependency: transitive
+    description:
+      name: lottie
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.4.3"
   matcher:
     dependency: transitive
     description:
@@ -707,6 +742,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0"
+  roundcheckbox:
+    dependency: "direct main"
+    description:
+      name: roundcheckbox
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.5"
   sign_in_with_apple:
     dependency: transitive
     description:
@@ -832,5 +874,5 @@ packages:
     source: hosted
     version: "6.1.0"
 sdks:
-  dart: ">=2.17.6 <3.0.0"
-  flutter: ">=3.0.0"
+  dart: ">=2.18.0 <3.0.0"
+  flutter: ">=3.3.0"
