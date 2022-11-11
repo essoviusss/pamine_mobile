@@ -39,8 +39,7 @@ class homePage extends StatelessWidget {
               appBar: AppBar(
                 backgroundColor: const Color(0xFFC21010),
                 title: Container(
-                  margin:
-                      EdgeInsets.only(left: widthVar / 25, top: heightVar / 60),
+                  margin: EdgeInsets.only(left: widthVar / 25),
                   child: Text(
                       "Hi, ${FirebaseAuth.instance.currentUser!.displayName}!"),
                 ),
@@ -49,18 +48,18 @@ class homePage extends StatelessWidget {
                       builder: (context) => const profilePage())),
                   child: Container(
                     margin: EdgeInsets.only(
-                        left: widthVar / 25, top: heightVar / 60),
+                      left: widthVar / 45,
+                    ),
                     child: CircleAvatar(
                       backgroundImage: NetworkImage(
-                          FirebaseAuth.instance.currentUser!.photoURL!,
-                          scale: 10),
+                        FirebaseAuth.instance.currentUser!.photoURL!,
+                      ),
                     ),
                   ),
                 ),
                 actions: [
                   Container(
-                    margin: EdgeInsets.only(
-                        left: widthVar / 25, top: heightVar / 60),
+                    margin: EdgeInsets.only(left: widthVar / 25),
                     child: const CartButton(),
                   ),
                 ],
@@ -86,22 +85,23 @@ class homePage extends StatelessWidget {
             ),
             SizedBox(height: size.height * 0.03),
             StreamBuilder<dynamic>(
-                stream: FirebaseFirestore.instance
-                    .collection('livestream')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.none) {
-                    return const CircularProgressIndicator();
-                  }
+              stream: FirebaseFirestore.instance
+                  .collection('livestream')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.none) {
+                  return const CircularProgressIndicator();
+                }
 
+                if (snapshot.hasData) {
                   return Expanded(
                     child: SizedBox(
                       width: widthVar / 1,
                       child: ListView.builder(
-                          itemCount: snapshot.data.docs.length,
+                          itemCount: snapshot.data?.docs.length,
                           itemBuilder: (context, index) {
                             LiveStream post = LiveStream.fromMap(
-                                snapshot.data.docs[index].data());
+                                snapshot.data?.docs[index].data());
 
                             return InkWell(
                               onTap: () async {
@@ -204,7 +204,10 @@ class homePage extends StatelessWidget {
                           }),
                     ),
                   );
-                }),
+                }
+                return Container();
+              },
+            ),
           ],
         ),
       ),

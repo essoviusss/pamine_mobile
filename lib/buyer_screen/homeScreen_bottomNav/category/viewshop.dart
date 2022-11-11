@@ -36,107 +36,116 @@ class _ViewShopState extends State<ViewShop> {
             .doc(widget.sellerUid)
             .snapshots(),
         builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(
-                          left: widthVar / 25, top: heightVar / 60),
-                      alignment: Alignment.centerLeft,
-                      height: 115,
-                      width: 115,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        clipBehavior: Clip.none,
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(widget.logoUrl!),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: widthVar / 15,
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: heightVar / 60),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          snapshot.data?['dtiRegistered'] == "Yes"
-                              ? Wrap(
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  spacing: widthVar / 50,
-                                  children: [
-                                    const Icon(
-                                      Icons.verified,
-                                      color: Color(0xFFC21010),
-                                    ),
-                                    Text(
-                                      snapshot.data?['businessName'],
-                                      style: const TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                )
-                              : Text(
-                                  snapshot.data?['businessName'],
-                                  style: const TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                          Text(
-                            "Owner: ${snapshot.data?['businessOwnerName']}",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            "${snapshot.data?['phoneNumber']}",
-                            style: const TextStyle(fontStyle: FontStyle.italic),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: heightVar / 60,
-                ),
-                DefaultTabController(
-                  length: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      const TabBar(
-                        indicatorColor: Color(0xFFC21010),
-                        labelColor: Color(0xFFC21010),
-                        unselectedLabelColor: Colors.black,
-                        tabs: [
-                          Tab(text: 'Products'),
-                          Tab(text: 'Sold Products'),
-                        ],
-                      ),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            print("waiting...");
+          }
+          if (snapshot.hasData) {
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  Row(
+                    children: [
                       Container(
-                        height: 400, //height of TabBarView
-                        decoration: const BoxDecoration(
-                            border: Border(
-                                top: BorderSide(
-                                    color: Colors.grey, width: 0.5))),
-                        child: const TabBarView(
-                          children: <Widget>[
-                            ShopProducts(),
-                            ShopSoldProducts(),
+                        margin: EdgeInsets.only(
+                            left: widthVar / 25, top: heightVar / 60),
+                        alignment: Alignment.centerLeft,
+                        height: 115,
+                        width: 115,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          clipBehavior: Clip.none,
+                          children: [
+                            CircleAvatar(
+                              backgroundImage: NetworkImage(widget.logoUrl!),
+                            ),
                           ],
                         ),
-                      )
+                      ),
+                      SizedBox(
+                        width: widthVar / 15,
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: heightVar / 60),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            snapshot.data?['dtiRegistered'] == "Yes"
+                                ? Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    spacing: widthVar / 50,
+                                    children: [
+                                      const Icon(
+                                        Icons.verified,
+                                        color: Color(0xFFC21010),
+                                      ),
+                                      Text(
+                                        snapshot.data?['businessName'],
+                                        style: const TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  )
+                                : Text(
+                                    snapshot.data?['businessName'],
+                                    style: const TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                            Text(
+                              "Owner: ${snapshot.data?['businessOwnerName']}",
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              "${snapshot.data?['phoneNumber']}",
+                              style:
+                                  const TextStyle(fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          );
+                  SizedBox(
+                    height: heightVar / 60,
+                  ),
+                  DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        const TabBar(
+                          indicatorColor: Color(0xFFC21010),
+                          labelColor: Color(0xFFC21010),
+                          unselectedLabelColor: Colors.black,
+                          tabs: [
+                            Tab(text: 'Products'),
+                            Tab(text: 'Sold Products'),
+                          ],
+                        ),
+                        Container(
+                          height: heightVar / 1, //height of TabBarView
+                          decoration: const BoxDecoration(
+                              border: Border(
+                                  top: BorderSide(
+                                      color: Colors.grey, width: 0.5))),
+                          child: const TabBarView(
+                            children: <Widget>[
+                              ShopProducts(),
+                              ShopSoldProducts(),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          return Container();
         },
       ),
     );

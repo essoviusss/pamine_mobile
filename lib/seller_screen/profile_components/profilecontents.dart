@@ -40,8 +40,8 @@ class _BodyState extends State<Body> {
           const ProfilePic(),
           const SizedBox(height: 20),
           ProfileMenu(
-            text: "My Products",
-            icon: const Icon(Icons.collections, color: Colors.red),
+            text: "My Shop",
+            icon: const Icon(Icons.shop_2, color: Colors.red),
             press: () => {
               Navigator.of(context).push(
                 MaterialPageRoute(

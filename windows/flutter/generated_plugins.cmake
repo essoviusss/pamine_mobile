@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   agora_rtc_engine
   desktop_webview_auth
+  geolocator_windows
   permission_handler_windows
 )
 

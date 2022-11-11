@@ -1,6 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_in_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_off_live.dart';
+import 'package:pamine_mobile/model/cart_model.dart';
+import 'package:pamine_mobile/model/mined_cart_model.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
 class CheckOut extends StatefulWidget {
@@ -10,8 +15,16 @@ class CheckOut extends StatefulWidget {
   State<CheckOut> createState() => _CheckOutState();
 }
 
+int? basetotal1;
+int? basetotal2;
+int? subtotal1;
+int? subtotal2;
+
 bool? option1 = false;
 bool? option2 = false;
+final firestore = FirebaseFirestore.instance
+    .collection("buyer_info")
+    .doc(FirebaseAuth.instance.currentUser!.uid);
 
 class _CheckOutState extends State<CheckOut> {
   @override
@@ -199,12 +212,78 @@ class _CheckOutState extends State<CheckOut> {
             Container(
               margin: EdgeInsets.only(right: widthVar / 25),
               alignment: Alignment.centerRight,
-              child: const Text(
-                "Total Price: ₱0.00",
-                style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20),
+              child: StreamBuilder<dynamic>(
+                stream: firestore.collection("cart").snapshots(),
+                builder: (context, snapshot) {
+                  final cartItems =
+                      snapshot.data?.docs.map((DocumentSnapshot doc) {
+                    CartModel.fromMap(doc.data());
+                    subtotal1 = doc.get("subtotal");
+                  });
+
+                  basetotal1 = cartItems?.fold(
+                      0, (subtotal, index) => subtotal + subtotal1!);
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    print("waiting...");
+                  }
+                  if (snapshot.hasData) {
+                    return StreamBuilder<dynamic>(
+                      stream:
+                          firestore.collection("mined_products").snapshots(),
+                      builder: (context, snapshot) {
+                        final cartItems =
+                            snapshot.data?.docs.map((DocumentSnapshot doc) {
+                          MinedCartModel.fromMap(doc.data());
+                          subtotal2 = doc.get("productPrice");
+                        });
+
+                        basetotal2 = cartItems?.fold(
+                            0, (subtotal, index) => subtotal + subtotal2!);
+
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          print("waiting...");
+                        }
+                        if (snapshot.hasData) {
+                          int? grandTotal = basetotal1! + basetotal2!;
+                          return option1 == true && option2 == true
+                              ? Text(
+                                  "Total Price: ₱$grandTotal.00",
+                                  style: const TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                )
+                              : option1 == true
+                                  ? Text(
+                                      "Total Price: ₱$basetotal2.00",
+                                      style: const TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
+                                    )
+                                  : option2 == true
+                                      ? Text(
+                                          "Total Price: ₱$basetotal1.00",
+                                          style: const TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20),
+                                        )
+                                      : const Text(
+                                          "Total Price: ₱0.00",
+                                          style: TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20),
+                                        );
+                        }
+                        return Container();
+                      },
+                    );
+                  }
+                  return Container();
+                },
               ),
             ),
             SizedBox(

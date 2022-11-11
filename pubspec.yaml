@@ -67,6 +67,7 @@ dependencies:
   animated_icon: ^0.0.4
   anim_search_app_bar: ^1.0.3
   roundcheckbox: ^2.0.5
+  map_location_picker: ^1.0.2
  
 
 

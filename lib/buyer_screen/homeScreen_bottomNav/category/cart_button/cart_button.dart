@@ -4,9 +4,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/cart.dart';
 
-class CartButton extends StatelessWidget {
+class CartButton extends StatefulWidget {
   const CartButton({super.key});
 
+  @override
+  State<CartButton> createState() => _CartButtonState();
+}
+
+class _CartButtonState extends State<CartButton> {
+  int? count1;
+  int? count;
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -28,21 +35,39 @@ class CartButton extends StatelessWidget {
               .collection("cart")
               .snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            int? count = snapshot.data?.docs.length;
+            count = snapshot.data?.docs.length;
             if (snapshot.connectionState == ConnectionState.waiting) {
               print("waiting...");
             }
             if (snapshot.hasData) {
-              return Badge(
-                badgeColor: const Color.fromARGB(255, 158, 158, 158),
-                position: BadgePosition.topEnd(top: -5, end: -3),
-                animationDuration: const Duration(seconds: 1),
-                badgeContent: Text('$count'),
-                child: const Icon(
-                  Icons.shopping_cart,
-                  color: Colors.white,
-                  size: 35,
-                ),
+              return StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("buyer_info")
+                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                    .collection("mined_products")
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  int? count1 = snapshot.data?.docs.length;
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    print("waiting...");
+                  }
+                  if (snapshot.hasData) {
+                    int totalCount = count! + count1!;
+                    return Badge(
+                      badgeColor: const Color.fromARGB(255, 158, 158, 158),
+                      position: BadgePosition.topEnd(top: 0, end: -3),
+                      animationDuration: const Duration(seconds: 1),
+                      badgeContent: Center(child: Text('$totalCount')),
+                      child: const Icon(
+                        Icons.shopping_cart,
+                        color: Colors.white,
+                        size: 35,
+                      ),
+                    );
+                  }
+                  return Container();
+                },
               );
             }
             return Container();
