@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/buyer_screen/profile_components/delivery_details_components/delivery_details.dart';
 import 'package:pamine_mobile/model/delivery_details_model.dart';
 
@@ -16,6 +17,13 @@ class _AddDeliveryDetailsState extends State<AddDeliveryDetails> {
       .collection("buyer_info")
       .doc(FirebaseAuth.instance.currentUser!.uid)
       .collection("delivery_details");
+
+  deleteDeliveryDetails(String id) async {
+    await firestore.doc(id).delete().then((value) {
+      Fluttertoast.showToast(msg: "Info Deleted!");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -25,7 +33,7 @@ class _AddDeliveryDetailsState extends State<AddDeliveryDetails> {
         backgroundColor: const Color(0xFFC21010),
         automaticallyImplyLeading: true,
         centerTitle: true,
-        title: const Text("Shipping Address"),
+        title: const Text("Delivery Details"),
       ),
       body: StreamBuilder<dynamic>(
         stream: firestore.snapshots(),
@@ -79,13 +87,23 @@ class _AddDeliveryDetailsState extends State<AddDeliveryDetails> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
                                   ),
+                                  InkWell(
+                                    onTap: () {},
+                                    child: const Icon(
+                                      Icons.edit,
+                                      color: Color(0xFFC21010),
+                                    ),
+                                  ),
                                   Expanded(
                                     child: Container(
                                       alignment: Alignment.centerRight,
                                       child: InkWell(
-                                        onTap: () {},
+                                        onTap: () {
+                                          deleteDeliveryDetails(
+                                              snapshot.data.docs[index].id);
+                                        },
                                         child: const Icon(
-                                          Icons.edit,
+                                          Icons.delete,
                                           color: Color(0xFFC21010),
                                         ),
                                       ),
@@ -141,7 +159,7 @@ class _AddDeliveryDetailsState extends State<AddDeliveryDetails> {
             ),
             const Text("Add Delivery Details")
           ],
-        )
+        ),
       ],
     );
   }

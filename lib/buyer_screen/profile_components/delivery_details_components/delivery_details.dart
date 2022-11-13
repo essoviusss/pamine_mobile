@@ -50,7 +50,7 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
         backgroundColor: const Color(0xFFC21010),
         automaticallyImplyLeading: true,
         centerTitle: true,
-        title: const Text("Delivery Details"),
+        title: const Text("Add Delivery Details"),
       ),
       body: Column(
         children: [

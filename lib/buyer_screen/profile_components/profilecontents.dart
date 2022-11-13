@@ -52,7 +52,7 @@ class _BodyState extends State<Body> {
             },
           ),
           ProfileMenu(
-            text: "Shipping Address",
+            text: "Delivery Details",
             icon: const Icon(Icons.location_city, color: Color(0xFFC21010)),
             press: () {
               Navigator.of(context).push(

@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_in_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_off_live.dart';
+import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/delivery_details_components/choose_delivery_details.dart';
 import 'package:pamine_mobile/model/cart_model.dart';
 import 'package:pamine_mobile/model/mined_cart_model.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
@@ -15,18 +16,22 @@ class CheckOut extends StatefulWidget {
   State<CheckOut> createState() => _CheckOutState();
 }
 
-int? basetotal1;
-int? basetotal2;
-int? subtotal1;
-int? subtotal2;
-
-bool? option1 = false;
-bool? option2 = false;
-final firestore = FirebaseFirestore.instance
-    .collection("buyer_info")
-    .doc(FirebaseAuth.instance.currentUser!.uid);
-
 class _CheckOutState extends State<CheckOut> {
+  int? basetotal1;
+  int? basetotal2;
+  int? subtotal1;
+  int? subtotal2;
+  int? grandTotal;
+
+  bool? isSet = true;
+  bool? option1 = false;
+  bool? option2 = false;
+  bool? paymentOption1 = false;
+
+  final firestore = FirebaseFirestore.instance
+      .collection("buyer_info")
+      .doc(FirebaseAuth.instance.currentUser!.uid);
+
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -63,7 +68,7 @@ class _CheckOutState extends State<CheckOut> {
                             width: 2,
                             color: option1 == true
                                 ? const Color(0xFFC21010)
-                                : Colors.grey),
+                                : const Color.fromARGB(255, 200, 200, 200)),
                         borderRadius: const BorderRadius.all(
                           Radius.circular(10),
                         ),
@@ -111,7 +116,7 @@ class _CheckOutState extends State<CheckOut> {
                             width: 2,
                             color: option2 == true
                                 ? const Color(0xFFC21010)
-                                : Colors.grey),
+                                : const Color.fromARGB(255, 200, 200, 200)),
                         borderRadius: const BorderRadius.all(
                           Radius.circular(10),
                         ),
@@ -159,22 +164,172 @@ class _CheckOutState extends State<CheckOut> {
               SizedBox(
                 height: heightVar / 60,
               ),
-              const Text("Shipping Address",
+              const Text("Delivery Details",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               SizedBox(
                 height: heightVar / 100,
               ),
-              Container(
-                width: double.infinity,
-                height: heightVar / 8,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.red,
-                  ),
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                ),
+              StreamBuilder(
+                stream: firestore
+                    .collection("default_delivery_details")
+                    .doc("default")
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  isSet = snapshot.data!.exists;
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    print("waiting...");
+                  }
+                  if (!snapshot.data!.exists) {
+                    return Container(
+                      width: double.infinity,
+                      height: heightVar / 8,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 2,
+                          color: Colors.grey,
+                        ),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Center(
+                            child: IconButton(
+                              iconSize: 70,
+                              onPressed: () {
+                                showModalBottomSheet<void>(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25.0),
+                                  ),
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return SizedBox(
+                                      height: heightVar / 2,
+                                      child: Column(
+                                        children: const [
+                                          Icon(
+                                            Icons.linear_scale_sharp,
+                                            size: 50,
+                                            color: Colors.grey,
+                                          ),
+                                          ChooseDeliveryDetails(),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.add_circle_outline,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                          const Text("Choose Delivery Details")
+                        ],
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(
+                            spreadRadius: 0.1,
+                            blurStyle: BlurStyle.normal,
+                            color: Colors.grey,
+                            blurRadius: 10,
+                            offset: Offset(4, 8), // Shadow position
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            height: heightVar / 10,
+                            margin: EdgeInsets.only(
+                              top: heightVar / 100,
+                              left: widthVar / 25,
+                              right: widthVar / 25,
+                              bottom: heightVar / 100,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      snapshot.data?['fullName'],
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15),
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        alignment: Alignment.centerRight,
+                                        child: InkWell(
+                                          onTap: () {
+                                            showModalBottomSheet<void>(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(25.0),
+                                              ),
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return SizedBox(
+                                                  height: heightVar / 2,
+                                                  child: Column(
+                                                    children: const [
+                                                      Icon(
+                                                        Icons
+                                                            .linear_scale_sharp,
+                                                        size: 50,
+                                                        color: Colors.grey,
+                                                      ),
+                                                      ChooseDeliveryDetails(),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                          child: const Text(
+                                            "change",
+                                            style: TextStyle(
+                                                color: Color(0xFFC21010),
+                                                fontStyle: FontStyle.italic),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: heightVar / 150,
+                                ),
+                                Text(
+                                  snapshot.data?['cpNumber'],
+                                  style: const TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  height: heightVar / 150,
+                                ),
+                                Text(snapshot.data?["shippingAddress"]),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
               ),
               SizedBox(
                 height: heightVar / 60,
@@ -184,18 +339,176 @@ class _CheckOutState extends State<CheckOut> {
               SizedBox(
                 height: heightVar / 100,
               ),
-              Container(
-                width: double.infinity,
-                height: heightVar / 6,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.red,
-                  ),
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                ),
-              ),
+              StreamBuilder(
+                  stream: firestore
+                      .collection("payment_methods")
+                      .doc("default")
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      print("waiting...");
+                    }
+                    if (!snapshot.data!.exists) {
+                      return Container(
+                        width: double.infinity,
+                        height: heightVar / 8,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 2,
+                            color: Colors.grey,
+                          ),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Center(
+                              child: IconButton(
+                                iconSize: 70,
+                                onPressed: () {
+                                  showModalBottomSheet<void>(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25.0),
+                                    ),
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return SizedBox(
+                                        height: heightVar / 2,
+                                        child: Column(
+                                          children: [
+                                            const Icon(
+                                              Icons.linear_scale_sharp,
+                                              size: 50,
+                                              color: Colors.grey,
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.payment,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                            const Text("Add a payment method")
+                          ],
+                        ),
+                      );
+                    } else {
+                      return Container(
+                        height: heightVar / 8,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: const [
+                            BoxShadow(
+                              spreadRadius: 0.1,
+                              blurStyle: BlurStyle.normal,
+                              color: Colors.grey,
+                              blurRadius: 10,
+                              offset: Offset(4, 8), // Shadow position
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                if (paymentOption1 == false) {
+                                  setState(() {
+                                    paymentOption1 = true;
+                                    firestore
+                                        .collection("payment_methods")
+                                        .doc("default_payment_method")
+                                        .set({
+                                      "paymentMethod": "Cash On Delivery"
+                                    }).then((value) {
+                                      Fluttertoast.showToast(
+                                          msg: "Cash on Delivery");
+                                    });
+                                  });
+                                } else if (paymentOption1 == true) {
+                                  setState(() {
+                                    paymentOption1 = false;
+                                    firestore
+                                        .collection("payment_methods")
+                                        .doc("default_payment_method")
+                                        .delete()
+                                        .then((value) {
+                                      Fluttertoast.showToast(
+                                          msg: "Payment method removed");
+                                    });
+                                  });
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      width: 2,
+                                      color: paymentOption1 == true
+                                          ? const Color(0xFFC21010)
+                                          : const Color.fromARGB(
+                                              255, 200, 200, 200)),
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  color: paymentOption1 == true
+                                      ? Colors.red.withOpacity(0.2)
+                                      : Colors.white,
+                                ),
+                                width: widthVar / 4,
+                                margin: EdgeInsets.only(
+                                    top: heightVar / 100,
+                                    bottom: heightVar / 100,
+                                    left: widthVar / 30),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.monetization_on,
+                                      size: 50,
+                                    ),
+                                    Text(
+                                      "Cash on Delivery",
+                                      style: TextStyle(fontSize: 10),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              width: widthVar / 4,
+                              margin: EdgeInsets.only(
+                                  top: heightVar / 100,
+                                  bottom: heightVar / 100,
+                                  left: widthVar / 30),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(
+                                    Icons.question_mark,
+                                    size: 50,
+                                  ),
+                                  Text(
+                                    "Unknown",
+                                    style: TextStyle(fontSize: 10),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  }),
               SizedBox(
                 height: heightVar / 50,
               ),
@@ -245,7 +558,7 @@ class _CheckOutState extends State<CheckOut> {
                           print("waiting...");
                         }
                         if (snapshot.hasData) {
-                          int? grandTotal = basetotal1! + basetotal2!;
+                          grandTotal = basetotal1! + basetotal2!;
                           return option1 == true && option2 == true
                               ? Text(
                                   "Total Price: ₱$grandTotal.00",
@@ -291,7 +604,14 @@ class _CheckOutState extends State<CheckOut> {
             ),
             Row(
               children: [
-                option1 == true || option2 == true
+                (option1 == true && paymentOption1 == true && isSet == true) ||
+                        (paymentOption1 == true &&
+                            option2 == true &&
+                            isSet == true) ||
+                        (paymentOption1 == true &&
+                            option1 == true &&
+                            option2 == true &&
+                            isSet == true)
                     ? Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(5.0),
