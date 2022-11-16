@@ -132,11 +132,11 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
             margin: EdgeInsets.only(top: heightVar / 70),
             child: TextFormField(
               controller: _shippingAddress = TextEditingController(
-                  text: autocompletePlace == ""
+                  text: _shippingAddress?.text == ""
                       ? address
                       : address == ""
-                          ? autocompletePlace
-                          : address),
+                          ? _shippingAddress?.text
+                          : autocompletePlace),
               minLines: 5,
               maxLines: 5,
               textInputAction: TextInputAction.next,

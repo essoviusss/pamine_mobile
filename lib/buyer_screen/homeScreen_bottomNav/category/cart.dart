@@ -5,8 +5,10 @@ import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/viewcar
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/viewcarttab/offlivecart.dart';
 
 class Cart extends StatefulWidget {
+  final String? sellerUid;
   const Cart({
     super.key,
+    required this.sellerUid,
   });
 
   @override
@@ -109,9 +111,12 @@ class _CartState extends State<Cart> {
                     ),
                   ),
                   onPressed: () {
+                    print(widget.sellerUid);
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const CheckOut(),
+                        builder: (context) => CheckOut(
+                          sellerUid: widget.sellerUid,
+                        ),
                       ),
                     );
                   },

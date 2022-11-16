@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:dropdown_plus/dropdown_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +24,8 @@ class _AddProductsState extends State<AddProducts> {
   final _auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController productNameController = TextEditingController();
-  final TextEditingController productCategoryController =
-      TextEditingController();
+  final DropdownEditingController<String>? productCategoryController =
+      DropdownEditingController();
   final TextEditingController productPriceController = TextEditingController();
   final TextEditingController productQuantityController =
       TextEditingController();
@@ -81,7 +82,7 @@ class _AddProductsState extends State<AddProducts> {
     Products products = Products();
 
     products.productName = productNameController.text;
-    products.productCategory = productCategoryController.text;
+    products.productCategory = productCategoryController?.value;
     products.productPrice = productPrice;
     products.productQuantity = productQuantity;
     products.productDescription = productDescriptionController.text;
@@ -177,17 +178,19 @@ class _AddProductsState extends State<AddProducts> {
                   padding: EdgeInsets.symmetric(
                       horizontal: widthVar / 15, vertical: 0),
                   margin: EdgeInsets.only(top: heigthVar / 80),
-                  child: TextFormField(
+                  child: TextDropdownFormField(
                     controller: productCategoryController,
-                    textInputAction: TextInputAction.next,
-                    keyboardType: TextInputType.text,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return ("Field Required");
-                      }
-                      return null;
-                    },
+                    options: const [
+                      "Clothes",
+                      "Jeans",
+                      "Shoes",
+                      "Appliances",
+                      "Gadgets",
+                      "Kitchenwares",
+                      "Bedsheets"
+                    ],
                     decoration: InputDecoration(
+                      suffixIcon: const Icon(Icons.arrow_drop_down),
                       hintText: "Product Category",
                       hintStyle:
                           TextStyle(fontSize: 15.0, color: Colors.red.shade300),
@@ -201,6 +204,7 @@ class _AddProductsState extends State<AddProducts> {
                             const BorderSide(width: 0, color: Colors.white),
                       ),
                     ),
+                    dropdownHeight: 120,
                   ),
                 ),
                 Container(

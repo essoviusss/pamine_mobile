@@ -561,6 +561,8 @@ class _FeedState extends State<Feed> {
                                                             productImageUrl,
                                                         "productStatus":
                                                             "mined",
+                                                        "sellerUid":
+                                                            widget.channelId,
                                                       },
                                                       reference:
                                                           FirebaseService()
@@ -788,7 +790,7 @@ class _FeedState extends State<Feed> {
                                       }
                                     },
                                   ),
-                                  //nined items
+                                  //mined items
                                   InkWell(
                                     onTap: () {
                                       showModalBottomSheet<void>(

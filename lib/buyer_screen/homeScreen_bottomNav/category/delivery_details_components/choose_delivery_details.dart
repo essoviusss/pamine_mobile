@@ -37,7 +37,7 @@ class _ChooseDeliveryDetailsState extends State<ChooseDeliveryDetails> {
               itemBuilder: (context, index) {
                 DeliveryDetailsModel ship = DeliveryDetailsModel.fromMap(
                     snapshot.data.docs[index].data());
-                if (snapshot.data.docs != null) {
+                if (snapshot.hasData) {
                   return InkWell(
                     onTap: () {
                       firestore1

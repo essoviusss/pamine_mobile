@@ -126,15 +126,17 @@ class _ViewShopState extends State<ViewShop> {
                           ],
                         ),
                         Container(
-                          height: heightVar / 1, //height of TabBarView
+                          height: heightVar / 1.5, //height of TabBarView
                           decoration: const BoxDecoration(
                               border: Border(
                                   top: BorderSide(
                                       color: Colors.grey, width: 0.5))),
-                          child: const TabBarView(
+                          child: TabBarView(
                             children: <Widget>[
-                              ShopProducts(),
-                              ShopSoldProducts(),
+                              ShopProducts(
+                                sellerUid: widget.sellerUid!,
+                              ),
+                              const ShopSoldProducts(),
                             ],
                           ),
                         )

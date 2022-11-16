@@ -24,7 +24,9 @@ class _CartButtonState extends State<CartButton> {
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => const Cart(),
+              builder: (context) => const Cart(
+                sellerUid: '',
+              ),
             ),
           );
         },

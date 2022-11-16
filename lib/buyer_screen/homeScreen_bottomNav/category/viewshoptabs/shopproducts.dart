@@ -4,9 +4,18 @@ import 'package:flutter/material.dart';
 import '../../../../model/product_model.dart';
 import '../productdescription.dart';
 
-class ShopProducts extends StatelessWidget {
-  const ShopProducts({super.key});
+class ShopProducts extends StatefulWidget {
+  final String sellerUid;
+  const ShopProducts({
+    super.key,
+    required this.sellerUid,
+  });
 
+  @override
+  State<ShopProducts> createState() => _ShopProductsState();
+}
+
+class _ShopProductsState extends State<ShopProducts> {
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -18,7 +27,9 @@ class ShopProducts extends StatelessWidget {
           SizedBox(height: size.height * 0.03),
           StreamBuilder<dynamic>(
             stream: FirebaseFirestore.instance
-                .collectionGroup("products")
+                .collection("seller_info")
+                .doc(widget.sellerUid)
+                .collection("products")
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {

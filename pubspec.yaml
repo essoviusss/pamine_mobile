@@ -68,9 +68,12 @@ dependencies:
   anim_search_app_bar: ^1.0.3
   roundcheckbox: ^2.0.5
   map_location_picker: ^1.0.2
-  paymongo_sdk: ^1.6.1
+  msh_checkbox: ^1.2.1
   webview_flutter: ^3.0.4
- 
+  modal_bottom_sheet: ^2.1.2
+  dropdown_plus: ^0.0.9
+
+
 
 
  

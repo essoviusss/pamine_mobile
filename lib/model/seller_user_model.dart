@@ -36,8 +36,15 @@ class ProviderModel {
   String? displayName;
   String? email;
   String? role;
+  bool? isCheck;
 
-  ProviderModel({this.uid, this.displayName, this.email, this.role});
+  ProviderModel({
+    this.uid,
+    this.displayName,
+    this.email,
+    this.role,
+    this.isCheck,
+  });
   //receive
   factory ProviderModel.fromMap(map) {
     return ProviderModel(
@@ -45,6 +52,7 @@ class ProviderModel {
       displayName: map['displayName'],
       email: map['email'],
       role: map['role'],
+      isCheck: map['isCheck'],
     );
   }
   //send
@@ -54,6 +62,7 @@ class ProviderModel {
       'displayName': displayName,
       'email': email,
       'role': role,
+      'isCheck': isCheck,
     };
   }
 }

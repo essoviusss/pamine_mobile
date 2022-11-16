@@ -5,12 +5,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_in_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_off_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/delivery_details_components/choose_delivery_details.dart';
+import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/place_order_components/place_order.dart';
 import 'package:pamine_mobile/model/cart_model.dart';
 import 'package:pamine_mobile/model/mined_cart_model.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
 
 class CheckOut extends StatefulWidget {
-  const CheckOut({super.key});
+  final String? sellerUid;
+  const CheckOut({super.key, required this.sellerUid});
 
   @override
   State<CheckOut> createState() => _CheckOutState();
@@ -31,7 +33,7 @@ class _CheckOutState extends State<CheckOut> {
   final firestore = FirebaseFirestore.instance
       .collection("buyer_info")
       .doc(FirebaseAuth.instance.currentUser!.uid);
-
+  final sellerShop = FirebaseFirestore.instance.collection("seller_info");
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -175,11 +177,11 @@ class _CheckOutState extends State<CheckOut> {
                     .doc("default")
                     .snapshots(),
                 builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                  isSet = snapshot.data!.exists;
+                  isSet = snapshot.data?.exists;
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     print("waiting...");
                   }
-                  if (!snapshot.data!.exists) {
+                  if (snapshot.data?.exists == false) {
                     return Container(
                       width: double.infinity,
                       height: heightVar / 8,
@@ -348,7 +350,7 @@ class _CheckOutState extends State<CheckOut> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       print("waiting...");
                     }
-                    if (!snapshot.data!.exists) {
+                    if (snapshot.data?.exists == false) {
                       return Container(
                         width: double.infinity,
                         height: heightVar / 8,
@@ -471,10 +473,12 @@ class _CheckOutState extends State<CheckOut> {
                                     Icon(
                                       Icons.monetization_on,
                                       size: 50,
+                                      color: const Color(0xFFC21010),
                                     ),
                                     Text(
                                       "Cash on Delivery",
-                                      style: TextStyle(fontSize: 10),
+                                      style: TextStyle(
+                                          fontSize: 10, color: Colors.black),
                                     )
                                   ],
                                 ),
@@ -482,8 +486,14 @@ class _CheckOutState extends State<CheckOut> {
                             ),
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                    width: 2,
+                                    color: const Color.fromARGB(
+                                        255, 200, 200, 200)),
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
+                                color: Colors.white,
                               ),
                               width: widthVar / 4,
                               margin: EdgeInsets.only(
@@ -494,11 +504,12 @@ class _CheckOutState extends State<CheckOut> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: const [
                                   Icon(
-                                    Icons.question_mark,
+                                    Icons.credit_card,
                                     size: 50,
+                                    color: Colors.blue,
                                   ),
                                   Text(
-                                    "Unknown",
+                                    "Credit Card",
                                     style: TextStyle(fontSize: 10),
                                   )
                                 ],
@@ -625,7 +636,16 @@ class _CheckOutState extends State<CheckOut> {
                                     vertical: heightVar / 60),
                               ),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              //place order button
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => PlaceOrder(
+                                    grandTotal: grandTotal,
+                                  ),
+                                ),
+                              );
+                            },
                             child: const Text(
                               'Place Order',
                               style:

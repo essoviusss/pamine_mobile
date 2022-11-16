@@ -23,6 +23,7 @@ class _OffLiveCartState extends State<OffLiveCart> {
 
   int? basetotal;
   int? subtotal1;
+
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;

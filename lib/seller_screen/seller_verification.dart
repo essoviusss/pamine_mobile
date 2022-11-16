@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:map_location_picker/map_location_picker.dart';
 import 'package:pamine_mobile/model/seller_user_model.dart';
 import 'package:pamine_mobile/seller_screen/approval_screen.dart';
 
@@ -29,11 +30,15 @@ class _seller_verificationState extends State<seller_verification> {
   final TextEditingController _businessOwnerController =
       TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _address = TextEditingController();
+  TextEditingController _addressController = TextEditingController();
   final TextEditingController _zipCodeController = TextEditingController();
   final TextEditingController _dtiNumberController = TextEditingController();
   final TextEditingController _dtiExpDateController = TextEditingController();
   String? taxStatus;
+
+  String autocompletePlace = "";
+  String address = "";
 
   File? image;
   File? id;
@@ -89,12 +94,16 @@ class _seller_verificationState extends State<seller_verification> {
   //Add
   void addDetails() async {
     if (_formKey.currentState!.validate()) {
-      await addDetailsToFireStore();
+      addDetailsToFireStore();
     }
   }
 
   addDetailsToFireStore() async {
-    await uploadImage();
+    if (taxStatus == "Yes") {
+      await uploadImage();
+    } else {
+      uploadImage();
+    }
     await uploadImage2();
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     User? user = _auth.currentUser;
@@ -317,7 +326,14 @@ class _seller_verificationState extends State<seller_verification> {
                     horizontal: widthVar / 10, vertical: 0),
                 margin: EdgeInsets.only(top: heigthVar / 80),
                 child: TextFormField(
-                  controller: _addressController,
+                  maxLines: 2,
+                  minLines: 2,
+                  controller: _addressController = TextEditingController(
+                      text: _addressController.text == ""
+                          ? address
+                          : address == ""
+                              ? _addressController.text
+                              : autocompletePlace),
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.streetAddress,
                   validator: (value) {
@@ -326,10 +342,48 @@ class _seller_verificationState extends State<seller_verification> {
                     }
                     return null;
                   },
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.location_city),
+                  decoration: InputDecoration(
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return MapLocationPicker(
+                                  apiKey:
+                                      "AIzaSyCa_s2VTCGuakM-E21dI9fzMc2gEPXGY5A",
+                                  canPopOnNextButtonTaped: true,
+                                  currentLatLng:
+                                      const LatLng(29.121599, 76.396698),
+                                  onNext: (GeocodingResult? result) {
+                                    if (result != null) {
+                                      setState(() {
+                                        address = result.formattedAddress ?? "";
+                                      });
+                                    }
+                                  },
+                                  onSuggestionSelected:
+                                      (PlacesDetailsResponse? result) {
+                                    if (result != null) {
+                                      setState(() {
+                                        autocompletePlace =
+                                            result.result.formattedAddress ??
+                                                "";
+                                      });
+                                    }
+                                  },
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.location_on,
+                          color: Colors.red,
+                        )),
                     hintText: "Address",
-                    hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
+                    hintStyle:
+                        const TextStyle(fontSize: 15.0, color: Colors.grey),
                     contentPadding: EdgeInsets.all(15),
                     isDense: true,
                   ),
