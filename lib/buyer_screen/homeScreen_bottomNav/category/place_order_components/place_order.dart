@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/home.dart';
+import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/my_orders.dart';
 
 class PlaceOrder extends StatefulWidget {
   final int? grandTotal;
@@ -18,7 +21,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
         backgroundColor: const Color(0xFFC21010),
         automaticallyImplyLeading: true,
         centerTitle: true,
-        title: const Text("Payment Receipt"),
+        title: const Text("Payment Processing"),
       ),
       body: Column(
         children: [
@@ -48,12 +51,12 @@ class _PlaceOrderState extends State<PlaceOrder> {
                   height: heigthVar / 60,
                 ),
                 const Icon(
-                  Icons.receipt,
-                  color: Colors.red,
+                  Icons.receipt_long_rounded,
+                  color: Color(0xFFC21010),
                   size: 70,
                 ),
                 const Text(
-                  "Payment Success",
+                  "Your order is being processed!!",
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -69,13 +72,91 @@ class _PlaceOrderState extends State<PlaceOrder> {
                   ],
                 ),
                 SizedBox(
-                  height: heigthVar / 40,
+                  height: heigthVar / 17,
                 ),
                 const Icon(
                   Icons.check_circle,
                   size: 150,
-                  color: Colors.red,
-                )
+                  color: Color(0xFFC21010),
+                ),
+                Column(
+                  children: [
+                    AnimatedTextKit(
+                      animatedTexts: [
+                        TypewriterAnimatedText(
+                          "Waiting for seller's approval...",
+                          textStyle: const TextStyle(
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          speed: const Duration(milliseconds: 100),
+                        ),
+                      ],
+                      totalRepeatCount: 100000,
+                      pause: const Duration(milliseconds: 0),
+                      displayFullTextOnTap: true,
+                      stopPauseOnTap: false,
+                    )
+                  ],
+                ),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.bottomLeft,
+                    margin: EdgeInsets.only(
+                        bottom: heigthVar / 60,
+                        left: widthVar / 25,
+                        right: widthVar / 25),
+                    child: Row(
+                      children: [
+                        Container(
+                          alignment: Alignment.bottomLeft,
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const homePage(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              "Back to home",
+                              style: TextStyle(color: Color(0xFFC21010)),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            alignment: Alignment.bottomRight,
+                            child: TextButton(
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        const Color(0xFFC21010)),
+                                padding: MaterialStateProperty.all<EdgeInsets>(
+                                  EdgeInsets.symmetric(
+                                      horizontal: widthVar / 20,
+                                      vertical: heigthVar / 60),
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => const MyOrders(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "View Order",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
