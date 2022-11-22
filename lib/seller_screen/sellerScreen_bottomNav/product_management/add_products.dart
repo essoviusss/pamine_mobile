@@ -79,11 +79,22 @@ class _AddProductsState extends State<AddProducts> {
 
     user != null;
 
+    double? commission = productPrice! <= 100
+        ? 0
+        : productPrice! <= 500
+            ? (1 / 100) * productPrice!
+            : productPrice! <= 1000
+                ? (2 / 100) * productPrice!
+                : productPrice! > 1000
+                    ? (3 / 100) * productPrice!
+                    : (5 / 100) * productPrice!;
+
     Products products = Products();
 
     products.productName = productNameController.text;
     products.productCategory = productCategoryController?.value;
-    products.productPrice = productPrice;
+    products.productPrice = productPrice! + commission.floor();
+    products.productCommission = commission.floor();
     products.productQuantity = productQuantity;
     products.productDescription = productDescriptionController.text;
     products.productImageUrl = downloadUrl!;

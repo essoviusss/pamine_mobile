@@ -88,7 +88,7 @@ class _seller_verificationState extends State<seller_verification> {
         .child("${authID?.uid}/images")
         .child("post1_$postID");
     await ref1.putFile(id!);
-    idUrl = await ref.getDownloadURL();
+    idUrl = await ref1.getDownloadURL();
   }
 
   //Add

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/all_orders.dart';
 
 class MyOrders extends StatefulWidget {
   const MyOrders({super.key});
@@ -50,8 +51,13 @@ class _MyOrdersState extends State<MyOrders> {
             ],
           ),
         ),
-        body: const TabBarView(
-          children: [],
+        body: TabBarView(
+          children: [
+            const AllOrders(),
+            Container(),
+            Container(),
+            Container(),
+          ],
         ),
       ),
     );

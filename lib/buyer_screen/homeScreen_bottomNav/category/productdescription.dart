@@ -178,14 +178,14 @@ class _ProductDescriptionState extends State<ProductDescription> {
                                   Wrap(
                                     crossAxisAlignment:
                                         WrapCrossAlignment.center,
-                                    children: [
-                                      const Icon(
+                                    children: const [
+                                      Icon(
                                         Icons.pin_drop_outlined,
                                         size: 20,
                                       ),
                                       Text(
-                                        snapshot.data?['address'],
-                                        style: const TextStyle(
+                                        "Elyu",
+                                        style: TextStyle(
                                             fontStyle: FontStyle.italic),
                                       ),
                                     ],

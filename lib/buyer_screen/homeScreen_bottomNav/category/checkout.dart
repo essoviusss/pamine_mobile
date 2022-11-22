@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_in_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_off_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/delivery_details_components/choose_delivery_details.dart';
@@ -29,6 +32,8 @@ class _CheckOutState extends State<CheckOut> {
   bool? option1 = false;
   bool? option2 = false;
   bool? paymentOption1 = false;
+
+  String? buyerName;
 
   final firestore = FirebaseFirestore.instance
       .collection("buyer_info")
@@ -177,6 +182,7 @@ class _CheckOutState extends State<CheckOut> {
                     .doc("default")
                     .snapshots(),
                 builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  buyerName = snapshot.data?['fullName'];
                   isSet = snapshot.data?.exists;
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     print("waiting...");
@@ -350,7 +356,7 @@ class _CheckOutState extends State<CheckOut> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       print("waiting...");
                     }
-                    if (snapshot.data?.exists == false) {
+                    if (snapshot.data?.exists == true) {
                       return Container(
                         width: double.infinity,
                         height: heightVar / 8,
@@ -636,8 +642,49 @@ class _CheckOutState extends State<CheckOut> {
                                     vertical: heightVar / 60),
                               ),
                             ),
-                            onPressed: () {
+                            onPressed: () async {
                               //place order button
+
+                              //add to products to transactions
+                              final transacId = DateTime.now()
+                                  .millisecondsSinceEpoch
+                                  .toString();
+                              CollectionReference addToTransactions =
+                                  FirebaseFirestore.instance
+                                      .collection("transactions");
+
+                              await addToTransactions.doc().set({
+                                "transactionId": transacId,
+                                "TransactionTotalPrice": grandTotal,
+                                "TransactionDate": DateTime.now(),
+                                "BuyerName": buyerName,
+                              }).then((value) async {
+                                Fluttertoast.showToast(
+                                    msg: "Order has been placed!");
+                                Timer(const Duration(seconds: 2), () {
+                                  LoadingAnimationWidget.waveDots(
+                                    color: Colors.blue,
+                                    size: 50,
+                                  );
+                                });
+                                var collection = FirebaseFirestore.instance
+                                    .collection('buyer_info')
+                                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                                    .collection("cart");
+                                var snapshots = await collection.get();
+                                for (var doc in snapshots.docs) {
+                                  await doc.reference.delete();
+                                }
+                                var collection1 = FirebaseFirestore.instance
+                                    .collection('buyer_info')
+                                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                                    .collection("mined_products");
+                                var snapshots1 = await collection1.get();
+                                for (var doc in snapshots1.docs) {
+                                  await doc.reference.delete();
+                                }
+                              });
+
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => PlaceOrder(
