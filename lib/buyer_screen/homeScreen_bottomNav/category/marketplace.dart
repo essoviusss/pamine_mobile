@@ -5,23 +5,8 @@ import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/product
 import '../../../model/product_model.dart';
 
 class Marketplace extends StatefulWidget {
-  final String productImageUrl;
-  final String productName;
-  final String productPrice;
-  final String productQuantity;
-  final String productDescription;
-  final String productCategory;
-  final String sellerUid;
-
   const Marketplace({
     super.key,
-    required this.productImageUrl,
-    required this.productName,
-    required this.productPrice,
-    required this.productQuantity,
-    required this.productDescription,
-    required this.productCategory,
-    required this.sellerUid,
   });
 
   @override
@@ -65,8 +50,10 @@ class _MarketplaceState extends State<Marketplace> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ProductDescription(
+                              productId: post.productId!,
                               productName: post.productName!,
                               productPrice: post.productPrice!.toString(),
+                              commision: post.productCommission!,
                               productCategory: post.productCategory!,
                               productDescription: post.productDescription!,
                               productImageUrl: post.productImageUrl!,

@@ -12,17 +12,24 @@ class OffLiveCart extends StatefulWidget {
 }
 
 class _OffLiveCartState extends State<OffLiveCart> {
-  CollectionReference cartItemDel = FirebaseFirestore.instance
-      .collection("buyer_info")
-      .doc(FirebaseAuth.instance.currentUser!.uid)
-      .collection("cart");
-
-  Future<void> itemDelete(String itemId) async {
-    await cartItemDel.doc(itemId).delete();
-  }
-
   int? basetotal;
   int? subtotal1;
+
+  Future delete(String id) async {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    FirebaseFirestore.instance
+        .collectionGroup("groupedItems")
+        .get()
+        .then((value) {
+      for (var cartProd in value.docs) {
+        if (cartProd.id.contains(id)) {
+          batch.delete(cartProd.reference);
+        }
+      }
+      return batch.commit();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +56,7 @@ class _OffLiveCartState extends State<OffLiveCart> {
             ),
             StreamBuilder<dynamic>(
               stream: FirebaseFirestore.instance
-                  .collection("buyer_info")
-                  .doc(FirebaseAuth.instance.currentUser!.uid)
-                  .collection("cart")
+                  .collectionGroup("groupedItems")
                   .snapshots(),
               builder: (context, snapshot) {
                 final cartItems = snapshot.data?.docs.map(
@@ -75,6 +80,7 @@ class _OffLiveCartState extends State<OffLiveCart> {
                           child: ListView.builder(
                               itemCount: cartItems.length,
                               itemBuilder: (context, index) {
+                                final ind = snapshot.data.docs[index];
                                 CartModel cartItem = CartModel.fromMap(
                                     snapshot.data.docs[index].data());
 
@@ -136,8 +142,7 @@ class _OffLiveCartState extends State<OffLiveCart> {
                                           ),
                                           IconButton(
                                             onPressed: () {
-                                              itemDelete(
-                                                  snapshot.data.docs[index].id);
+                                              delete(ind.id);
                                             },
                                             icon: const Icon(
                                               Icons.delete,
@@ -161,9 +166,7 @@ class _OffLiveCartState extends State<OffLiveCart> {
               margin: EdgeInsets.only(top: heightVar / 30),
               child: StreamBuilder<dynamic>(
                 stream: FirebaseFirestore.instance
-                    .collection("buyer_info")
-                    .doc(FirebaseAuth.instance.currentUser!.uid)
-                    .collection("cart")
+                    .collectionGroup("groupedItems")
                     .snapshots(),
                 builder: (context, snapshot) {
                   final cartItems =

@@ -54,8 +54,10 @@ class _ShopProductsState extends State<ShopProducts> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ProductDescription(
+                              productId: post.productId!,
                               productName: post.productName!,
                               productPrice: post.productPrice!.toString(),
+                              commision: post.productCommission!,
                               productCategory: post.productCategory!,
                               productDescription: post.productDescription!,
                               productImageUrl: post.productImageUrl!,

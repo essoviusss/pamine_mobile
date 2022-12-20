@@ -155,9 +155,15 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
                       MaterialPageRoute(
                         builder: (context) {
                           return MapLocationPicker(
+                            mapType: MapType.hybrid,
+                            origin: Location(lat: 16.67129, lng: 120.345189),
+                            components: [
+                              Component(Component.country, "ph"),
+                              Component(Component.administrativeArea, "NCR")
+                            ],
                             apiKey: "AIzaSyCa_s2VTCGuakM-E21dI9fzMc2gEPXGY5A",
                             canPopOnNextButtonTaped: true,
-                            currentLatLng: const LatLng(29.121599, 76.396698),
+                            currentLatLng: const LatLng(16.670009, 120.337589),
                             onNext: (GeocodingResult? result) {
                               if (result != null) {
                                 setState(() {

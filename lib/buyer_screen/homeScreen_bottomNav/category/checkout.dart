@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,10 +8,10 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_in_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_off_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/delivery_details_components/choose_delivery_details.dart';
-import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/place_order_components/place_order.dart';
 import 'package:pamine_mobile/model/cart_model.dart';
 import 'package:pamine_mobile/model/mined_cart_model.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class CheckOut extends StatefulWidget {
   final String? sellerUid;
@@ -27,6 +27,8 @@ class _CheckOutState extends State<CheckOut> {
   int? subtotal1;
   int? subtotal2;
   int? grandTotal;
+  int? subCommision;
+  int? totalCommision;
 
   bool? isSet = true;
   bool? option1 = false;
@@ -34,11 +36,76 @@ class _CheckOutState extends State<CheckOut> {
   bool? paymentOption1 = false;
 
   String? buyerName;
+  List cartItems = [];
+  List sellerId = [];
+  var c;
+  var cItem;
+  List<dynamic> sample = [];
 
   final firestore = FirebaseFirestore.instance
       .collection("buyer_info")
       .doc(FirebaseAuth.instance.currentUser!.uid);
   final sellerShop = FirebaseFirestore.instance.collection("seller_info");
+
+  final auth = FirebaseAuth.instance.currentUser;
+
+  Future<void> getData() async {
+    // Get docs from collection reference
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collectionGroup('groupedItems').get();
+    QuerySnapshot sellerUid = await FirebaseFirestore.instance
+        .collection("buyer_info")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("cart")
+        .get();
+
+    cartItems = querySnapshot.docs.map((doc) => doc.id).toList();
+    sellerId = sellerUid.docs.map((doc) => doc.id).toList();
+  }
+
+  Future update() async {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    FirebaseFirestore.instance
+        .collectionGroup("products")
+        .get()
+        .then((querySnapshot) {
+      for (var productId in querySnapshot.docs) {
+        try {
+          if (cartItems.contains(productId.id)) {
+            print("PRODUCT QTY ${productId.data()["productQuantity"]}");
+            batch.update(productId.reference,
+                {"productQuantity": productId.data()['productQuantity'] - 1});
+          }
+        } on FormatException catch (error) {
+          print("The document ${error.source} could not be parsed.");
+          continue;
+        }
+      }
+      return batch.commit();
+    });
+  }
+
+  Future set() async {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+    Map<String, dynamic>? data = {
+      "transactionId": "#${DateTime.now().microsecondsSinceEpoch.toString()}",
+      "transactionTotalPrice": grandTotal,
+      "transactionDate": DateTime.now(),
+      "buyerName": buyerName,
+    };
+
+    for (var items in sellerId) {
+      batch.set(
+          FirebaseFirestore.instance.collection("transactions").doc(items),
+          data);
+    }
+
+    return batch.commit();
+  }
+
+  String? sellerUid;
+
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -151,10 +218,125 @@ class _CheckOutState extends State<CheckOut> {
                             Expanded(
                               child: Container(
                                 alignment: Alignment.centerRight,
-                                child: const Icon(
-                                  Icons.more_vert,
-                                  color: Color(0xFFC21010),
-                                  size: 35,
+                                child: InkWell(
+                                  onTap: () {
+                                    showBarModalBottomSheet(
+                                        expand: true,
+                                        context: context,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (context) => Container(
+                                              height: double.infinity,
+                                              color: Colors.white,
+                                              child: StreamBuilder<dynamic>(
+                                                  stream: FirebaseFirestore
+                                                      .instance
+                                                      .collectionGroup(
+                                                          "groupedItems")
+                                                      .snapshots(),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot
+                                                            .connectionState ==
+                                                        ConnectionState
+                                                            .waiting) {
+                                                      print("waiting...");
+                                                    }
+                                                    if (snapshot.hasData) {
+                                                      return ListView.builder(
+                                                          shrinkWrap: true,
+                                                          itemCount: snapshot
+                                                              .data.docs.length,
+                                                          itemBuilder:
+                                                              (context, index) {
+                                                            return Container(
+                                                                height:
+                                                                    heightVar /
+                                                                        10,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              12),
+                                                                  boxShadow: const [
+                                                                    BoxShadow(
+                                                                      spreadRadius:
+                                                                          0.1,
+                                                                      blurStyle:
+                                                                          BlurStyle
+                                                                              .normal,
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      blurRadius:
+                                                                          10,
+                                                                      offset: Offset(
+                                                                          4,
+                                                                          8), // Shadow position
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                margin: EdgeInsets.only(
+                                                                    bottom:
+                                                                        heightVar /
+                                                                            80,
+                                                                    top:
+                                                                        heightVar /
+                                                                            80),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Container(
+                                                                        margin: EdgeInsets.only(
+                                                                            left: widthVar /
+                                                                                20),
+                                                                        child: Image
+                                                                            .network(
+                                                                          snapshot
+                                                                              .data
+                                                                              .docs[index]['productImageUrl'],
+                                                                          height:
+                                                                              60,
+                                                                          width:
+                                                                              60,
+                                                                        )),
+                                                                    SizedBox(
+                                                                        width: widthVar /
+                                                                            6),
+                                                                    Wrap(
+                                                                      crossAxisAlignment:
+                                                                          WrapCrossAlignment
+                                                                              .center,
+                                                                      spacing:
+                                                                          widthVar /
+                                                                              20,
+                                                                      children: [
+                                                                        SizedBox(
+                                                                            width: widthVar /
+                                                                                3,
+                                                                            child:
+                                                                                Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+                                                                              Text(
+                                                                                snapshot.data.docs[index]['productName'],
+                                                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                              ),
+                                                                              Text("₱${snapshot.data.docs[index]['productPrice'].toString()}.00"),
+                                                                              Text("Qty: ${snapshot.data.docs[index]['productQuantity'].toString()}")
+                                                                            ])),
+                                                                      ],
+                                                                    )
+                                                                  ],
+                                                                ));
+                                                          });
+                                                    }
+                                                    return Container();
+                                                  }),
+                                            ));
+                                  },
+                                  child: const Icon(
+                                    Icons.more_vert,
+                                    color: Color(0xFFC21010),
+                                    size: 35,
+                                  ),
                                 ),
                               ),
                             ),
@@ -384,8 +566,8 @@ class _CheckOutState extends State<CheckOut> {
                                       return SizedBox(
                                         height: heightVar / 2,
                                         child: Column(
-                                          children: [
-                                            const Icon(
+                                          children: const [
+                                            Icon(
                                               Icons.linear_scale_sharp,
                                               size: 50,
                                               color: Colors.grey,
@@ -479,7 +661,7 @@ class _CheckOutState extends State<CheckOut> {
                                     Icon(
                                       Icons.monetization_on,
                                       size: 50,
-                                      color: const Color(0xFFC21010),
+                                      color: Color(0xFFC21010),
                                     ),
                                     Text(
                                       "Cash on Delivery",
@@ -543,13 +725,18 @@ class _CheckOutState extends State<CheckOut> {
               margin: EdgeInsets.only(right: widthVar / 25),
               alignment: Alignment.centerRight,
               child: StreamBuilder<dynamic>(
-                stream: firestore.collection("cart").snapshots(),
+                stream: FirebaseFirestore.instance
+                    .collectionGroup("groupedItems")
+                    .snapshots(),
                 builder: (context, snapshot) {
                   final cartItems =
                       snapshot.data?.docs.map((DocumentSnapshot doc) {
                     CartModel.fromMap(doc.data());
                     subtotal1 = doc.get("subtotal");
+                    subCommision = doc.get("commision");
                   });
+                  totalCommision = cartItems.fold(
+                      0, (commision, total) => commision + subCommision);
 
                   basetotal1 = cartItems?.fold(
                       0, (subtotal, index) => subtotal + subtotal1!);
@@ -645,53 +832,53 @@ class _CheckOutState extends State<CheckOut> {
                             onPressed: () async {
                               //place order button
 
-                              //add to products to transactions
-                              final transacId = DateTime.now()
-                                  .millisecondsSinceEpoch
-                                  .toString();
-                              CollectionReference addToTransactions =
-                                  FirebaseFirestore.instance
-                                      .collection("transactions");
+                              //update product quantity
+                              //test write batch here later....
+                              print("Total Commision:${totalCommision}");
+                              getData();
+                              update();
+                              set();
+                              //add to products to transaction
+                              // CollectionReference addToTransactions =
+                              //     FirebaseFirestore.instance
+                              //         .collection("transactions");
 
-                              await addToTransactions.doc().set({
-                                "transactionId": transacId,
-                                "TransactionTotalPrice": grandTotal,
-                                "TransactionDate": DateTime.now(),
-                                "BuyerName": buyerName,
-                              }).then((value) async {
-                                Fluttertoast.showToast(
-                                    msg: "Order has been placed!");
-                                Timer(const Duration(seconds: 2), () {
-                                  LoadingAnimationWidget.waveDots(
-                                    color: Colors.blue,
-                                    size: 50,
-                                  );
-                                });
-                                var collection = FirebaseFirestore.instance
-                                    .collection('buyer_info')
-                                    .doc(FirebaseAuth.instance.currentUser!.uid)
-                                    .collection("cart");
-                                var snapshots = await collection.get();
-                                for (var doc in snapshots.docs) {
-                                  await doc.reference.delete();
-                                }
-                                var collection1 = FirebaseFirestore.instance
-                                    .collection('buyer_info')
-                                    .doc(FirebaseAuth.instance.currentUser!.uid)
-                                    .collection("mined_products");
-                                var snapshots1 = await collection1.get();
-                                for (var doc in snapshots1.docs) {
-                                  await doc.reference.delete();
-                                }
-                              });
+                              // await addToTransactions.doc().set({
+                              //   "TransactionId": DateTime.now()
+                              //       .millisecondsSinceEpoch
+                              //       .toString(),
+                              //   "TransactionTotalPrice": grandTotal,
+                              //   "TransactionDate": DateTime.now(),
+                              //   "BuyerName": buyerName,
+                              // }).then((value) async {
+                              //   Fluttertoast.showToast(
+                              //       msg: "Order has been placed!");
 
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => PlaceOrder(
-                                    grandTotal: grandTotal,
-                                  ),
-                                ),
-                              );
+                              //   var collection = FirebaseFirestore.instance
+                              //       .collection('buyer_info')
+                              //       .doc(FirebaseAuth.instance.currentUser!.uid)
+                              //       .collection("cart");
+                              //   var snapshots = await collection.get();
+                              //   for (var doc in snapshots.docs) {
+                              //     await doc.reference.delete();
+                              //   }
+                              //   var collection1 = FirebaseFirestore.instance
+                              //       .collection('buyer_info')
+                              //       .doc(FirebaseAuth.instance.currentUser!.uid)
+                              //       .collection("mined_products");
+                              //   var snapshots1 = await collection1.get();
+                              //   for (var doc in snapshots1.docs) {
+                              //     await doc.reference.delete();
+                              //   }
+                              // });
+
+                              // Navigator.of(context).push(
+                              //   MaterialPageRoute(
+                              //     builder: (context) => PlaceOrder(
+                              //       grandTotal: grandTotal,
+                              //     ),
+                              //   ),
+                              // );
                             },
                             child: const Text(
                               'Place Order',

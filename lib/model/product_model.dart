@@ -1,4 +1,5 @@
 class Products {
+  String? productId;
   String? productName;
   String? productCategory;
   int? productPrice;
@@ -10,6 +11,7 @@ class Products {
   String? sellerUid;
 
   Products({
+    this.productId,
     this.productName,
     this.productCategory,
     this.productPrice,
@@ -23,6 +25,7 @@ class Products {
   //receive
   factory Products.fromMap(map) {
     return Products(
+      productId: map["productId"],
       productName: map["productName"],
       productCategory: map["productCategory"],
       productPrice: map["productPrice"],
@@ -37,6 +40,7 @@ class Products {
   //send
   Map<String, dynamic> toMap() {
     return {
+      "productId": productId,
       "productName": productName,
       "productCategory": productCategory,
       "productPrice": productPrice,

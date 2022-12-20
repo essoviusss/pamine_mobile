@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:animated_icon/animate_icon.dart';

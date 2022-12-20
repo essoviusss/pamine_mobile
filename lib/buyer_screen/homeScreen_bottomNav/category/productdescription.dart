@@ -9,18 +9,22 @@ import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/viewsho
 import 'package:pamine_mobile/model/cart_model.dart';
 
 class ProductDescription extends StatefulWidget {
+  final String productId;
   final String productImageUrl;
   final String productName;
   final String productPrice;
+  final int commision;
   final String productQuantity;
   final String productDescription;
   final String productCategory;
   final String sellerUid;
   const ProductDescription({
     super.key,
+    required this.productId,
     required this.productImageUrl,
     required this.productName,
     required this.productPrice,
+    required this.commision,
     required this.productQuantity,
     required this.productDescription,
     required this.productCategory,
@@ -47,10 +51,11 @@ class _ProductDescriptionState extends State<ProductDescription> {
     User? user = FirebaseAuth.instance.currentUser;
 
     CartModel cartModel = CartModel();
-
+    cartModel.productId = widget.productId;
     cartModel.productImageUrl = widget.productImageUrl;
     cartModel.productName = widget.productName;
     cartModel.productPrice = int.parse(widget.productPrice);
+    cartModel.commision = widget.commision;
     cartModel.productQuantity = qtyValue;
     cartModel.subtotal = subtotal;
     cartModel.sellerUid = widget.sellerUid;
@@ -59,10 +64,24 @@ class _ProductDescriptionState extends State<ProductDescription> {
         .collection("buyer_info")
         .doc(user?.uid)
         .collection("cart")
-        .doc()
+        .doc(widget.sellerUid)
+        .collection("groupedItems")
+        .doc(widget.productId)
         .set(cartModel.toMap())
         .then(
             (value) => {Fluttertoast.showToast(msg: "Product added to cart")});
+  }
+
+  addSellerInfo() async {
+    FirebaseFirestore.instance
+        .collection("buyer_info")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("cart")
+        .doc(sellerUid)
+        .set({
+      "businessName": businessName,
+      "logoUrl": logoUrl,
+    });
   }
 
   @override
@@ -400,6 +419,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
                               setState(() {
                                 isAddedToCart = false;
                                 addToCart();
+                                addSellerInfo();
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => Cart(
                                           sellerUid: widget.sellerUid,

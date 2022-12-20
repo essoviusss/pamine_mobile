@@ -90,7 +90,7 @@ class _AddProductsState extends State<AddProducts> {
                     : (5 / 100) * productPrice!;
 
     Products products = Products();
-
+    products.productId = "#${DateTime.now().millisecondsSinceEpoch.toString()}";
     products.productName = productNameController.text;
     products.productCategory = productCategoryController?.value;
     products.productPrice = productPrice! + commission.floor();
@@ -105,7 +105,7 @@ class _AddProductsState extends State<AddProducts> {
         .collection("seller_info")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection("products")
-        .doc()
+        .doc(products.productId)
         .set(products.toMap(), SetOptions(merge: true))
         .then((value) {
       Fluttertoast.showToast(msg: "Product Added");

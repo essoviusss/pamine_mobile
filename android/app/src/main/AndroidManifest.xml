@@ -2,9 +2,9 @@
     package="com.example.pamine_mobile">
     
    <application
-        android:label="pamine_mobile"
+        android:label="Pa-mine"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyCa_s2VTCGuakM-E21dI9fzMc2gEPXGY5A"/>
         <activity
