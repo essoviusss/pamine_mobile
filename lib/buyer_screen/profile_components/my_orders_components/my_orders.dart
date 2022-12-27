@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/all_orders.dart';
+import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/delivered.dart';
+import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/processing.dart';
+import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/rejected.dart';
 
 class MyOrders extends StatefulWidget {
   const MyOrders({super.key});
@@ -34,7 +37,7 @@ class _MyOrdersState extends State<MyOrders> {
                 ),
               ),
               Tab(
-                child: Text("On Hold",
+                child: Text("Rejected",
                     style:
                         TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
               ),
@@ -51,12 +54,12 @@ class _MyOrdersState extends State<MyOrders> {
             ],
           ),
         ),
-        body: TabBarView(
+        body: const TabBarView(
           children: [
-            const AllOrders(),
-            Container(),
-            Container(),
-            Container(),
+            AllOrders(),
+            Rejected(),
+            Processing(),
+            Delivered(),
           ],
         ),
       ),

@@ -1,13 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_in_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_off_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/delivery_details_components/choose_delivery_details.dart';
+import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/place_order_components/place_order.dart';
 import 'package:pamine_mobile/model/cart_model.dart';
 import 'package:pamine_mobile/model/mined_cart_model.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
@@ -37,10 +39,16 @@ class _CheckOutState extends State<CheckOut> {
 
   String? buyerName;
   List cartItems = [];
+  List cartItemsList = [];
+  List items = [];
   List sellerId = [];
   var c;
   var cItem;
   List<dynamic> sample = [];
+  List itemlist = [];
+  String? modeOfPayment;
+  String? cpNum;
+  String? shippingAddress;
 
   final firestore = FirebaseFirestore.instance
       .collection("buyer_info")
@@ -58,9 +66,10 @@ class _CheckOutState extends State<CheckOut> {
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection("cart")
         .get();
-
     cartItems = querySnapshot.docs.map((doc) => doc.id).toList();
+    cartItemsList = querySnapshot.docs.map((doc) => doc.data()).toList();
     sellerId = sellerUid.docs.map((doc) => doc.id).toList();
+    print(cartItemsList);
   }
 
   Future update() async {
@@ -74,6 +83,7 @@ class _CheckOutState extends State<CheckOut> {
         try {
           if (cartItems.contains(productId.id)) {
             print("PRODUCT QTY ${productId.data()["productQuantity"]}");
+
             batch.update(productId.reference,
                 {"productQuantity": productId.data()['productQuantity'] - 1});
           }
@@ -87,21 +97,57 @@ class _CheckOutState extends State<CheckOut> {
   }
 
   Future set() async {
+    await getData();
+    await update();
     WriteBatch batch = FirebaseFirestore.instance.batch();
+    final transacId = DateTime.now().microsecondsSinceEpoch.toString();
     Map<String, dynamic>? data = {
-      "transactionId": "#${DateTime.now().microsecondsSinceEpoch.toString()}",
+      "transactionId": "#$transacId",
       "transactionTotalPrice": grandTotal,
       "transactionDate": DateTime.now(),
+      "total commision": totalCommision,
       "buyerName": buyerName,
+      "modeOfPayment": modeOfPayment,
+      "cpNum": cpNum,
+      "shippingAddress": shippingAddress,
+      "status": "pending",
+      "buyerUid": FirebaseAuth.instance.currentUser!.uid,
+      "itemList": cartItemsList,
     };
 
     for (var items in sellerId) {
       batch.set(
-          FirebaseFirestore.instance.collection("transactions").doc(items),
+          FirebaseFirestore.instance
+              .collection("transactions")
+              .doc(items)
+              .collection("transactionList")
+              .doc(transacId),
           data);
     }
 
-    return batch.commit();
+    return batch.commit().then((value) async {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => PlaceOrder(
+            grandTotal: grandTotal,
+          ),
+        ),
+      );
+      var collection =
+          FirebaseFirestore.instance.collectionGroup('groupedItems');
+      var snapshots = await collection.get();
+      for (var doc in snapshots.docs) {
+        await doc.reference.delete();
+      }
+      var collection1 = FirebaseFirestore.instance
+          .collection('buyer_info')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("mined_products");
+      var snapshots1 = await collection1.get();
+      for (var doc in snapshots1.docs) {
+        await doc.reference.delete();
+      }
+    });
   }
 
   String? sellerUid;
@@ -365,7 +411,8 @@ class _CheckOutState extends State<CheckOut> {
                     .snapshots(),
                 builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                   buyerName = snapshot.data?['fullName'];
-                  isSet = snapshot.data?.exists;
+                  cpNum = snapshot.data?['cpNumber'];
+                  shippingAddress = snapshot.data?['shippingAddress'];
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     print("waiting...");
                   }
@@ -532,13 +579,14 @@ class _CheckOutState extends State<CheckOut> {
               StreamBuilder(
                   stream: firestore
                       .collection("payment_methods")
-                      .doc("default")
+                      .doc("default_payment_method")
                       .snapshots(),
                   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    modeOfPayment = snapshot.data?['paymentMethod'];
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       print("waiting...");
                     }
-                    if (snapshot.data?.exists == true) {
+                    if (snapshot.data?.exists == false) {
                       return Container(
                         width: double.infinity,
                         height: heightVar / 8,
@@ -830,55 +878,7 @@ class _CheckOutState extends State<CheckOut> {
                               ),
                             ),
                             onPressed: () async {
-                              //place order button
-
-                              //update product quantity
-                              //test write batch here later....
-                              print("Total Commision:${totalCommision}");
-                              getData();
-                              update();
                               set();
-                              //add to products to transaction
-                              // CollectionReference addToTransactions =
-                              //     FirebaseFirestore.instance
-                              //         .collection("transactions");
-
-                              // await addToTransactions.doc().set({
-                              //   "TransactionId": DateTime.now()
-                              //       .millisecondsSinceEpoch
-                              //       .toString(),
-                              //   "TransactionTotalPrice": grandTotal,
-                              //   "TransactionDate": DateTime.now(),
-                              //   "BuyerName": buyerName,
-                              // }).then((value) async {
-                              //   Fluttertoast.showToast(
-                              //       msg: "Order has been placed!");
-
-                              //   var collection = FirebaseFirestore.instance
-                              //       .collection('buyer_info')
-                              //       .doc(FirebaseAuth.instance.currentUser!.uid)
-                              //       .collection("cart");
-                              //   var snapshots = await collection.get();
-                              //   for (var doc in snapshots.docs) {
-                              //     await doc.reference.delete();
-                              //   }
-                              //   var collection1 = FirebaseFirestore.instance
-                              //       .collection('buyer_info')
-                              //       .doc(FirebaseAuth.instance.currentUser!.uid)
-                              //       .collection("mined_products");
-                              //   var snapshots1 = await collection1.get();
-                              //   for (var doc in snapshots1.docs) {
-                              //     await doc.reference.delete();
-                              //   }
-                              // });
-
-                              // Navigator.of(context).push(
-                              //   MaterialPageRoute(
-                              //     builder: (context) => PlaceOrder(
-                              //       grandTotal: grandTotal,
-                              //     ),
-                              //   ),
-                              // );
                             },
                             child: const Text(
                               'Place Order',
