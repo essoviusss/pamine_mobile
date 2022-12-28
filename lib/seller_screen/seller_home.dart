@@ -1,3 +1,6 @@
+import 'package:badges/badges.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/home.dart';
 import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/liveStream.dart';
@@ -99,22 +102,50 @@ class _seller_screenState extends State<seller_home> {
                 Material(
                   child: Center(
                     child: InkWell(
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onTap: () {
-                          setState(() {
-                            currentIndex = 2;
-                          });
-                        },
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.notifications),
-                            Text("Notification"),
-                            //const Padding(padding: EdgeInsets.only(right: 10))
-                          ],
-                        )),
+                      focusColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onTap: () {
+                        setState(() {
+                          currentIndex = 2;
+                        });
+                      },
+                      child: StreamBuilder(
+                          stream: FirebaseFirestore.instance
+                              .collection("transactions")
+                              .doc(FirebaseAuth.instance.currentUser!.uid)
+                              .collection("transactionList")
+                              .where("status", isEqualTo: "pending")
+                              .snapshots(),
+                          builder:
+                              (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                            int? count = snapshot.data?.docs.length;
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              print("waiting...");
+                            } else if (!snapshot.hasData) {
+                              return const CircularProgressIndicator();
+                            } else {
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Badge(
+                                    badgeColor: Colors.red,
+                                    animationDuration:
+                                        const Duration(seconds: 0),
+                                    badgeContent: Center(child: Text('$count')),
+                                    child: const Icon(
+                                      Icons.notifications,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const Text("Orders"),
+                                ],
+                              );
+                            }
+                            return Container();
+                          }),
+                    ),
                   ),
                 ),
                 Material(

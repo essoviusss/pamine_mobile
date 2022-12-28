@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Processing extends StatefulWidget {
@@ -11,6 +12,22 @@ class Processing extends StatefulWidget {
 class _ProcessingState extends State<Processing> {
   final transacList =
       FirebaseFirestore.instance.collectionGroup("transactionList");
+
+  Future updateStatus(String id) async {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    await transacList.get().then((value) {
+      for (var orderList in value.docs) {
+        if (orderList.id.contains(id)) {
+          batch.update(orderList.reference, {
+            "status": "delivered",
+          });
+        }
+      }
+      return batch.commit();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -30,17 +47,22 @@ class _ProcessingState extends State<Processing> {
               itemBuilder: (context, index) {
                 final transacData = snapshot.data.docs[index];
                 return Expanded(
-                  child: transacData['status'] == "processing"
+                  child: transacData['status'] == "processing" &&
+                          transacData['buyerUid'] ==
+                              FirebaseAuth.instance.currentUser!.uid
                       ? Container(
                           decoration: BoxDecoration(
-                            color: Colors.purple.withOpacity(0.2),
-                            border: Border.all(
-                              width: 2,
-                              color: Colors.purple,
-                            ),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(10),
-                            ),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: const [
+                              BoxShadow(
+                                spreadRadius: 0.1,
+                                blurStyle: BlurStyle.normal,
+                                color: Colors.grey,
+                                blurRadius: 10,
+                                offset: Offset(4, 8),
+                              ),
+                            ],
                           ),
                           margin: EdgeInsets.only(
                               left: widthVar / 35,
@@ -48,6 +70,19 @@ class _ProcessingState extends State<Processing> {
                               top: heightVar / 100),
                           child: Column(
                             children: [
+                              SizedBox(
+                                height: heightVar / 80,
+                              ),
+                              Container(
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  "Your order has been shipped out!",
+                                  style: TextStyle(
+                                      color: Color(0xFFC21010),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
                               SizedBox(
                                 height: heightVar / 80,
                               ),
@@ -69,22 +104,19 @@ class _ProcessingState extends State<Processing> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Id: ${transacData['transactionId']}",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
+                                          "Transaction Id: ${transacData['transactionId']}"),
                                       Text(
                                           "Buyer: ${transacData['buyerName']}"),
-                                      Text(transacData['transactionDate']
-                                          .toDate()
-                                          .toString()),
+                                      Text(
+                                          "Total Price: ₱${transacData['transactionTotalPrice']}.00"),
+                                      Text(
+                                          "Total Items: ${transacData['itemList'].length.toString()}"),
                                       Wrap(
                                         crossAxisAlignment:
                                             WrapCrossAlignment.center,
-                                        children: [
-                                          Text(
-                                              "Status: ${transacData['status']}"),
-                                          const Icon(
+                                        children: const [
+                                          Text("Status: Shipped Out"),
+                                          Icon(
                                             Icons.circle,
                                             color: Colors.purple,
                                             size: 15,
@@ -98,7 +130,7 @@ class _ProcessingState extends State<Processing> {
                                       alignment: Alignment.centerRight,
                                       child: const Icon(
                                         Icons.more_vert,
-                                        color: Colors.purple,
+                                        color: Color(0xFFC21010),
                                       ),
                                     ),
                                   ),
@@ -107,8 +139,131 @@ class _ProcessingState extends State<Processing> {
                                   ),
                                 ],
                               ),
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                margin: EdgeInsets.only(
+                                    left: widthVar / 25, top: heightVar / 60),
+                                child: const Text(
+                                  "Ordered Items:",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                ),
+                              ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: transacData['itemList'].length,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    margin: EdgeInsets.only(
+                                      left: widthVar / 25,
+                                      right: widthVar / 25,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          height: heightVar / 80,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Image.network(
+                                              transacData['itemList'][index]
+                                                  ['productImageUrl'],
+                                              height: 60,
+                                              width: 60,
+                                            ),
+                                            Expanded(
+                                              child: Container(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                        "Product Name: ${transacData['itemList'][index]['productName'].toString()}"),
+                                                    Text(
+                                                        "QTY: x${transacData['itemList'][index]['productQuantity'].toString()}"),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: heightVar / 60,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                              const Divider(
+                                color: Colors.grey,
+                                thickness: 0.3,
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(
+                                    left: widthVar / 25, right: widthVar / 25),
+                                child: const Text(
+                                  "Note: Mark this order as delivered if you have received your order or you can return your item to the seller.",
+                                  style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic),
+                                  textAlign: TextAlign.justify,
+                                ),
+                              ),
                               SizedBox(
-                                height: heightVar / 80,
+                                height: heightVar / 60,
+                              ),
+                              Row(
+                                children: [
+                                  Container(
+                                    margin:
+                                        EdgeInsets.only(left: widthVar / 25),
+                                    child: TextButton(
+                                      onPressed: () {},
+                                      child: const Text(
+                                        "return/refund",
+                                        style:
+                                            TextStyle(color: Color(0xFFC21010)),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      alignment: Alignment.centerRight,
+                                      margin:
+                                          EdgeInsets.only(right: widthVar / 25),
+                                      child: TextButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  const Color(0xFFC21010)),
+                                          padding: MaterialStateProperty.all<
+                                              EdgeInsets>(
+                                            EdgeInsets.symmetric(
+                                                horizontal: widthVar / 20,
+                                                vertical: 12),
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          updateStatus(transacData.id);
+                                        },
+                                        child: const Text(
+                                          "Order Received",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: heightVar / 100,
                               ),
                             ],
                           ),

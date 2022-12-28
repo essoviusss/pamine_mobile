@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Delivered extends StatefulWidget {
@@ -30,7 +31,9 @@ class _DeliveredState extends State<Delivered> {
               itemBuilder: (context, index) {
                 final transacData = snapshot.data.docs[index];
                 return Expanded(
-                  child: transacData['status'] == "processing"
+                  child: transacData['status'] == "delivered" &&
+                          transacData['buyerUid'] ==
+                              FirebaseAuth.instance.currentUser!.uid
                       ? Container(
                           decoration: BoxDecoration(
                             color: Colors.blue.withOpacity(0.2),

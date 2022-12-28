@@ -783,7 +783,7 @@ class _CheckOutState extends State<CheckOut> {
                     subtotal1 = doc.get("subtotal");
                     subCommision = doc.get("commision");
                   });
-                  totalCommision = cartItems.fold(
+                  totalCommision = cartItems?.fold(
                       0, (commision, total) => commision + subCommision);
 
                   basetotal1 = cartItems?.fold(

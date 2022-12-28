@@ -146,6 +146,9 @@ class _ProductDescriptionState extends State<ProductDescription> {
                       sellerUid = snapshot.data?['uid'];
                       if (snapshot.connectionState == ConnectionState.none) {
                         Fluttertoast.showToast(msg: "waiting...");
+                      }
+                      if (!snapshot.hasData) {
+                        return const CircularProgressIndicator();
                       } else {
                         return Expanded(
                           child: Row(
@@ -215,7 +218,6 @@ class _ProductDescriptionState extends State<ProductDescription> {
                           ),
                         );
                       }
-                      return Container();
                     },
                   ),
                   TextButton(
