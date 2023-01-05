@@ -19,9 +19,7 @@ class _CheckoutInLiveState extends State<CheckoutInLive> {
     double widthVar = MediaQuery.of(context).size.width;
     return StreamBuilder(
       stream: FirebaseFirestore.instance
-          .collection("buyer_info")
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection("mined_products")
+          .collectionGroup("minedProducts")
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         int? count = snapshot.data?.docs.length;

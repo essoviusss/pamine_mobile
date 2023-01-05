@@ -24,7 +24,6 @@ class _ShopProductsState extends State<ShopProducts> {
     return SafeArea(
       child: Column(
         children: [
-          SizedBox(height: size.height * 0.03),
           StreamBuilder<dynamic>(
             stream: FirebaseFirestore.instance
                 .collection("seller_info")

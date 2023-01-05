@@ -7,7 +7,7 @@ packages:
       name: agora_rtc_engine
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.3.0"
+    version: "5.3.1"
   anim_search_app_bar:
     dependency: "direct main"
     description:
@@ -176,6 +176,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
+  dashboard:
+    dependency: "direct main"
+    description:
+      name: dashboard
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.3+1"
   desktop_webview_auth:
     dependency: transitive
     description:
@@ -204,6 +211,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.3"
+  dropdown_textfield:
+    dependency: "direct main"
+    description:
+      name: dropdown_textfield
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.7"
   email_validator:
     dependency: transitive
     description:
@@ -218,6 +232,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.5"
   fake_async:
     dependency: transitive
     description:
@@ -481,7 +502,7 @@ packages:
     source: hosted
     version: "2.0.7"
   flutter_rating_bar:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_rating_bar
       url: "https://pub.dartlang.org"

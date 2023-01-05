@@ -12,13 +12,20 @@ class InLiveCart extends StatefulWidget {
 }
 
 class _InLiveCartState extends State<InLiveCart> {
-  CollectionReference cartItemDel = FirebaseFirestore.instance
-      .collection("buyer_info")
-      .doc(FirebaseAuth.instance.currentUser!.uid)
-      .collection("mined_products");
+  Future delete(String id) async {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
 
-  Future<void> itemDelete(String itemId) async {
-    await cartItemDel.doc(itemId).delete();
+    FirebaseFirestore.instance
+        .collectionGroup("minedProducts")
+        .get()
+        .then((value) {
+      for (var cartProd in value.docs) {
+        if (cartProd.id.contains(id)) {
+          batch.delete(cartProd.reference);
+        }
+      }
+      return batch.commit();
+    });
   }
 
   int? basetotal;
@@ -48,9 +55,7 @@ class _InLiveCartState extends State<InLiveCart> {
             ),
             StreamBuilder<dynamic>(
               stream: FirebaseFirestore.instance
-                  .collection("buyer_info")
-                  .doc(FirebaseAuth.instance.currentUser!.uid)
-                  .collection("mined_products")
+                  .collectionGroup("minedProducts")
                   .snapshots(),
               builder: (context, snapshot) {
                 final cartItems =
@@ -138,7 +143,7 @@ class _InLiveCartState extends State<InLiveCart> {
                                           ),
                                           IconButton(
                                             onPressed: () {
-                                              itemDelete(
+                                              delete(
                                                   snapshot.data.docs[index].id);
                                             },
                                             icon: const Icon(
@@ -163,9 +168,7 @@ class _InLiveCartState extends State<InLiveCart> {
               margin: EdgeInsets.only(top: heightVar / 30),
               child: StreamBuilder<dynamic>(
                 stream: FirebaseFirestore.instance
-                    .collection("buyer_info")
-                    .doc(FirebaseAuth.instance.currentUser!.uid)
-                    .collection("mined_products")
+                    .collectionGroup("minedProducts")
                     .snapshots(),
                 builder: (context, snapshot) {
                   final cartItems =

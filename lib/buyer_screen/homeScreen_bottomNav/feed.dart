@@ -9,6 +9,7 @@ import 'package:animated_icon/animate_icons.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -59,7 +60,7 @@ class _FeedState extends State<Feed> {
     await _engine.enableVideo();
     await _engine.startPreview();
     await _engine.setChannelProfile(ChannelProfile.LiveBroadcasting);
-    if (widget.isBroadcaster) {
+    if (widget.isBroadcaster == true) {
       _engine.setClientRole(ClientRole.Broadcaster);
     } else {
       _engine.setClientRole(ClientRole.Audience);
@@ -67,7 +68,7 @@ class _FeedState extends State<Feed> {
     _joinChannel();
   }
 
-  String baseUrl = "https://pamine-server.herokuapp.com";
+  String baseUrl = "https://pamine-token.herokuapp.com";
   String? token;
 
   Future<void> getToken() async {
@@ -185,7 +186,8 @@ class _FeedState extends State<Feed> {
     double widthVar = MediaQuery.of(context).size.width;
     final user = Provider.of<GoogleProvider>(context).user;
     final size = MediaQuery.of(context).size;
-    String? productName,
+    String? productId,
+        productName,
         productCategory,
         productDescription,
         productImageUrl,
@@ -250,11 +252,10 @@ class _FeedState extends State<Feed> {
                             child: const Text(""),
                           );
                         }
+                        productId = snapshot.data?['productId'];
                         productName = snapshot.data?['productName'];
                         productCategory = snapshot.data?['productCategory'];
                         productPrice = snapshot.data?['productPrice'];
-                        productDescription =
-                            snapshot.data?['productDescription'];
                         productImageUrl = snapshot.data?['productImageUrl'];
                         productStatus = snapshot.data?['productStatus'];
                         return Container(
@@ -547,28 +548,47 @@ class _FeedState extends State<Feed> {
                                                     //mine the product
                                                     //buyer's list
                                                     Navigator.of(context).pop();
-                                                    FirebaseService().mineProd(
-                                                      data: {
-                                                        "productName":
-                                                            productName,
-                                                        "productCategory":
-                                                            productCategory,
-                                                        "productPrice":
-                                                            productPrice,
-                                                        "productDescription":
-                                                            productDescription,
-                                                        "productImageUrl":
-                                                            productImageUrl,
-                                                        "productStatus":
-                                                            "mined",
-                                                        "sellerUid":
-                                                            widget.channelId,
-                                                      },
-                                                      reference:
-                                                          FirebaseService()
-                                                              .mine,
-                                                    );
-
+                                                    FirebaseFirestore.instance
+                                                        .collection(
+                                                            "buyer_info")
+                                                        .doc(FirebaseAuth
+                                                            .instance
+                                                            .currentUser!
+                                                            .uid)
+                                                        .collection(
+                                                            "mined_products")
+                                                        .doc(widget.channelId)
+                                                        .collection(
+                                                            "minedProducts")
+                                                        .doc(productId)
+                                                        .set({
+                                                      "productId": productId,
+                                                      "productName":
+                                                          productName,
+                                                      "productCategory":
+                                                          productCategory,
+                                                      "productPrice":
+                                                          productPrice,
+                                                      "productImageUrl":
+                                                          productImageUrl,
+                                                      "productStatus": "mined",
+                                                      "sellerUid":
+                                                          widget.channelId,
+                                                    });
+                                                    FirebaseFirestore.instance
+                                                        .collection(
+                                                            "buyer_info")
+                                                        .doc(FirebaseAuth
+                                                            .instance
+                                                            .currentUser!
+                                                            .uid)
+                                                        .collection(
+                                                            "mined_products")
+                                                        .doc(widget.channelId)
+                                                        .set({
+                                                      "sellerUid":
+                                                          widget.channelId
+                                                    });
                                                     //gen mine product list
                                                     FirebaseService()
                                                         .mineProdList(
@@ -833,6 +853,9 @@ class _FeedState extends State<Feed> {
                                                             .uid)
                                                         .collection(
                                                             "mined_products")
+                                                        .doc(widget.channelId)
+                                                        .collection(
+                                                            "minedProducts")
                                                         .snapshots(),
                                                     builder:
                                                         (context, snapshot) {
@@ -934,6 +957,8 @@ class _FeedState extends State<Feed> {
                                           .doc(FirebaseAuth
                                               .instance.currentUser!.uid)
                                           .collection("mined_products")
+                                          .doc(widget.channelId)
+                                          .collection("minedProducts")
                                           .snapshots(),
                                       builder: (context,
                                           AsyncSnapshot<QuerySnapshot>

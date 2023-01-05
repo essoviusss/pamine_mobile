@@ -39,11 +39,14 @@ class _CheckOutState extends State<CheckOut> {
 
   String? buyerName;
   List cartItems = [];
+  List minedProducts = [];
   List cartItemsList = [];
+
+  List minedItemsList = [];
   List items = [];
   List sellerId = [];
-  var c;
-  var cItem;
+  List sellerId1 = [];
+
   List<dynamic> sample = [];
   List itemlist = [];
   String? modeOfPayment;
@@ -61,15 +64,28 @@ class _CheckOutState extends State<CheckOut> {
     // Get docs from collection reference
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance.collectionGroup('groupedItems').get();
+    QuerySnapshot querySnapshot1 =
+        await FirebaseFirestore.instance.collectionGroup('minedProducts').get();
+
     QuerySnapshot sellerUid = await FirebaseFirestore.instance
         .collection("buyer_info")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection("cart")
         .get();
+    QuerySnapshot sellerUid1 = await FirebaseFirestore.instance
+        .collection("buyer_info")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("mined_products")
+        .get();
     cartItems = querySnapshot.docs.map((doc) => doc.id).toList();
+    minedProducts = querySnapshot1.docs.map((doc) => doc.id).toList();
     cartItemsList = querySnapshot.docs.map((doc) => doc.data()).toList();
+    minedItemsList = querySnapshot1.docs.map((doc) => doc.data()).toList();
     sellerId = sellerUid.docs.map((doc) => doc.id).toList();
+    sellerId1 = sellerUid1.docs.map((doc) => doc.id).toList();
     print(cartItemsList);
+    print(minedItemsList);
+    print(sellerId1);
   }
 
   Future update() async {
@@ -87,13 +103,17 @@ class _CheckOutState extends State<CheckOut> {
             batch.update(productId.reference,
                 {"productQuantity": productId.data()['productQuantity'] - 1});
           }
+          if (minedProducts.contains(productId.id)) {
+            batch.update(productId.reference,
+                {"productQuantity": productId.data()['productQuantity'] - 1});
+          }
         } on FormatException catch (error) {
           print("The document ${error.source} could not be parsed.");
           continue;
         }
       }
-      return batch.commit();
     });
+    return batch.commit();
   }
 
   Future set() async {
@@ -101,9 +121,10 @@ class _CheckOutState extends State<CheckOut> {
     await update();
     WriteBatch batch = FirebaseFirestore.instance.batch();
     final transacId = DateTime.now().microsecondsSinceEpoch.toString();
+    final transacId1 = DateTime.now().microsecondsSinceEpoch.toString();
     Map<String, dynamic>? data = {
       "transactionId": "#$transacId",
-      "transactionTotalPrice": grandTotal,
+      "transactionTotalPrice": basetotal1,
       "transactionDate": DateTime.now(),
       "total commision": totalCommision,
       "buyerName": buyerName,
@@ -114,7 +135,28 @@ class _CheckOutState extends State<CheckOut> {
       "buyerUid": FirebaseAuth.instance.currentUser!.uid,
       "itemList": cartItemsList,
     };
-
+    Map<String, dynamic>? data1 = {
+      "transactionId": "#1$transacId1",
+      "transactionTotalPrice": basetotal2,
+      "transactionDate": DateTime.now(),
+      "total commision": totalCommision,
+      "buyerName": buyerName,
+      "modeOfPayment": modeOfPayment,
+      "cpNum": cpNum,
+      "shippingAddress": shippingAddress,
+      "status": "pending",
+      "buyerUid": FirebaseAuth.instance.currentUser!.uid,
+      "itemList": minedItemsList,
+    };
+    for (var mined in sellerId1) {
+      batch.set(
+          FirebaseFirestore.instance
+              .collection("transactions")
+              .doc(mined)
+              .collection("transactionList")
+              .doc(transacId1),
+          data1);
+    }
     for (var items in sellerId) {
       batch.set(
           FirebaseFirestore.instance
@@ -124,7 +166,6 @@ class _CheckOutState extends State<CheckOut> {
               .doc(transacId),
           data);
     }
-
     return batch.commit().then((value) async {
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -139,10 +180,8 @@ class _CheckOutState extends State<CheckOut> {
       for (var doc in snapshots.docs) {
         await doc.reference.delete();
       }
-      var collection1 = FirebaseFirestore.instance
-          .collection('buyer_info')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection("mined_products");
+      var collection1 =
+          FirebaseFirestore.instance.collectionGroup('minedProducts');
       var snapshots1 = await collection1.get();
       for (var doc in snapshots1.docs) {
         await doc.reference.delete();
@@ -216,10 +255,137 @@ class _CheckOutState extends State<CheckOut> {
                             Expanded(
                               child: Container(
                                 alignment: Alignment.centerRight,
-                                child: const Icon(
-                                  Icons.more_vert,
-                                  color: Color(0xFFC21010),
-                                  size: 35,
+                                child: InkWell(
+                                  onTap: () {
+                                    showBarModalBottomSheet(
+                                        expand: true,
+                                        context: context,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (context) => Container(
+                                              height: double.infinity,
+                                              color: Colors.white,
+                                              child: StreamBuilder<dynamic>(
+                                                  stream: FirebaseFirestore
+                                                      .instance
+                                                      .collectionGroup(
+                                                          "minedProducts")
+                                                      .snapshots(),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot
+                                                            .connectionState ==
+                                                        ConnectionState
+                                                            .waiting) {
+                                                      print("waiting...");
+                                                    }
+                                                    if (snapshot.hasData) {
+                                                      return Column(
+                                                        children: [
+                                                          SizedBox(
+                                                            height:
+                                                                heightVar / 60,
+                                                          ),
+                                                          const Text(
+                                                            "Mined Items",
+                                                            style: TextStyle(
+                                                                color: Color(
+                                                                    0xFFC21010),
+                                                                fontSize: 20,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          ListView.builder(
+                                                              shrinkWrap: true,
+                                                              itemCount:
+                                                                  snapshot
+                                                                      .data
+                                                                      .docs
+                                                                      .length,
+                                                              itemBuilder:
+                                                                  (context,
+                                                                      index) {
+                                                                return Container(
+                                                                    height:
+                                                                        heightVar /
+                                                                            10,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              12),
+                                                                      boxShadow: const [
+                                                                        BoxShadow(
+                                                                          spreadRadius:
+                                                                              0.1,
+                                                                          blurStyle:
+                                                                              BlurStyle.normal,
+                                                                          color:
+                                                                              Colors.grey,
+                                                                          blurRadius:
+                                                                              10,
+                                                                          offset: Offset(
+                                                                              4,
+                                                                              8), // Shadow position
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    margin: EdgeInsets.only(
+                                                                        left: widthVar /
+                                                                            25,
+                                                                        right: widthVar /
+                                                                            25,
+                                                                        bottom:
+                                                                            heightVar /
+                                                                                80,
+                                                                        top: heightVar /
+                                                                            80),
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Container(
+                                                                            margin:
+                                                                                EdgeInsets.only(left: widthVar / 20),
+                                                                            child: Image.network(
+                                                                              snapshot.data.docs[index]['productImageUrl'],
+                                                                              height: 60,
+                                                                              width: 60,
+                                                                            )),
+                                                                        SizedBox(
+                                                                            width:
+                                                                                widthVar / 6),
+                                                                        Wrap(
+                                                                          crossAxisAlignment:
+                                                                              WrapCrossAlignment.center,
+                                                                          spacing:
+                                                                              widthVar / 20,
+                                                                          children: [
+                                                                            SizedBox(
+                                                                                width: widthVar / 3,
+                                                                                child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+                                                                                  Text(
+                                                                                    snapshot.data.docs[index]['productName'],
+                                                                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                                  ),
+                                                                                  Text("₱${snapshot.data.docs[index]['productPrice'].toString()}.00"),
+                                                                                ])),
+                                                                          ],
+                                                                        )
+                                                                      ],
+                                                                    ));
+                                                              }),
+                                                        ],
+                                                      );
+                                                    }
+                                                    return Container();
+                                                  }),
+                                            ));
+                                  },
+                                  child: const Icon(
+                                    Icons.more_vert,
+                                    color: Color(0xFFC21010),
+                                    size: 35,
+                                  ),
                                 ),
                               ),
                             ),
@@ -287,92 +453,105 @@ class _CheckOutState extends State<CheckOut> {
                                                       print("waiting...");
                                                     }
                                                     if (snapshot.hasData) {
-                                                      return ListView.builder(
-                                                          shrinkWrap: true,
-                                                          itemCount: snapshot
-                                                              .data.docs.length,
-                                                          itemBuilder:
-                                                              (context, index) {
-                                                            return Container(
-                                                                height:
-                                                                    heightVar /
-                                                                        10,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              12),
-                                                                  boxShadow: const [
-                                                                    BoxShadow(
-                                                                      spreadRadius:
-                                                                          0.1,
-                                                                      blurStyle:
-                                                                          BlurStyle
-                                                                              .normal,
+                                                      return Column(
+                                                        children: [
+                                                          SizedBox(
+                                                            height:
+                                                                heightVar / 60,
+                                                          ),
+                                                          const Text(
+                                                            "Cart Items",
+                                                            style: TextStyle(
+                                                                color: Color(
+                                                                    0xFFC21010),
+                                                                fontSize: 20,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          ListView.builder(
+                                                              shrinkWrap: true,
+                                                              itemCount:
+                                                                  snapshot
+                                                                      .data
+                                                                      .docs
+                                                                      .length,
+                                                              itemBuilder:
+                                                                  (context,
+                                                                      index) {
+                                                                return Container(
+                                                                    height:
+                                                                        heightVar /
+                                                                            10,
+                                                                    decoration:
+                                                                        BoxDecoration(
                                                                       color: Colors
-                                                                          .grey,
-                                                                      blurRadius:
-                                                                          10,
-                                                                      offset: Offset(
-                                                                          4,
-                                                                          8), // Shadow position
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                                margin: EdgeInsets.only(
-                                                                    bottom:
-                                                                        heightVar /
-                                                                            80,
-                                                                    top:
-                                                                        heightVar /
-                                                                            80),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Container(
-                                                                        margin: EdgeInsets.only(
-                                                                            left: widthVar /
-                                                                                20),
-                                                                        child: Image
-                                                                            .network(
-                                                                          snapshot
-                                                                              .data
-                                                                              .docs[index]['productImageUrl'],
-                                                                          height:
-                                                                              60,
-                                                                          width:
-                                                                              60,
-                                                                        )),
-                                                                    SizedBox(
-                                                                        width: widthVar /
-                                                                            6),
-                                                                    Wrap(
-                                                                      crossAxisAlignment:
-                                                                          WrapCrossAlignment
-                                                                              .center,
-                                                                      spacing:
-                                                                          widthVar /
-                                                                              20,
-                                                                      children: [
-                                                                        SizedBox(
-                                                                            width: widthVar /
-                                                                                3,
-                                                                            child:
-                                                                                Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-                                                                              Text(
-                                                                                snapshot.data.docs[index]['productName'],
-                                                                                style: const TextStyle(fontWeight: FontWeight.bold),
-                                                                              ),
-                                                                              Text("₱${snapshot.data.docs[index]['productPrice'].toString()}.00"),
-                                                                              Text("Qty: ${snapshot.data.docs[index]['productQuantity'].toString()}")
-                                                                            ])),
+                                                                          .white,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              12),
+                                                                      boxShadow: const [
+                                                                        BoxShadow(
+                                                                          spreadRadius:
+                                                                              0.1,
+                                                                          blurStyle:
+                                                                              BlurStyle.normal,
+                                                                          color:
+                                                                              Colors.grey,
+                                                                          blurRadius:
+                                                                              10,
+                                                                          offset: Offset(
+                                                                              4,
+                                                                              8), // Shadow position
+                                                                        ),
                                                                       ],
-                                                                    )
-                                                                  ],
-                                                                ));
-                                                          });
+                                                                    ),
+                                                                    margin: EdgeInsets.only(
+                                                                        left: widthVar /
+                                                                            25,
+                                                                        right: widthVar /
+                                                                            25,
+                                                                        bottom:
+                                                                            heightVar /
+                                                                                80,
+                                                                        top: heightVar /
+                                                                            80),
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Container(
+                                                                            margin:
+                                                                                EdgeInsets.only(left: widthVar / 20),
+                                                                            child: Image.network(
+                                                                              snapshot.data.docs[index]['productImageUrl'],
+                                                                              height: 60,
+                                                                              width: 60,
+                                                                            )),
+                                                                        SizedBox(
+                                                                            width:
+                                                                                widthVar / 6),
+                                                                        Wrap(
+                                                                          crossAxisAlignment:
+                                                                              WrapCrossAlignment.center,
+                                                                          spacing:
+                                                                              widthVar / 20,
+                                                                          children: [
+                                                                            SizedBox(
+                                                                                width: widthVar / 3,
+                                                                                child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+                                                                                  Text(
+                                                                                    snapshot.data.docs[index]['productName'],
+                                                                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                                  ),
+                                                                                  Text("₱${snapshot.data.docs[index]['productPrice'].toString()}.00"),
+                                                                                  Text("Qty: ${snapshot.data.docs[index]['productQuantity'].toString()}")
+                                                                                ])),
+                                                                          ],
+                                                                        )
+                                                                      ],
+                                                                    ));
+                                                              }),
+                                                        ],
+                                                      );
                                                     }
                                                     return Container();
                                                   }),
@@ -793,8 +972,9 @@ class _CheckOutState extends State<CheckOut> {
                   }
                   if (snapshot.hasData) {
                     return StreamBuilder<dynamic>(
-                      stream:
-                          firestore.collection("mined_products").snapshots(),
+                      stream: FirebaseFirestore.instance
+                          .collectionGroup("minedProducts")
+                          .snapshots(),
                       builder: (context, snapshot) {
                         final cartItems =
                             snapshot.data?.docs.map((DocumentSnapshot doc) {

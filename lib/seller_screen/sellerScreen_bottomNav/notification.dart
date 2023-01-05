@@ -1,12 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:animated_icon/animate_icon.dart';
-import 'package:animated_icon/animate_icons.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/delivered.dart';
+import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/notification_components/delivered.dart';
 import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/notification_components/accepted.dart';
 import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/notification_components/pending_orders.dart';
 import 'package:pamine_mobile/seller_screen/sellerScreen_bottomNav/notification_components/shipped.dart';

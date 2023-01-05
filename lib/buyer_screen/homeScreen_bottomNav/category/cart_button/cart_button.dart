@@ -42,7 +42,7 @@ class _CartButtonState extends State<CartButton> {
             if (snapshot.hasData) {
               return StreamBuilder(
                 stream: FirebaseFirestore.instance
-                    .collectionGroup("minedItems")
+                    .collectionGroup("minedProducts")
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   int? count1 = snapshot.data?.docs.length;

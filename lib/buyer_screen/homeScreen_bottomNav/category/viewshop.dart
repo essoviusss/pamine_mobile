@@ -122,7 +122,7 @@ class _ViewShopState extends State<ViewShop> {
                           unselectedLabelColor: Colors.black,
                           tabs: [
                             Tab(text: 'Products'),
-                            Tab(text: 'Sold Products'),
+                            Tab(text: 'Sold/Reviews'),
                           ],
                         ),
                         Container(
@@ -136,7 +136,7 @@ class _ViewShopState extends State<ViewShop> {
                               ShopProducts(
                                 sellerUid: widget.sellerUid!,
                               ),
-                              const ShopSoldProducts(),
+                              ShopSoldProducts(),
                             ],
                           ),
                         )

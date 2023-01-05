@@ -71,7 +71,7 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
     _joinChannel();
   }
 
-  String baseUrl = "https://pamine-server.herokuapp.com";
+  String baseUrl = "https://pamine-token.herokuapp.com";
   String? token;
 
   Future<void> getToken() async {
@@ -762,149 +762,104 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                                                         .docs[
                                                                             index]
                                                                         .data());
-                                                            if (post.productStatus ==
-                                                                "none") {
-                                                              return InkWell(
-                                                                onTap: () {
-                                                                  CollectionReference
-                                                                      pinProd =
-                                                                      FirebaseFirestore
-                                                                          .instance
-                                                                          .collection(
-                                                                              "livestream");
 
-                                                                  pinProd
-                                                                      .doc(FirebaseAuth
-                                                                          .instance
-                                                                          .currentUser!
-                                                                          .uid)
-                                                                      .collection(
-                                                                          "pinned_item")
-                                                                      .doc(
-                                                                          "pinnedItem")
-                                                                      .set(
-                                                                    {
-                                                                      "productName":
-                                                                          post.productName,
-                                                                      "productCategory":
-                                                                          post.productCategory,
-                                                                      "productPrice":
-                                                                          post.productPrice,
-                                                                      "productDescription":
-                                                                          post.productDescription,
-                                                                      "productImageUrl":
-                                                                          post.productImageUrl,
-                                                                      "productStatus":
-                                                                          "pinned",
-                                                                    },
-                                                                  ).then(
-                                                                    (value) {
-                                                                      Fluttertoast
-                                                                          .showToast(
-                                                                              msg: "Product Pinned");
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                    },
-                                                                  );
-                                                                },
-                                                                child: Card(
-                                                                  child:
-                                                                      Container(
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      border: Border.all(
-                                                                          width:
-                                                                              3.0,
-                                                                          color: Colors
-                                                                              .grey
-                                                                              .shade300),
-                                                                      borderRadius: const BorderRadius
-                                                                              .all(
-                                                                          Radius.circular(
-                                                                              5.0)),
-                                                                    ),
-                                                                    child:
-                                                                        Stack(
-                                                                      children: [
-                                                                        Column(
-                                                                          children: [
-                                                                            Column(
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              children: [
-                                                                                AspectRatio(
-                                                                                  aspectRatio: 1 / 1,
-                                                                                  child: Image.network(post.productImageUrl!),
-                                                                                ),
-                                                                                SizedBox(
-                                                                                  child: Padding(padding: EdgeInsets.only(top: heightVar / 99)),
-                                                                                ),
-                                                                                Container(
-                                                                                  margin: EdgeInsets.only(left: widthVar / 25),
-                                                                                  child: Text(
-                                                                                    post.productName!,
-                                                                                    style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-                                                                                  ),
-                                                                                ),
-                                                                                Container(
-                                                                                  margin: EdgeInsets.only(left: widthVar / 25),
-                                                                                  child: Text("₱${post.productPrice!}.oo",
-                                                                                      style: const TextStyle(
-                                                                                        color: Colors.red,
-                                                                                        fontSize: 15,
-                                                                                        fontWeight: FontWeight.bold,
-                                                                                      )),
-                                                                                ),
-                                                                              ],
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                        Container(
-                                                                          color: Colors
-                                                                              .black
-                                                                              .withOpacity(0.3),
-                                                                          child:
-                                                                              Column(
-                                                                            mainAxisAlignment:
-                                                                                MainAxisAlignment.center,
+                                                            return InkWell(
+                                                              onTap: () {},
+                                                              child: Card(
+                                                                child:
+                                                                    Container(
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    border: Border.all(
+                                                                        width:
+                                                                            3.0,
+                                                                        color: Colors
+                                                                            .grey
+                                                                            .shade300),
+                                                                    borderRadius: const BorderRadius
+                                                                            .all(
+                                                                        Radius.circular(
+                                                                            5.0)),
+                                                                  ),
+                                                                  child: Stack(
+                                                                    children: [
+                                                                      Column(
+                                                                        children: [
+                                                                          Column(
+                                                                            crossAxisAlignment:
+                                                                                CrossAxisAlignment.start,
                                                                             children: [
-                                                                              Center(
-                                                                                child: IconButton(
-                                                                                  splashColor: Colors.blue,
-                                                                                  icon: const Icon(Icons.add),
-                                                                                  iconSize: 60,
-                                                                                  color: Colors.red,
-                                                                                  onPressed: () {
-                                                                                    CollectionReference pinProd = FirebaseFirestore.instance.collection("livestream");
-
-                                                                                    pinProd.doc(FirebaseAuth.instance.currentUser!.uid).collection("pinned_item").doc("pinnedItem").set(
-                                                                                      {
-                                                                                        "productName": post.productName,
-                                                                                        "productCategory": post.productCategory,
-                                                                                        "productPrice": post.productPrice,
-                                                                                        "productDescription": post.productDescription,
-                                                                                        "productImageUrl": post.productImageUrl,
-                                                                                        "productStatus": "pinned",
-                                                                                      },
-                                                                                    ).then(
-                                                                                      (value) {
-                                                                                        Fluttertoast.showToast(msg: "Product Pinned");
-                                                                                        Navigator.pop(context);
-                                                                                      },
-                                                                                    );
-                                                                                  },
+                                                                              AspectRatio(
+                                                                                aspectRatio: 1 / 1,
+                                                                                child: Image.network(post.productImageUrl!),
+                                                                              ),
+                                                                              SizedBox(
+                                                                                child: Padding(padding: EdgeInsets.only(top: heightVar / 99)),
+                                                                              ),
+                                                                              Container(
+                                                                                margin: EdgeInsets.only(left: widthVar / 25),
+                                                                                child: Text(
+                                                                                  post.productName!,
+                                                                                  style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
                                                                                 ),
+                                                                              ),
+                                                                              Container(
+                                                                                margin: EdgeInsets.only(left: widthVar / 25),
+                                                                                child: Text("₱${post.productPrice!}.oo",
+                                                                                    style: const TextStyle(
+                                                                                      color: Colors.red,
+                                                                                      fontSize: 15,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                    )),
                                                                               ),
                                                                             ],
                                                                           ),
-                                                                        )
-                                                                      ],
-                                                                    ),
+                                                                        ],
+                                                                      ),
+                                                                      Container(
+                                                                        color: Colors
+                                                                            .black
+                                                                            .withOpacity(0.3),
+                                                                        child:
+                                                                            Column(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.center,
+                                                                          children: [
+                                                                            Center(
+                                                                              child: IconButton(
+                                                                                splashColor: Colors.blue,
+                                                                                icon: const Icon(Icons.add),
+                                                                                iconSize: 60,
+                                                                                color: Colors.red,
+                                                                                onPressed: () {
+                                                                                  CollectionReference pinProd = FirebaseFirestore.instance.collection("livestream");
+
+                                                                                  pinProd.doc(FirebaseAuth.instance.currentUser!.uid).collection("pinned_item").doc("pinnedItem").set(
+                                                                                    {
+                                                                                      "productId": post.productId,
+                                                                                      "productName": post.productName,
+                                                                                      "productCategory": post.productCategory,
+                                                                                      "productPrice": post.productPrice,
+                                                                                      "productImageUrl": post.productImageUrl,
+                                                                                      "productStatus": "pinned",
+                                                                                    },
+                                                                                  ).then(
+                                                                                    (value) {
+                                                                                      Fluttertoast.showToast(msg: "Product Pinned");
+                                                                                      Navigator.pop(context);
+                                                                                    },
+                                                                                  );
+                                                                                },
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      )
+                                                                    ],
                                                                   ),
                                                                 ),
-                                                              );
-                                                            } else {
-                                                              return Container();
-                                                            }
+                                                              ),
+                                                            );
                                                           },
                                                         ),
                                                       );
