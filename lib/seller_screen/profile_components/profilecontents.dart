@@ -51,7 +51,7 @@ class _BodyState extends State<Body> {
             },
           ),
           ProfileMenu(
-            text: "Buyer's List",
+            text: "Transactions",
             icon: const Icon(Icons.list, color: Colors.red),
             press: () {
               Navigator.of(context).push(
@@ -62,7 +62,7 @@ class _BodyState extends State<Body> {
             },
           ),
           ProfileMenu(
-            text: "Sold Items",
+            text: "Product Reviews",
             icon: const Icon(Icons.sell, color: Colors.red),
             press: () {},
           ),

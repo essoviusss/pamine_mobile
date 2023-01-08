@@ -30,12 +30,20 @@ class _CheckOutState extends State<CheckOut> {
   int? subtotal2;
   int? grandTotal;
   int? subCommision;
+  int? subCommission1;
   int? totalCommision;
+  int? totalCommission1;
+  int? totalSale;
+  int? totalSale1;
+  int? grandTotalSale;
+  int? grandTotalSale1;
 
   bool? isSet = true;
   bool? option1 = false;
   bool? option2 = false;
   bool? paymentOption1 = false;
+  bool? paymentOption2 = false;
+  bool? paymentOption3 = false;
 
   String? buyerName;
   List cartItems = [];
@@ -83,41 +91,36 @@ class _CheckOutState extends State<CheckOut> {
     minedItemsList = querySnapshot1.docs.map((doc) => doc.data()).toList();
     sellerId = sellerUid.docs.map((doc) => doc.id).toList();
     sellerId1 = sellerUid1.docs.map((doc) => doc.id).toList();
-    print(cartItemsList);
-    print(minedItemsList);
-    print(sellerId1);
   }
 
   Future update() async {
+    await getData();
     WriteBatch batch = FirebaseFirestore.instance.batch();
+    final querySnapshot =
+        await FirebaseFirestore.instance.collectionGroup("products").get();
 
-    FirebaseFirestore.instance
-        .collectionGroup("products")
-        .get()
-        .then((querySnapshot) {
-      for (var productId in querySnapshot.docs) {
-        try {
-          if (cartItems.contains(productId.id)) {
-            print("PRODUCT QTY ${productId.data()["productQuantity"]}");
-
-            batch.update(productId.reference,
-                {"productQuantity": productId.data()['productQuantity'] - 1});
-          }
-          if (minedProducts.contains(productId.id)) {
-            batch.update(productId.reference,
-                {"productQuantity": productId.data()['productQuantity'] - 1});
-          }
-        } on FormatException catch (error) {
-          print("The document ${error.source} could not be parsed.");
-          continue;
-        }
+    //offlive
+    for (var productId in querySnapshot.docs) {
+      if (cartItems.contains(productId.id)) {
+        print("PRODUCT QTY ${productId.data()["productQuantity"]}");
+        batch.update(productId.reference,
+            {"productQuantity": productId.data()['productQuantity'] - 1});
       }
+    }
+    //inlive
+    for (var productId1 in querySnapshot.docs) {
+      if (minedProducts.contains(productId1.id)) {
+        print("PRODUCT QTY ${productId1.data()["productQuantity"]}");
+        batch.update(productId1.reference,
+            {"productQuantity": productId1.data()['productQuantity'] - 1});
+      }
+    }
+    return batch.commit().then((value) {
+      Fluttertoast.showToast(msg: "Transaction Completed");
     });
-    return batch.commit();
   }
 
   Future set() async {
-    await getData();
     await update();
     WriteBatch batch = FirebaseFirestore.instance.batch();
     final transacId = DateTime.now().microsecondsSinceEpoch.toString();
@@ -126,7 +129,8 @@ class _CheckOutState extends State<CheckOut> {
       "transactionId": "#$transacId",
       "transactionTotalPrice": basetotal1,
       "transactionDate": DateTime.now(),
-      "total commision": totalCommision,
+      "totalCommision": totalCommision,
+      "totalSale": grandTotalSale,
       "buyerName": buyerName,
       "modeOfPayment": modeOfPayment,
       "cpNum": cpNum,
@@ -139,7 +143,8 @@ class _CheckOutState extends State<CheckOut> {
       "transactionId": "#1$transacId1",
       "transactionTotalPrice": basetotal2,
       "transactionDate": DateTime.now(),
-      "total commision": totalCommision,
+      "totalCommision": totalCommission1,
+      "totalSale": grandTotalSale1,
       "buyerName": buyerName,
       "modeOfPayment": modeOfPayment,
       "cpNum": cpNum,
@@ -148,45 +153,51 @@ class _CheckOutState extends State<CheckOut> {
       "buyerUid": FirebaseAuth.instance.currentUser!.uid,
       "itemList": minedItemsList,
     };
-    for (var mined in sellerId1) {
-      batch.set(
-          FirebaseFirestore.instance
-              .collection("transactions")
-              .doc(mined)
-              .collection("transactionList")
-              .doc(transacId1),
-          data1);
+    if (option1 == true) {
+      for (var mined in sellerId1) {
+        batch.set(
+            FirebaseFirestore.instance
+                .collection("transactions")
+                .doc(mined)
+                .collection("transactionList")
+                .doc(transacId1),
+            data1);
+      }
     }
-    for (var items in sellerId) {
-      batch.set(
-          FirebaseFirestore.instance
-              .collection("transactions")
-              .doc(items)
-              .collection("transactionList")
-              .doc(transacId),
-          data);
+    if (option2 == true) {
+      for (var items in sellerId) {
+        batch.set(
+            FirebaseFirestore.instance
+                .collection("transactions")
+                .doc(items)
+                .collection("transactionList")
+                .doc(transacId),
+            data);
+      }
     }
-    return batch.commit().then((value) async {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => PlaceOrder(
-            grandTotal: grandTotal,
-          ),
+    return batch.commit();
+  }
+
+  Future delete() async {
+    await set();
+    var collection = FirebaseFirestore.instance.collectionGroup('groupedItems');
+    var snapshots = await collection.get();
+    for (var doc in snapshots.docs) {
+      await doc.reference.delete();
+    }
+    var collection1 =
+        FirebaseFirestore.instance.collectionGroup('minedProducts');
+    var snapshots1 = await collection1.get();
+    for (var doc in snapshots1.docs) {
+      await doc.reference.delete();
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PlaceOrder(
+          grandTotal: grandTotal,
         ),
-      );
-      var collection =
-          FirebaseFirestore.instance.collectionGroup('groupedItems');
-      var snapshots = await collection.get();
-      for (var doc in snapshots.docs) {
-        await doc.reference.delete();
-      }
-      var collection1 =
-          FirebaseFirestore.instance.collectionGroup('minedProducts');
-      var snapshots1 = await collection1.get();
-      for (var doc in snapshots1.docs) {
-        await doc.reference.delete();
-      }
-    });
+      ),
+    );
   }
 
   String? sellerUid;
@@ -213,189 +224,193 @@ class _CheckOutState extends State<CheckOut> {
                 "Cart to Checkout",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              SizedBox(
-                height: heightVar / 100,
+              Container(
+                margin: EdgeInsets.only(top: heightVar / 60),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      width: 2,
+                      color: option1 == true
+                          ? const Color(0xFFC21010)
+                          : const Color.fromARGB(255, 200, 200, 200)),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                ),
+                child: Container(
+                  color: option1 == true
+                      ? Colors.red.withOpacity(0.1)
+                      : Colors.transparent,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: widthVar / 25,
+                      ),
+                      RoundCheckBox(
+                        isChecked: option1,
+                        size: 30,
+                        checkedColor: const Color(0xFFC21010),
+                        onTap: (selected) =>
+                            setState((() => option1 = selected)),
+                      ),
+                      SizedBox(
+                        width: widthVar / 15,
+                      ),
+                      const CheckoutInLive(),
+                      Expanded(
+                        child: Container(
+                          alignment: Alignment.centerRight,
+                          child: InkWell(
+                            onTap: () {
+                              showBarModalBottomSheet(
+                                  expand: true,
+                                  context: context,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => Container(
+                                        height: double.infinity,
+                                        color: Colors.white,
+                                        child: StreamBuilder<dynamic>(
+                                            stream: FirebaseFirestore.instance
+                                                .collectionGroup(
+                                                    "minedProducts")
+                                                .snapshots(),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.waiting) {
+                                                print("waiting...");
+                                              }
+                                              if (snapshot.hasData) {
+                                                return Column(
+                                                  children: [
+                                                    SizedBox(
+                                                      height: heightVar / 60,
+                                                    ),
+                                                    const Text(
+                                                      "Mined Items",
+                                                      style: TextStyle(
+                                                          color:
+                                                              Color(0xFFC21010),
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    ListView.builder(
+                                                        shrinkWrap: true,
+                                                        itemCount: snapshot
+                                                            .data.docs.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          return Container(
+                                                              height:
+                                                                  heightVar /
+                                                                      10,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: Colors
+                                                                    .white,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            12),
+                                                                boxShadow: const [
+                                                                  BoxShadow(
+                                                                    spreadRadius:
+                                                                        0.1,
+                                                                    blurStyle:
+                                                                        BlurStyle
+                                                                            .normal,
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    blurRadius:
+                                                                        10,
+                                                                    offset: Offset(
+                                                                        4,
+                                                                        8), // Shadow position
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              margin: EdgeInsets.only(
+                                                                  left:
+                                                                      widthVar /
+                                                                          25,
+                                                                  right:
+                                                                      widthVar /
+                                                                          25,
+                                                                  bottom:
+                                                                      heightVar /
+                                                                          80,
+                                                                  top:
+                                                                      heightVar /
+                                                                          80),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                      margin: EdgeInsets.only(
+                                                                          left: widthVar /
+                                                                              20),
+                                                                      child: Image
+                                                                          .network(
+                                                                        snapshot
+                                                                            .data
+                                                                            .docs[index]['productImageUrl'],
+                                                                        height:
+                                                                            60,
+                                                                        width:
+                                                                            60,
+                                                                      )),
+                                                                  SizedBox(
+                                                                      width:
+                                                                          widthVar /
+                                                                              6),
+                                                                  Wrap(
+                                                                    crossAxisAlignment:
+                                                                        WrapCrossAlignment
+                                                                            .center,
+                                                                    spacing:
+                                                                        widthVar /
+                                                                            20,
+                                                                    children: [
+                                                                      SizedBox(
+                                                                          width: widthVar /
+                                                                              3,
+                                                                          child: Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                                              children: [
+                                                                                Text(
+                                                                                  snapshot.data.docs[index]['productName'],
+                                                                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                                                                ),
+                                                                                Text("₱${snapshot.data.docs[index]['productPrice'].toString()}.00"),
+                                                                              ])),
+                                                                    ],
+                                                                  )
+                                                                ],
+                                                              ));
+                                                        }),
+                                                  ],
+                                                );
+                                              }
+                                              return Container();
+                                            }),
+                                      ));
+                            },
+                            child: const Icon(
+                              Icons.more_vert,
+                              color: Color(0xFFC21010),
+                              size: 35,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               Container(
                 margin: EdgeInsets.only(top: heightVar / 100),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 2,
-                            color: option1 == true
-                                ? const Color(0xFFC21010)
-                                : const Color.fromARGB(255, 200, 200, 200)),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(10),
-                        ),
-                      ),
-                      child: Container(
-                        color: option1 == true
-                            ? Colors.red.withOpacity(0.1)
-                            : Colors.transparent,
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: widthVar / 25,
-                            ),
-                            RoundCheckBox(
-                              isChecked: option1,
-                              size: 30,
-                              checkedColor: const Color(0xFFC21010),
-                              onTap: (selected) =>
-                                  setState((() => option1 = selected)),
-                            ),
-                            SizedBox(
-                              width: widthVar / 15,
-                            ),
-                            const CheckoutInLive(),
-                            Expanded(
-                              child: Container(
-                                alignment: Alignment.centerRight,
-                                child: InkWell(
-                                  onTap: () {
-                                    showBarModalBottomSheet(
-                                        expand: true,
-                                        context: context,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (context) => Container(
-                                              height: double.infinity,
-                                              color: Colors.white,
-                                              child: StreamBuilder<dynamic>(
-                                                  stream: FirebaseFirestore
-                                                      .instance
-                                                      .collectionGroup(
-                                                          "minedProducts")
-                                                      .snapshots(),
-                                                  builder: (context, snapshot) {
-                                                    if (snapshot
-                                                            .connectionState ==
-                                                        ConnectionState
-                                                            .waiting) {
-                                                      print("waiting...");
-                                                    }
-                                                    if (snapshot.hasData) {
-                                                      return Column(
-                                                        children: [
-                                                          SizedBox(
-                                                            height:
-                                                                heightVar / 60,
-                                                          ),
-                                                          const Text(
-                                                            "Mined Items",
-                                                            style: TextStyle(
-                                                                color: Color(
-                                                                    0xFFC21010),
-                                                                fontSize: 20,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          ListView.builder(
-                                                              shrinkWrap: true,
-                                                              itemCount:
-                                                                  snapshot
-                                                                      .data
-                                                                      .docs
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (context,
-                                                                      index) {
-                                                                return Container(
-                                                                    height:
-                                                                        heightVar /
-                                                                            10,
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      color: Colors
-                                                                          .white,
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              12),
-                                                                      boxShadow: const [
-                                                                        BoxShadow(
-                                                                          spreadRadius:
-                                                                              0.1,
-                                                                          blurStyle:
-                                                                              BlurStyle.normal,
-                                                                          color:
-                                                                              Colors.grey,
-                                                                          blurRadius:
-                                                                              10,
-                                                                          offset: Offset(
-                                                                              4,
-                                                                              8), // Shadow position
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                    margin: EdgeInsets.only(
-                                                                        left: widthVar /
-                                                                            25,
-                                                                        right: widthVar /
-                                                                            25,
-                                                                        bottom:
-                                                                            heightVar /
-                                                                                80,
-                                                                        top: heightVar /
-                                                                            80),
-                                                                    child: Row(
-                                                                      children: [
-                                                                        Container(
-                                                                            margin:
-                                                                                EdgeInsets.only(left: widthVar / 20),
-                                                                            child: Image.network(
-                                                                              snapshot.data.docs[index]['productImageUrl'],
-                                                                              height: 60,
-                                                                              width: 60,
-                                                                            )),
-                                                                        SizedBox(
-                                                                            width:
-                                                                                widthVar / 6),
-                                                                        Wrap(
-                                                                          crossAxisAlignment:
-                                                                              WrapCrossAlignment.center,
-                                                                          spacing:
-                                                                              widthVar / 20,
-                                                                          children: [
-                                                                            SizedBox(
-                                                                                width: widthVar / 3,
-                                                                                child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-                                                                                  Text(
-                                                                                    snapshot.data.docs[index]['productName'],
-                                                                                    style: const TextStyle(fontWeight: FontWeight.bold),
-                                                                                  ),
-                                                                                  Text("₱${snapshot.data.docs[index]['productPrice'].toString()}.00"),
-                                                                                ])),
-                                                                          ],
-                                                                        )
-                                                                      ],
-                                                                    ));
-                                                              }),
-                                                        ],
-                                                      );
-                                                    }
-                                                    return Container();
-                                                  }),
-                                            ));
-                                  },
-                                  child: const Icon(
-                                    Icons.more_vert,
-                                    color: Color(0xFFC21010),
-                                    size: 35,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: heightVar / 60,
-                    ),
                     Container(
                       decoration: BoxDecoration(
                         border: Border.all(
@@ -755,186 +770,185 @@ class _CheckOutState extends State<CheckOut> {
               SizedBox(
                 height: heightVar / 100,
               ),
-              StreamBuilder(
-                  stream: firestore
-                      .collection("payment_methods")
-                      .doc("default_payment_method")
-                      .snapshots(),
-                  builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                    modeOfPayment = snapshot.data?['paymentMethod'];
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      print("waiting...");
-                    }
-                    if (snapshot.data?.exists == false) {
-                      return Container(
-                        width: double.infinity,
-                        height: heightVar / 8,
+              Container(
+                height: heightVar / 8,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: const [
+                    BoxShadow(
+                      spreadRadius: 0.1,
+                      blurStyle: BlurStyle.normal,
+                      color: Colors.grey,
+                      blurRadius: 10,
+                      offset: Offset(4, 8), // Shadow position
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        if (paymentOption1 == false) {
+                          setState(() {
+                            modeOfPayment = "Cash On Delivery";
+                            paymentOption1 = true;
+                            firestore
+                                .collection("payment_methods")
+                                .doc("default_payment_method")
+                                .set({
+                              "paymentMethod": "Cash On Delivery"
+                            }).then((value) {
+                              Fluttertoast.showToast(msg: "Cash on Delivery");
+                            });
+                          });
+                        } else if (paymentOption1 == true) {
+                          setState(() {
+                            paymentOption1 = false;
+                            firestore
+                                .collection("payment_methods")
+                                .doc("default_payment_method")
+                                .delete()
+                                .then((value) {
+                              Fluttertoast.showToast(
+                                  msg: "Payment method removed");
+                            });
+                          });
+                        }
+                      },
+                      child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(
-                            width: 2,
-                            color: Colors.grey,
-                          ),
+                              width: 2,
+                              color: paymentOption1 == true
+                                  ? const Color(0xFFC21010)
+                                  : const Color.fromARGB(255, 200, 200, 200)),
                           borderRadius: const BorderRadius.all(
                             Radius.circular(10),
                           ),
+                          color: paymentOption1 == true
+                              ? Colors.red.withOpacity(0.2)
+                              : Colors.white,
                         ),
+                        width: widthVar / 4,
+                        margin: EdgeInsets.only(
+                            top: heightVar / 100,
+                            bottom: heightVar / 100,
+                            left: widthVar / 30),
                         child: Column(
-                          children: [
-                            Center(
-                              child: IconButton(
-                                iconSize: 70,
-                                onPressed: () {
-                                  showModalBottomSheet<void>(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(25.0),
-                                    ),
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return SizedBox(
-                                        height: heightVar / 2,
-                                        child: Column(
-                                          children: const [
-                                            Icon(
-                                              Icons.linear_scale_sharp,
-                                              size: 50,
-                                              color: Colors.grey,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.payment,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.monetization_on,
+                              size: 50,
+                              color: Color(0xFFC21010),
                             ),
-                            const Text("Add a payment method")
+                            Text(
+                              "Cash on Delivery",
+                              style:
+                                  TextStyle(fontSize: 10, color: Colors.black),
+                            )
                           ],
                         ),
-                      );
-                    } else {
-                      return Container(
-                        height: heightVar / 8,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        if (paymentOption2 == false) {
+                          setState(() {
+                            modeOfPayment = "Cash On Pickup";
+                            paymentOption2 = true;
+                            firestore
+                                .collection("payment_methods")
+                                .doc("default_payment_method")
+                                .set({"paymentMethod": "Cash On Pickup"}).then(
+                                    (value) {
+                              Fluttertoast.showToast(msg: "Cash on Pickup");
+                            });
+                          });
+                        } else if (paymentOption2 == true) {
+                          setState(() {
+                            paymentOption2 = false;
+                            firestore
+                                .collection("payment_methods")
+                                .doc("default_payment_method")
+                                .delete()
+                                .then((value) {
+                              Fluttertoast.showToast(
+                                  msg: "Payment method removed");
+                            });
+                          });
+                        }
+                      },
+                      child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: const [
-                            BoxShadow(
-                              spreadRadius: 0.1,
-                              blurStyle: BlurStyle.normal,
-                              color: Colors.grey,
-                              blurRadius: 10,
-                              offset: Offset(4, 8), // Shadow position
+                          border: Border.all(
+                              width: 2,
+                              color: paymentOption2 == true
+                                  ? const Color(0xFFC21010)
+                                  : const Color.fromARGB(255, 200, 200, 200)),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                          color: paymentOption2 == true
+                              ? Colors.red.withOpacity(0.2)
+                              : Colors.white,
+                        ),
+                        width: widthVar / 4,
+                        margin: EdgeInsets.only(
+                            top: heightVar / 100,
+                            bottom: heightVar / 100,
+                            left: widthVar / 30),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(
+                              Icons.price_check_rounded,
+                              size: 50,
+                              color: Color(0xFFC21010),
                             ),
+                            Text(
+                              "Cash on Pickup",
+                              style:
+                                  TextStyle(fontSize: 10, color: Colors.black),
+                            )
                           ],
                         ),
-                        child: Row(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                if (paymentOption1 == false) {
-                                  setState(() {
-                                    paymentOption1 = true;
-                                    firestore
-                                        .collection("payment_methods")
-                                        .doc("default_payment_method")
-                                        .set({
-                                      "paymentMethod": "Cash On Delivery"
-                                    }).then((value) {
-                                      Fluttertoast.showToast(
-                                          msg: "Cash on Delivery");
-                                    });
-                                  });
-                                } else if (paymentOption1 == true) {
-                                  setState(() {
-                                    paymentOption1 = false;
-                                    firestore
-                                        .collection("payment_methods")
-                                        .doc("default_payment_method")
-                                        .delete()
-                                        .then((value) {
-                                      Fluttertoast.showToast(
-                                          msg: "Payment method removed");
-                                    });
-                                  });
-                                }
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      width: 2,
-                                      color: paymentOption1 == true
-                                          ? const Color(0xFFC21010)
-                                          : const Color.fromARGB(
-                                              255, 200, 200, 200)),
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(10),
-                                  ),
-                                  color: paymentOption1 == true
-                                      ? Colors.red.withOpacity(0.2)
-                                      : Colors.white,
-                                ),
-                                width: widthVar / 4,
-                                margin: EdgeInsets.only(
-                                    top: heightVar / 100,
-                                    bottom: heightVar / 100,
-                                    left: widthVar / 30),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
-                                      Icons.monetization_on,
-                                      size: 50,
-                                      color: Color(0xFFC21010),
-                                    ),
-                                    Text(
-                                      "Cash on Delivery",
-                                      style: TextStyle(
-                                          fontSize: 10, color: Colors.black),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 2,
-                                    color: const Color.fromARGB(
-                                        255, 200, 200, 200)),
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                                color: Colors.white,
-                              ),
-                              width: widthVar / 4,
-                              margin: EdgeInsets.only(
-                                  top: heightVar / 100,
-                                  bottom: heightVar / 100,
-                                  left: widthVar / 30),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(
-                                    Icons.credit_card,
-                                    size: 50,
-                                    color: Colors.blue,
-                                  ),
-                                  Text(
-                                    "Credit Card",
-                                    style: TextStyle(fontSize: 10),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            width: 2,
+                            color: const Color.fromARGB(255, 200, 200, 200)),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(10),
                         ),
-                      );
-                    }
-                  }),
+                        color: Colors.white,
+                      ),
+                      width: widthVar / 4,
+                      margin: EdgeInsets.only(
+                          top: heightVar / 100,
+                          bottom: heightVar / 100,
+                          left: widthVar / 30),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.network(
+                            "https://img.icons8.com/plasticine/400/gcash.png",
+                            height: 60,
+                            width: 60,
+                          ),
+                          const Text(
+                            "Gcash",
+                            style: TextStyle(fontSize: 10),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               SizedBox(
                 height: heightVar / 50,
               ),
@@ -961,7 +975,11 @@ class _CheckOutState extends State<CheckOut> {
                     CartModel.fromMap(doc.data());
                     subtotal1 = doc.get("subtotal");
                     subCommision = doc.get("commision");
+                    totalSale = doc.get("origPrice");
                   });
+                  grandTotalSale = cartItems?.fold(
+                      0, (gTotalSale, tots) => gTotalSale + totalSale);
+
                   totalCommision = cartItems?.fold(
                       0, (commision, total) => commision + subCommision);
 
@@ -980,8 +998,16 @@ class _CheckOutState extends State<CheckOut> {
                             snapshot.data?.docs.map((DocumentSnapshot doc) {
                           MinedCartModel.fromMap(doc.data());
                           subtotal2 = doc.get("productPrice");
+                          subCommission1 = doc.get("commission");
+                          totalSale1 = doc.get("productOrigPrice");
                         });
+                        grandTotalSale1 = cartItems?.fold(0,
+                            (mGTotalSale, gTotal) => mGTotalSale + totalSale1);
 
+                        totalCommission1 = cartItems?.fold(
+                            0,
+                            (mineCommission, totalCom) =>
+                                mineCommission + subCommission1!);
                         basetotal2 = cartItems?.fold(
                             0, (subtotal, index) => subtotal + subtotal2!);
 
@@ -1057,8 +1083,8 @@ class _CheckOutState extends State<CheckOut> {
                                     vertical: heightVar / 60),
                               ),
                             ),
-                            onPressed: () async {
-                              set();
+                            onPressed: () {
+                              delete();
                             },
                             child: const Text(
                               'Place Order',

@@ -4,6 +4,7 @@ class Products {
   String? productCategory;
   int? productPrice;
   int? productCommission;
+  int? productOrigPrice;
   int? productQuantity;
   String? productDescription;
   String? productImageUrl;
@@ -16,6 +17,7 @@ class Products {
     this.productCategory,
     this.productPrice,
     this.productCommission,
+    this.productOrigPrice,
     this.productQuantity,
     this.productDescription,
     this.productImageUrl,
@@ -30,6 +32,7 @@ class Products {
       productCategory: map["productCategory"],
       productPrice: map["productPrice"],
       productCommission: map['productCommission'],
+      productOrigPrice: map['productOrigPrice'],
       productQuantity: map['productQuantity'],
       productDescription: map["productDescription"],
       productImageUrl: map["productImageUrl"],
@@ -45,6 +48,7 @@ class Products {
       "productCategory": productCategory,
       "productPrice": productPrice,
       "productCommission": productCommission,
+      "productOrigPrice": productOrigPrice,
       "productQuantity": productQuantity,
       "productDescription": productDescription,
       "productImageUrl": productImageUrl,

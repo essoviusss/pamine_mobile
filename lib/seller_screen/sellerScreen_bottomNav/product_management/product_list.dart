@@ -20,14 +20,11 @@ class ProductList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductList> {
-  final TextEditingController productNameController = TextEditingController();
-  final TextEditingController productCategoryController =
-      TextEditingController();
-  final TextEditingController productPriceController = TextEditingController();
-  final TextEditingController productQuantityController =
-      TextEditingController();
-  final TextEditingController productDescriptionController =
-      TextEditingController();
+  TextEditingController productNameController = TextEditingController();
+  TextEditingController productCategoryController = TextEditingController();
+  TextEditingController productPriceController = TextEditingController();
+  TextEditingController productQuantityController = TextEditingController();
+  TextEditingController productDescriptionController = TextEditingController();
 
   CollectionReference prod = FirebaseFirestore.instance
       .collection("seller_info")
@@ -72,7 +69,17 @@ class _ProductListState extends State<ProductList> {
     downloadUrl = await ref.getDownloadURL();
   }
 
+  int? productPrice;
   updateProd(String prodId) async {
+    double? commission = productPrice! <= 100
+        ? 0
+        : productPrice! <= 500
+            ? (1 / 100) * productPrice!
+            : productPrice! <= 1000
+                ? (2 / 100) * productPrice!
+                : productPrice! > 1000
+                    ? (3 / 100) * productPrice!
+                    : (5 / 100) * productPrice!;
     await uploadImage();
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
@@ -84,8 +91,10 @@ class _ProductListState extends State<ProductList> {
         .update({
       "productName": productNameController.text,
       "productCategory": productCategoryController.text,
-      "productPrice": productPriceController.text,
-      "productQuantity": productQuantityController.text,
+      "productPrice": productPrice! + commission.floor(),
+      "commision": commission,
+      "productOrigPrice": productPrice!,
+      "productQuantity": int.parse(productQuantityController.text),
       "productDescription": productDescriptionController.text,
       "productImageUrl": downloadUrl,
       "productStatus": "none",
@@ -138,11 +147,28 @@ class _ProductListState extends State<ProductList> {
                               children: [
                                 Column(
                                   children: [
-                                    AspectRatio(
-                                      aspectRatio: 1 / 1,
-                                      child:
-                                          Image.network(post.productImageUrl!),
-                                    ),
+                                    post.productQuantity == 0
+                                        ? Stack(
+                                            children: [
+                                              AspectRatio(
+                                                aspectRatio: 1 / 1,
+                                                child: Image.network(
+                                                    post.productImageUrl!),
+                                              ),
+                                              AspectRatio(
+                                                  aspectRatio: 1 / 1,
+                                                  child: Opacity(
+                                                    opacity: 0.4,
+                                                    child: Image.asset(
+                                                        'assets/images/outOfStock.png'),
+                                                  )),
+                                            ],
+                                          )
+                                        : AspectRatio(
+                                            aspectRatio: 1 / 1,
+                                            child: Image.network(
+                                                post.productImageUrl!),
+                                          ),
                                     SizedBox(
                                       child: Padding(
                                           padding: EdgeInsets.only(
@@ -206,8 +232,15 @@ class _ProductListState extends State<ProductList> {
                                                     margin: EdgeInsets.only(
                                                         top: heightVar / 30),
                                                     child: TextFormField(
-                                                      controller:
-                                                          productNameController,
+                                                      controller: productNameController =
+                                                          TextEditingController(
+                                                              text: productNameController
+                                                                          .text ==
+                                                                      ""
+                                                                  ? post
+                                                                      .productName
+                                                                  : productNameController
+                                                                      .text),
                                                       textInputAction:
                                                           TextInputAction.next,
                                                       keyboardType:
@@ -257,8 +290,15 @@ class _ProductListState extends State<ProductList> {
                                                     margin: EdgeInsets.only(
                                                         top: heightVar / 80),
                                                     child: TextFormField(
-                                                      controller:
-                                                          productCategoryController,
+                                                      controller: productCategoryController =
+                                                          TextEditingController(
+                                                              text: productCategoryController
+                                                                          .text ==
+                                                                      ""
+                                                                  ? post
+                                                                      .productCategory
+                                                                  : productCategoryController
+                                                                      .text),
                                                       textInputAction:
                                                           TextInputAction.next,
                                                       keyboardType:
@@ -308,6 +348,10 @@ class _ProductListState extends State<ProductList> {
                                                     margin: EdgeInsets.only(
                                                         top: heightVar / 80),
                                                     child: TextFormField(
+                                                      onChanged: (value) {
+                                                        productPrice =
+                                                            int.parse(value);
+                                                      },
                                                       controller:
                                                           productPriceController,
                                                       textInputAction:
@@ -412,8 +456,15 @@ class _ProductListState extends State<ProductList> {
                                                     child: TextFormField(
                                                       minLines: 5,
                                                       maxLines: 5,
-                                                      controller:
-                                                          productDescriptionController,
+                                                      controller: productDescriptionController =
+                                                          TextEditingController(
+                                                              text: productDescriptionController
+                                                                          .text ==
+                                                                      ""
+                                                                  ? post
+                                                                      .productDescription
+                                                                  : productDescriptionController
+                                                                      .text),
                                                       textInputAction:
                                                           TextInputAction.next,
                                                       keyboardType:

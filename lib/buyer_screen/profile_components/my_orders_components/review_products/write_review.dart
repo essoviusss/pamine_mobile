@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/viewshoptabs/shopsoldproducts.dart';
 
 class WriteReview extends StatefulWidget {
   final String? productId;
   final String? productImageUrl;
   final String? productName;
+  final String? transactionId;
   final int? subtotal;
   final int? quantity;
   final String? sellerUid;
@@ -20,6 +20,7 @@ class WriteReview extends StatefulWidget {
     required this.productId,
     required this.productImageUrl,
     required this.productName,
+    required this.transactionId,
     required this.subtotal,
     required this.quantity,
     required this.sellerUid,
@@ -35,6 +36,8 @@ class _WriteReviewState extends State<WriteReview> {
   final TextEditingController commentController = TextEditingController();
   final ref = FirebaseFirestore.instance;
   double? productRating;
+  final transacList =
+      FirebaseFirestore.instance.collectionGroup("transactionList");
 
   addReview() async {
     ref
@@ -54,6 +57,29 @@ class _WriteReviewState extends State<WriteReview> {
       },
       SetOptions(merge: false),
     );
+  }
+
+  reviewed() async {
+    await addReview();
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    await transacList.get().then((value) {
+      for (var orderList in value.docs) {
+        print("o${orderList.id}");
+        print("w${widget.transactionId}");
+        if ("#${orderList.id}".contains(widget.transactionId!)) {
+          batch.update(
+            orderList.reference,
+            {
+              "isReviewed": true,
+            },
+          );
+        }
+      }
+      return batch.commit().then((value) {
+        Fluttertoast.showToast(msg: "Review has been submitted!");
+      });
+    });
   }
 
   @override
@@ -187,10 +213,7 @@ class _WriteReviewState extends State<WriteReview> {
                         ),
                       ),
                       onPressed: () {
-                        addReview();
-                        Fluttertoast.showToast(
-                            msg: "Review has been submitted");
-                        Navigator.of(context).pop();
+                        reviewed();
                       },
                       child: const Text(
                         "Submit",

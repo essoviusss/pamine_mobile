@@ -6,7 +6,11 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/review_products/write_review.dart';
 
 class AddReview extends StatefulWidget {
-  const AddReview({super.key});
+  final String? transactionId;
+  const AddReview({
+    super.key,
+    required this.transactionId,
+  });
 
   @override
   State<AddReview> createState() => _AddReviewState();
@@ -36,9 +40,9 @@ class _AddReviewState extends State<AddReview> {
               itemBuilder: (context, index) {
                 final reviewData = snapshot.data?.docs[index];
                 return Container(
-                  child: reviewData['status'] == "delivered" &&
-                          reviewData['buyerUid'] ==
-                              FirebaseAuth.instance.currentUser!.uid
+                  child: reviewData['buyerUid'] ==
+                              FirebaseAuth.instance.currentUser!.uid &&
+                          widget.transactionId == reviewData['transactionId']
                       ? Column(
                           children: [
                             SizedBox(
@@ -71,6 +75,7 @@ class _AddReviewState extends State<AddReview> {
                                         productImageUrl:
                                             reviewData1['productImageUrl'],
                                         productName: reviewData1['productName'],
+                                        transactionId: widget.transactionId,
                                         sellerUid: reviewData1['sellerUid'],
                                         subtotal: reviewData1['subtotal'],
                                         quantity:

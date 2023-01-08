@@ -4,6 +4,7 @@ class CartModel {
   String? productName;
   int? productPrice;
   int? commision;
+  int? origPrice;
   int? productQuantity;
   int? subtotal;
   String? sellerUid;
@@ -14,6 +15,7 @@ class CartModel {
     this.productName,
     this.productPrice,
     this.commision,
+    this.origPrice,
     this.productQuantity,
     this.subtotal,
     this.sellerUid,
@@ -25,6 +27,7 @@ class CartModel {
       productImageUrl: map['productImageUrl'],
       productName: map['productName'],
       productPrice: map['productPrice'],
+      origPrice: map['origPrice'],
       commision: map['commision'],
       productQuantity: map['productQuantity'],
       subtotal: map['subtotal'],
@@ -37,6 +40,7 @@ class CartModel {
       'productImageUrl': productImageUrl,
       'productName': productName,
       'productPrice': productPrice,
+      'origPrice': origPrice,
       'commision': commision,
       'productQuantity': productQuantity,
       'subtotal': subtotal,

@@ -95,6 +95,7 @@ class _AddProductsState extends State<AddProducts> {
     products.productCategory = productCategoryController?.value;
     products.productPrice = productPrice! + commission.floor();
     products.productCommission = commission.floor();
+    products.productOrigPrice = productPrice!;
     products.productQuantity = productQuantity;
     products.productDescription = productDescriptionController.text;
     products.productImageUrl = downloadUrl!;

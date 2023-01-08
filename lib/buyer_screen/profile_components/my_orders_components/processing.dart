@@ -24,6 +24,8 @@ class _ProcessingState extends State<Processing> {
           batch.update(orderList.reference, {
             "status": "delivered",
           });
+          batch.set(orderList.reference, {"isReviewed": false},
+              SetOptions(merge: true));
         }
       }
       return batch.commit();

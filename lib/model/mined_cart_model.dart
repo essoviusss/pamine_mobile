@@ -3,7 +3,7 @@ class MinedCartModel {
   String? productImageUrl;
   String? productName;
   int? productPrice;
-  int? commision;
+  int? commission;
   int? productQuantity;
   int? subtotal;
   String? sellerUid;
@@ -13,7 +13,7 @@ class MinedCartModel {
     this.productImageUrl,
     this.productName,
     this.productPrice,
-    this.commision,
+    this.commission,
     this.productQuantity,
     this.subtotal,
     this.sellerUid,
@@ -25,7 +25,7 @@ class MinedCartModel {
       productImageUrl: map['productImageUrl'],
       productName: map['productName'],
       productPrice: map['productPrice'],
-      commision: map['commision'],
+      commission: map['commission'],
       productQuantity: map['productQuantity'],
       subtotal: map['subtotal'],
       sellerUid: map['sellerUid'],
@@ -37,7 +37,7 @@ class MinedCartModel {
       'productImageUrl': productImageUrl,
       'productName': productName,
       'productPrice': productPrice,
-      'commision': commision,
+      'commission': commission,
       'productQuantity': productQuantity,
       'subtotal': subtotal,
       'sellerUid': sellerUid,

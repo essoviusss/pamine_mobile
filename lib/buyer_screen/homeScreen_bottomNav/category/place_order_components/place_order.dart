@@ -66,9 +66,9 @@ class _PlaceOrderState extends State<PlaceOrder> {
                   height: heigthVar / 90,
                 ),
                 Column(
-                  children: [
-                    Text("Your order amounting ₱${widget.grandTotal}.00 has"),
-                    const Text("been submitted to the seller")
+                  children: const [
+                    Text("Your order has"),
+                    Text("been submitted to the seller")
                   ],
                 ),
                 SizedBox(

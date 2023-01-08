@@ -789,10 +789,25 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                                                             crossAxisAlignment:
                                                                                 CrossAxisAlignment.start,
                                                                             children: [
-                                                                              AspectRatio(
-                                                                                aspectRatio: 1 / 1,
-                                                                                child: Image.network(post.productImageUrl!),
-                                                                              ),
+                                                                              post.productQuantity == 0
+                                                                                  ? Stack(
+                                                                                      children: [
+                                                                                        AspectRatio(
+                                                                                          aspectRatio: 1 / 1,
+                                                                                          child: Image.network(post.productImageUrl!),
+                                                                                        ),
+                                                                                        AspectRatio(
+                                                                                            aspectRatio: 1 / 1,
+                                                                                            child: Opacity(
+                                                                                              opacity: 0.4,
+                                                                                              child: Image.asset('assets/images/outOfStock.png'),
+                                                                                            )),
+                                                                                      ],
+                                                                                    )
+                                                                                  : AspectRatio(
+                                                                                      aspectRatio: 1 / 1,
+                                                                                      child: Image.network(post.productImageUrl!),
+                                                                                    ),
                                                                               SizedBox(
                                                                                 child: Padding(padding: EdgeInsets.only(top: heightVar / 99)),
                                                                               ),
@@ -826,31 +841,41 @@ class _BroadcastScreenState extends State<BroadcastScreen> {
                                                                               MainAxisAlignment.center,
                                                                           children: [
                                                                             Center(
-                                                                              child: IconButton(
-                                                                                splashColor: Colors.blue,
-                                                                                icon: const Icon(Icons.add),
-                                                                                iconSize: 60,
-                                                                                color: Colors.red,
-                                                                                onPressed: () {
-                                                                                  CollectionReference pinProd = FirebaseFirestore.instance.collection("livestream");
+                                                                              child: post.productQuantity == 0
+                                                                                  ? const IconButton(
+                                                                                      splashColor: Colors.blue,
+                                                                                      icon: Icon(Icons.add),
+                                                                                      iconSize: 60,
+                                                                                      color: Colors.red,
+                                                                                      onPressed: null,
+                                                                                    )
+                                                                                  : IconButton(
+                                                                                      splashColor: Colors.blue,
+                                                                                      icon: const Icon(Icons.add),
+                                                                                      iconSize: 60,
+                                                                                      color: Colors.red,
+                                                                                      onPressed: () {
+                                                                                        CollectionReference pinProd = FirebaseFirestore.instance.collection("livestream");
 
-                                                                                  pinProd.doc(FirebaseAuth.instance.currentUser!.uid).collection("pinned_item").doc("pinnedItem").set(
-                                                                                    {
-                                                                                      "productId": post.productId,
-                                                                                      "productName": post.productName,
-                                                                                      "productCategory": post.productCategory,
-                                                                                      "productPrice": post.productPrice,
-                                                                                      "productImageUrl": post.productImageUrl,
-                                                                                      "productStatus": "pinned",
-                                                                                    },
-                                                                                  ).then(
-                                                                                    (value) {
-                                                                                      Fluttertoast.showToast(msg: "Product Pinned");
-                                                                                      Navigator.pop(context);
-                                                                                    },
-                                                                                  );
-                                                                                },
-                                                                              ),
+                                                                                        pinProd.doc(FirebaseAuth.instance.currentUser!.uid).collection("pinned_item").doc("pinnedItem").set(
+                                                                                          {
+                                                                                            "productId": post.productId,
+                                                                                            "productName": post.productName,
+                                                                                            "productCategory": post.productCategory,
+                                                                                            "productOrigPrice": post.productOrigPrice,
+                                                                                            "productPrice": post.productPrice,
+                                                                                            "commission": post.productCommission,
+                                                                                            "productImageUrl": post.productImageUrl,
+                                                                                            "productStatus": "pinned",
+                                                                                          },
+                                                                                        ).then(
+                                                                                          (value) {
+                                                                                            Fluttertoast.showToast(msg: "Product Pinned");
+                                                                                            Navigator.pop(context);
+                                                                                          },
+                                                                                        );
+                                                                                      },
+                                                                                    ),
                                                                             ),
                                                                           ],
                                                                         ),

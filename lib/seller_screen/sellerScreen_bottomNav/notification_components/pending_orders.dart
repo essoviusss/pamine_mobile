@@ -1,6 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:animated_icon/animate_icon.dart';
 import 'package:animated_icon/animate_icons.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdown_plus/dropdown_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -13,6 +16,8 @@ class PendingOrders extends StatefulWidget {
 }
 
 class _PendingOrdersState extends State<PendingOrders> {
+  DropdownEditingController<String> rejectDetailsController =
+      DropdownEditingController();
   CollectionReference transactionRef = FirebaseFirestore.instance
       .collection("transactions")
       .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -82,7 +87,9 @@ class _PendingOrdersState extends State<PendingOrders> {
                                 Text(
                                     "Total Items: ${transacData['itemList'].length.toString()}"),
                                 Text(
-                                    "Admin Commision: ₱${transacData['total commision']}.00"),
+                                    "Mode of Payment: ${transacData['modeOfPayment']}"),
+                                Text(
+                                    "Admin Commision: ₱${transacData['totalCommision']}.00"),
                                 Text("Status: ${transacData['status']}"),
                                 SizedBox(
                                   height: heightVar / 60,
@@ -128,27 +135,128 @@ class _PendingOrdersState extends State<PendingOrders> {
                                   children: [
                                     TextButton(
                                       onPressed: () async {
-                                        DocumentSnapshot snapshot =
-                                            await sellerDetails
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser!.uid)
-                                                .get();
-                                        String? businessName =
-                                            snapshot['businessName'];
-                                        String? logoUrl = snapshot['logoUrl'];
-                                        transactionRef
-                                            .doc(transacData.id)
-                                            .update(
-                                          {"status": "rejected"},
+                                        showBarModalBottomSheet(
+                                          expand: true,
+                                          context: context,
+                                          backgroundColor: Colors.white,
+                                          builder: (context) => Container(
+                                            child: Container(
+                                              margin: EdgeInsets.only(
+                                                  left: widthVar / 25,
+                                                  right: widthVar / 25,
+                                                  top: heightVar / 60),
+                                              child: Column(
+                                                children: [
+                                                  TextDropdownFormField(
+                                                    controller:
+                                                        rejectDetailsController,
+                                                    options: const [
+                                                      "Items Unavailable",
+                                                      "Wrong Pricing",
+                                                      "Total Quantity Exceeded"
+                                                    ],
+                                                    decoration: const InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        suffixIcon: Icon(Icons
+                                                            .arrow_drop_down),
+                                                        labelText:
+                                                            "Rejection Details!"),
+                                                    dropdownHeight: 170,
+                                                  ),
+                                                  SizedBox(
+                                                    height: heightVar / 60,
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Container(
+                                                          alignment: Alignment
+                                                              .centerRight,
+                                                          child: TextButton(
+                                                            style: ButtonStyle(
+                                                              backgroundColor:
+                                                                  MaterialStateProperty.all<
+                                                                          Color>(
+                                                                      Colors
+                                                                          .red),
+                                                              padding:
+                                                                  MaterialStateProperty
+                                                                      .all<
+                                                                          EdgeInsets>(
+                                                                EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        widthVar /
+                                                                            12,
+                                                                    vertical:
+                                                                        12),
+                                                              ),
+                                                            ),
+                                                            onPressed:
+                                                                () async {
+                                                              DocumentSnapshot
+                                                                  snapshot =
+                                                                  await sellerDetails
+                                                                      .doc(FirebaseAuth
+                                                                          .instance
+                                                                          .currentUser!
+                                                                          .uid)
+                                                                      .get();
+                                                              String?
+                                                                  businessName =
+                                                                  snapshot[
+                                                                      'businessName'];
+                                                              String? logoUrl =
+                                                                  snapshot[
+                                                                      'logoUrl'];
+                                                              transactionRef
+                                                                  .doc(
+                                                                      transacData
+                                                                          .id)
+                                                                  .update(
+                                                                {
+                                                                  "status":
+                                                                      "rejected"
+                                                                },
+                                                              );
+                                                              transactionRef
+                                                                  .doc(
+                                                                      transacData
+                                                                          .id)
+                                                                  .set(
+                                                                {
+                                                                  "businessName":
+                                                                      businessName,
+                                                                  "logoUrl":
+                                                                      logoUrl,
+                                                                  "rejectionDetails":
+                                                                      rejectDetailsController
+                                                                          .value
+                                                                },
+                                                                SetOptions(
+                                                                    merge:
+                                                                        true),
+                                                              );
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                            child: const Text(
+                                                              "Reject Order",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                         );
-                                        transactionRef.doc(transacData.id).set(
-                                          {
-                                            "businessName": businessName,
-                                            "logoUrl": logoUrl,
-                                          },
-                                          SetOptions(merge: true),
-                                        );
-                                        Navigator.of(context).pop();
                                       },
                                       child: const Text(
                                         "Reject Order",

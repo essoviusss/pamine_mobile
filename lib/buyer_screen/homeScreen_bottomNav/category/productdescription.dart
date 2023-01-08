@@ -14,6 +14,7 @@ class ProductDescription extends StatefulWidget {
   final String productName;
   final String productPrice;
   final int commision;
+  final int origPrice;
   final String productQuantity;
   final String productDescription;
   final String productCategory;
@@ -25,6 +26,7 @@ class ProductDescription extends StatefulWidget {
     required this.productName,
     required this.productPrice,
     required this.commision,
+    required this.origPrice,
     required this.productQuantity,
     required this.productDescription,
     required this.productCategory,
@@ -56,6 +58,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
     cartModel.productName = widget.productName;
     cartModel.productPrice = int.parse(widget.productPrice);
     cartModel.commision = widget.commision;
+    cartModel.origPrice = widget.origPrice;
     cartModel.productQuantity = qtyValue;
     cartModel.subtotal = subtotal;
     cartModel.sellerUid = widget.sellerUid;

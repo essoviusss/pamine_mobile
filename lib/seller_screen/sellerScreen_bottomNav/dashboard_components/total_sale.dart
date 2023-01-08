@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pamine_mobile/model/transaction_model.dart';
 
 class TotalSales extends StatefulWidget {
   const TotalSales({super.key});
@@ -12,6 +13,10 @@ class TotalSales extends StatefulWidget {
 class _TotalSalesState extends State<TotalSales> {
   int? subtotal1 = 0;
   int? basetotal = 0;
+  int? itemCount = 0;
+  int? totalItemCount = 0;
+  int? prodCount = 0;
+  int? totalProductCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -86,11 +91,13 @@ class _TotalSalesState extends State<TotalSales> {
                                 .where("status", isEqualTo: "delivered")
                                 .snapshots(),
                             builder: (context, snapshot) {
-                              final priceList = snapshot.data?.docs.map((doc) {
-                                subtotal1 = doc.get("transactionTotalPrice");
-                              }).toList();
-                              basetotal = priceList?.fold(0,
-                                  (subtotal, index) => subtotal + subtotal1!);
+                              final priceList = snapshot.data?.docs
+                                  .map((DocumentSnapshot doc) {
+                                TransactionModel.fromMap(doc.data());
+                                subtotal1 = doc.get("totalSale");
+                              });
+                              basetotal = priceList?.fold(
+                                  0, (subtotal, tots) => subtotal + subtotal1!);
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 print("waiting...");
@@ -167,10 +174,18 @@ class _TotalSalesState extends State<TotalSales> {
                             flex: 1,
                             child: StreamBuilder<dynamic>(
                                 stream: FirebaseFirestore.instance
-                                    .collectionGroup("sold")
+                                    .collection('transactions')
+                                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                                    .collection("transactionList")
+                                    .where('status', isEqualTo: 'delivered')
                                     .snapshots(),
                                 builder: (context, snapshot) {
-                                  final count = snapshot.data?.docs.length;
+                                  final count = snapshot.data?.docs
+                                      .map((DocumentSnapshot doc) {
+                                    itemCount = doc.get("itemList").length;
+                                  });
+                                  totalItemCount = count?.fold(0,
+                                      (subtotal, tots) => subtotal + itemCount);
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     print("waiting...");
@@ -182,11 +197,11 @@ class _TotalSalesState extends State<TotalSales> {
                                       child: Container(
                                         alignment: Alignment.center,
                                         child: Text(
-                                          count.toString(),
+                                          totalItemCount.toString(),
                                           style: const TextStyle(
                                               color: Colors.blue,
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 40),
+                                              fontSize: 35),
                                         ),
                                       ),
                                     );
@@ -254,7 +269,12 @@ class _TotalSalesState extends State<TotalSales> {
                                     .collection("products")
                                     .snapshots(),
                                 builder: (context, snapshot) {
-                                  final count = snapshot.data?.docs.length;
+                                  final productCount = snapshot.data?.docs
+                                      .map((DocumentSnapshot doc) {
+                                    prodCount = doc.get("productQuantity");
+                                  });
+                                  totalProductCount = productCount?.fold(0,
+                                      (subtotal, tots) => subtotal + prodCount);
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     print("waiting...");
@@ -264,7 +284,7 @@ class _TotalSalesState extends State<TotalSales> {
                                     return Container(
                                       alignment: Alignment.center,
                                       child: Text(
-                                        count.toString(),
+                                        totalProductCount.toString(),
                                         style: const TextStyle(
                                             color: Colors.green,
                                             fontWeight: FontWeight.bold,

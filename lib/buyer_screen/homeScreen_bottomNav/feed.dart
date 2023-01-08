@@ -192,7 +192,7 @@ class _FeedState extends State<Feed> {
         productDescription,
         productImageUrl,
         productStatus;
-    int? productPrice;
+    int? productPrice, commission, productOrigPrice;
     return WillPopScope(
       onWillPop: () async {
         await _leaveChannel();
@@ -256,6 +256,8 @@ class _FeedState extends State<Feed> {
                         productName = snapshot.data?['productName'];
                         productCategory = snapshot.data?['productCategory'];
                         productPrice = snapshot.data?['productPrice'];
+                        commission = snapshot.data?['commission'];
+                        productOrigPrice = snapshot.data?['productOrigPrice'];
                         productImageUrl = snapshot.data?['productImageUrl'];
                         productStatus = snapshot.data?['productStatus'];
                         return Container(
@@ -569,6 +571,9 @@ class _FeedState extends State<Feed> {
                                                           productCategory,
                                                       "productPrice":
                                                           productPrice,
+                                                      "commission": commission,
+                                                      "productOrigPrice":
+                                                          productOrigPrice,
                                                       "productImageUrl":
                                                           productImageUrl,
                                                       "productStatus": "mined",

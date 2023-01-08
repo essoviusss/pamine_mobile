@@ -47,6 +47,7 @@ class _MarketplaceState extends State<Marketplace> {
 
                     return InkWell(
                       onTap: () {
+                        print(post.productOrigPrice);
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ProductDescription(
@@ -54,6 +55,7 @@ class _MarketplaceState extends State<Marketplace> {
                               productName: post.productName!,
                               productPrice: post.productPrice!.toString(),
                               commision: post.productCommission!,
+                              origPrice: post.productOrigPrice!,
                               productCategory: post.productCategory!,
                               productDescription: post.productDescription!,
                               productImageUrl: post.productImageUrl!,
@@ -63,7 +65,7 @@ class _MarketplaceState extends State<Marketplace> {
                           ),
                         );
                       },
-                      child: post.productQuantity == 0
+                      child: post.productQuantity! <= 0
                           ? Card(
                               child: Container(
                                 decoration: BoxDecoration(

@@ -1,31 +1,63 @@
 // ignore_for_file: non_constant_identifier_names
-class Transactions {
-  String? BuyerName;
-  var TransactionDate;
-  int? TransactionTotalPrice;
-  String? TransactionId;
+class TransactionModel {
+  String? transactionId;
+  int? transactionTotalPrice;
+  var transactionDate;
+  int? totalCommision;
+  int? totalSale;
+  String? buyerName;
+  String? modeOfPayment;
+  String? cpNum;
+  String? shippingAddress;
+  String? status;
+  String? buyerUid;
+  List? itemList = [];
 
-  Transactions({
-    this.BuyerName,
-    this.TransactionDate,
-    this.TransactionId,
-    this.TransactionTotalPrice,
+  TransactionModel({
+    this.transactionId,
+    this.transactionTotalPrice,
+    this.transactionDate,
+    this.totalCommision,
+    this.totalSale,
+    this.buyerName,
+    this.modeOfPayment,
+    this.cpNum,
+    this.shippingAddress,
+    this.status,
+    this.buyerUid,
+    this.itemList,
   });
-  factory Transactions.fromMap(map) {
-    return Transactions(
-      BuyerName: map['BuyerName'],
-      TransactionDate: map['TransactionDate'],
-      TransactionTotalPrice: map['TransactionTotalPrice'],
-      TransactionId: map['TransactionId'],
+  factory TransactionModel.fromMap(map) {
+    return TransactionModel(
+      transactionId: map['transactionId'],
+      transactionTotalPrice: map['transactionTotalPrice'],
+      transactionDate: map['transactionDate'],
+      totalCommision: map['totalCommission'],
+      totalSale: map['totalSale'],
+      buyerName: map['buyerName'],
+      modeOfPayment: map['modeOfPayment'],
+      cpNum: map['cpNum'],
+      shippingAddress: map['shippingAddress'],
+      status: map['status'],
+      buyerUid: map['buyerUid'],
+      itemList: map['itemList'],
     );
   }
   //send
   Map<String, dynamic> toMap() {
     return {
-      "BuyerName": BuyerName,
-      "TransactionDate": TransactionDate,
-      "TransactionTotalPrice": TransactionTotalPrice,
-      "TransactionId": TransactionId,
+      'transactionId': transactionId,
+      'transactionTotalPrice': transactionTotalPrice,
+      'transactionDate': transactionDate,
+      'totalCommission': totalCommision,
+      'totalSale': totalSale,
+      'buyerName': buyerName,
+      'modeOfPayment': modeOfPayment,
+      'cpNum': cpNum,
+      'shippingAddress': shippingAddress,
+      'status': status,
+      'buyerUid': buyerUid,
+      'itemList': itemList,
     };
   }
 }

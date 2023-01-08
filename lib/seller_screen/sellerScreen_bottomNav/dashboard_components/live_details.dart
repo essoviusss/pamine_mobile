@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class LiveDetails extends StatefulWidget {
@@ -34,7 +35,7 @@ class _LiveDetailsState extends State<LiveDetails> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Live Streaming",
+                  "Product Review",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -45,25 +46,41 @@ class _LiveDetailsState extends State<LiveDetails> {
                 ),
                 Row(
                   children: [
-                    Text(
-                      "Total Likes",
+                    const Text(
+                      "Total Reviews",
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: 25,
                         color: Colors.orange,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Expanded(
-                      child: Container(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          "0",
-                          style: TextStyle(
-                            fontSize: 50,
-                            color: Colors.orange,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      child: StreamBuilder<dynamic>(
+                        stream: FirebaseFirestore.instance
+                            .collectionGroup("sold")
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          int? count = snapshot.data.docs.length;
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            print("waiting...");
+                          } else if (!snapshot.hasData) {
+                            return const CircularProgressIndicator();
+                          } else {
+                            return Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                count.toString(),
+                                style: const TextStyle(
+                                  fontSize: 50,
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          }
+                          return Container();
+                        },
                       ),
                     ),
                   ],
@@ -77,10 +94,6 @@ class _LiveDetailsState extends State<LiveDetails> {
         ),
         SizedBox(
           height: heightVar / 60,
-        ),
-        Container(
-          height: heightVar / 10,
-          color: Colors.blue,
         ),
       ],
     );

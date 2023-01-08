@@ -23,6 +23,7 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
   final TextEditingController _buyerName = TextEditingController();
   final TextEditingController _buyerCpNum = TextEditingController();
   TextEditingController? _shippingAddress;
+  LocationPermission? permission;
 
   uploadDeliveryDetails() async {
     DeliveryDetailsModel deliveryDetailsModel = DeliveryDetailsModel();
@@ -68,6 +69,7 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
                   fontWeight: FontWeight.bold),
             ),
           ),
+        
           Container(
             padding:
                 EdgeInsets.symmetric(horizontal: widthVar / 25, vertical: 0),
@@ -159,7 +161,6 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
                             origin: Location(lat: 16.67129, lng: 120.345189),
                             components: [
                               Component(Component.country, "ph"),
-                              Component(Component.administrativeArea, "NCR")
                             ],
                             apiKey: "AIzaSyCa_s2VTCGuakM-E21dI9fzMc2gEPXGY5A",
                             canPopOnNextButtonTaped: true,
@@ -173,6 +174,7 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
                             },
                             onSuggestionSelected:
                                 (PlacesDetailsResponse? result) {
+                              print(result);
                               if (result != null) {
                                 setState(() {
                                   autocompletePlace =
