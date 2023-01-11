@@ -62,6 +62,7 @@ class _ReturnProductState extends State<ReturnProduct> {
                                     reviewData['itemList'][index];
                                 return InkWell(
                                   onTap: () {
+                                    print(reviewData1['productId']);
                                     showBarModalBottomSheet(
                                       expand: true,
                                       context: context,

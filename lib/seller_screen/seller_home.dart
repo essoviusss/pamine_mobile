@@ -162,8 +162,8 @@ class _seller_screenState extends State<seller_home> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.person),
-                          Text("Profile")
+                          Icon(Icons.shop_2),
+                          Text("Shop")
                           //const Padding(padding: EdgeInsets.only(left: 10))
                         ],
                       ),

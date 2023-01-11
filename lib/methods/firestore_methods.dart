@@ -62,11 +62,11 @@ class FirestoreMethods {
   }
 
   Future<void> chat(String text, String id, BuildContext context) async {
-    CollectionReference userBuyer =
-        FirebaseFirestore.instance.collection('users');
+    CollectionReference shopName =
+        FirebaseFirestore.instance.collection('seller_info');
     DocumentSnapshot snapshot =
-        await userBuyer.doc(FirebaseAuth.instance.currentUser!.uid).get();
-    String displayName = snapshot['displayName'];
+        await shopName.doc(FirebaseAuth.instance.currentUser!.uid).get();
+    String businessName = snapshot['businessName'];
     try {
       String commentId = const Uuid().v1();
       await _firestore
@@ -75,10 +75,7 @@ class FirestoreMethods {
           .collection('comments')
           .doc(commentId)
           .set({
-        'username':
-            FirebaseAuth.instance.currentUser!.displayName == displayName
-                ? FirebaseAuth.instance.currentUser!.displayName
-                : displayName,
+        'username': businessName,
         'message': text,
         'uid': FirebaseAuth.instance.currentUser!.uid,
         'createdAt': DateTime.now(),

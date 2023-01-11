@@ -14,6 +14,7 @@ class WriteReview extends StatefulWidget {
   final String? sellerUid;
   final String? shopName;
   final String? buyerName;
+  final List? index;
 
   const WriteReview({
     super.key,
@@ -26,6 +27,7 @@ class WriteReview extends StatefulWidget {
     required this.sellerUid,
     required this.shopName,
     required this.buyerName,
+    required this.index,
   });
 
   @override
@@ -65,15 +67,18 @@ class _WriteReviewState extends State<WriteReview> {
 
     await transacList.get().then((value) {
       for (var orderList in value.docs) {
-        print("o${orderList.id}");
-        print("w${widget.transactionId}");
+        print(orderList.reference);
         if ("#${orderList.id}".contains(widget.transactionId!)) {
-          batch.update(
-            orderList.reference,
-            {
-              "isReviewed": true,
-            },
-          );
+          batch.set(
+              orderList.reference,
+              {
+                "itemList"[0]: FieldValue.arrayUnion([
+                  {
+                    "isReviewed": true,
+                  }
+                ]),
+              },
+              SetOptions(merge: true));
         }
       }
       return batch.commit().then((value) {

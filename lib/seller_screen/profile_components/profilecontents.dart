@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pamine_mobile/seller_screen/profile_components/product_reviews_components/productReviews.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/profilemenu.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/profilepage_contents/buyerslist.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/profilepage_contents/myproducts.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/profilepic.dart';
+import 'package:pamine_mobile/seller_screen/profile_components/returnRequest_components/returns.dart';
+import 'package:pamine_mobile/seller_screen/profile_components/transactions_components/seller_transactions.dart';
 
 import '../../screens/front.dart';
 
@@ -40,7 +43,7 @@ class _BodyState extends State<Body> {
           const ProfilePic(),
           const SizedBox(height: 20),
           ProfileMenu(
-            text: "My Shop",
+            text: "Products",
             icon: const Icon(Icons.shop_2, color: Colors.red),
             press: () => {
               Navigator.of(context).push(
@@ -56,7 +59,18 @@ class _BodyState extends State<Body> {
             press: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const BuyersList(),
+                  builder: (context) => const SellerTransactions(),
+                ),
+              );
+            },
+          ),
+          ProfileMenu(
+            text: "Return Requests",
+            icon: const Icon(Icons.keyboard_return, color: Colors.red),
+            press: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const Returns(),
                 ),
               );
             },
@@ -64,7 +78,13 @@ class _BodyState extends State<Body> {
           ProfileMenu(
             text: "Product Reviews",
             icon: const Icon(Icons.sell, color: Colors.red),
-            press: () {},
+            press: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ProductReviews(),
+                ),
+              );
+            },
           ),
           ProfileMenu(
             text: "Log Out",

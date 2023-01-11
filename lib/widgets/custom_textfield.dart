@@ -15,9 +15,9 @@ class CustomTextField extends StatelessWidget {
     double widthVar = MediaQuery.of(context).size.width;
     return Container(
       alignment: Alignment.center,
-      width: widthVar / 2.2,
-      height: heightVar / 16,
-      padding: EdgeInsets.only(right: widthVar / 50, left: widthVar / 60),
+      width: widthVar / 2,
+      height: heightVar / 18,
+      padding: EdgeInsets.only(right: widthVar / 50, left: widthVar / 50),
       child: TextField(
         textInputAction: TextInputAction.done,
         decoration: const InputDecoration(
@@ -29,11 +29,7 @@ class CustomTextField extends StatelessWidget {
           filled: true,
           fillColor: Color(0xffF7F5F2),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(15),
-                topLeft: Radius.circular(15),
-                topRight: Radius.circular(15),
-                bottomRight: Radius.circular(15)),
+            borderRadius: BorderRadius.all(Radius.circular(5)),
             borderSide: BorderSide(width: 0, color: Colors.white),
           ),
         ),

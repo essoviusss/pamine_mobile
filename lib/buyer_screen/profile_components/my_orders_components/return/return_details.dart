@@ -84,6 +84,7 @@ class _ReturnDetailsState extends State<ReturnDetails> {
         "quantity": widget.quantity,
         "returnDetails": resController?.value,
         "rURl": rUrl,
+        "returnStatus": "none"
       },
       SetOptions(merge: false),
     );

@@ -29,6 +29,7 @@ class _ShopProductsState extends State<ShopProducts> {
                 .collection("seller_info")
                 .doc(widget.sellerUid)
                 .collection("products")
+                .orderBy("productQuantity", descending: true)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {

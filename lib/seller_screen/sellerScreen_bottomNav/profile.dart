@@ -35,7 +35,7 @@ class _profileState extends State<profile> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           centerTitle: true,
-          title: const Text("My Profile"),
+          title: const Text("My Shop"),
           backgroundColor: Colors.red,
         ),
         body: const Body());

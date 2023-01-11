@@ -49,20 +49,20 @@ class _notificationPageState extends State<notificationPage> {
                 final checkStatus = orderData['status'];
                 return Expanded(
                   child: checkBuyer == buyerUid && checkStatus == "accepted" ||
-                          checkStatus == "rejected" ||
-                          checkStatus == "processing" ||
-                          checkStatus == "delivered"
+                          checkStatus == "rejected"
                       ? InkWell(
                           onTap: () {
                             checkStatus == "accepted"
                                 ? Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => const MyOrders()))
-                                : showBarModalBottomSheet(
-                                    expand: true,
-                                    context: context,
-                                    backgroundColor: Colors.white,
-                                    builder: (context) => Container(),
-                                  );
+                                : checkStatus == "rejected"
+                                    ? showBarModalBottomSheet(
+                                        expand: true,
+                                        context: context,
+                                        backgroundColor: Colors.white,
+                                        builder: (context) => Container(),
+                                      )
+                                    : Container();
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -109,7 +109,7 @@ class _notificationPageState extends State<notificationPage> {
                                               fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          "Click to view ${checkStatus == "accepted" ? accepted : rejected}",
+                                          "Click to view $checkStatus details",
                                           style: const TextStyle(
                                               fontStyle: FontStyle.italic,
                                               color: Color(0xFFC21010)),

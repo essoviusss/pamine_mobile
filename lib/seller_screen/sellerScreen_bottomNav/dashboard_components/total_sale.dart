@@ -252,7 +252,7 @@ class _TotalSalesState extends State<TotalSales> {
                                 left: widthVar / 25, top: heightVar / 60),
                             alignment: Alignment.topLeft,
                             child: const Text(
-                              "Total Items",
+                              "In-stock Items",
                               style: TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.bold,

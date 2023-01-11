@@ -206,33 +206,52 @@ class _FeedState extends State<Feed> {
               child: _renderVideo(user),
             ),
             StreamBuilder<dynamic>(
-                stream: FirebaseFirestore.instance
-                    .collection('livestream')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.none) {
-                    return const CircularProgressIndicator();
-                  }
-                  return Expanded(
-                    child: ListView.builder(
-                        itemCount: 1,
-                        itemBuilder: (context, index) {
-                          LiveStream post = LiveStream.fromMap(
-                              snapshot.data?.docs[index].data());
-                          return Center(
-                            child: Text(
-                              '${post.viewers} watching',
-                              style: const TextStyle(color: Colors.red),
+              stream: FirebaseFirestore.instance
+                  .collection('livestream')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.none) {
+                  return const CircularProgressIndicator();
+                }
+                return ListView.builder(
+                    itemCount: 1,
+                    itemBuilder: (context, index) {
+                      LiveStream post =
+                          LiveStream.fromMap(snapshot.data?.docs[index].data());
+                      return Container(
+                        decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4),
+                            border: Border.all(
+                              color: Colors.transparent,
                             ),
-                          );
-                        }),
-                  );
-                }),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(25))),
+                        margin: EdgeInsets.only(
+                            left: widthVar / 3.5,
+                            right: widthVar / 3.5,
+                            top: heightVar / 180),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                            ),
+                            Text(
+                              '${post.viewers} watching',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+              },
+            ),
             Wrap(
               spacing: widthVar / 8,
               children: [
                 Container(
-                  margin: EdgeInsets.only(top: heightVar / 15),
+                  margin: EdgeInsets.only(top: heightVar / 12),
                   padding: EdgeInsets.only(left: widthVar / 40),
                   child: StreamBuilder<DocumentSnapshot>(
                       stream: FirebaseFirestore.instance
@@ -385,67 +404,64 @@ class _FeedState extends State<Feed> {
                                         const Duration(milliseconds: 500),
                                         () => _myController.jumpTo(_myController
                                             .position.maxScrollExtent));
-                                    if (snapshot.hasData) {
-                                      return ListView.builder(
+                                    return ListView.builder(
+                                        shrinkWrap: true,
                                         controller: _myController,
-                                        itemCount: snapshot.data?.docs.length,
-                                        itemBuilder: (context, index) =>
-                                            Container(
-                                          margin: EdgeInsets.only(
-                                              top: 8, right: widthVar / 2),
-                                          decoration: BoxDecoration(
-                                              color:
-                                                  Colors.grey.withOpacity(0.1),
-                                              border: Border.all(
-                                                  color: Colors.transparent,
-                                                  width: 3.0),
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(10.0)),
-                                              boxShadow: const [
-                                                BoxShadow(
-                                                    blurRadius: 10,
+                                        itemCount: snapshot.data.docs.length,
+                                        itemBuilder: (context, index) {
+                                          return Container(
+                                              height: heightVar / 15,
+                                              margin: EdgeInsets.only(
+                                                  top: 5, right: widthVar / 2),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black
+                                                    .withOpacity(0.2),
+                                                border: Border.all(
                                                     color: Colors.transparent,
-                                                    offset: Offset(1, 3))
-                                              ]),
-                                          child: ListTile(
-                                            dense: true,
-                                            contentPadding:
-                                                const EdgeInsets.only(
-                                                    left: 10,
-                                                    right: 0.0,
-                                                    top: 0,
-                                                    bottom: 10),
-                                            visualDensity: const VisualDensity(
-                                                horizontal: 0, vertical: -4),
-                                            title: Text(
-                                              snapshot.data?.docs[index]
-                                                  ['username'],
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color:
-                                                    snapshot.data.docs?[index]
-                                                                ['uid'] ==
-                                                            FirebaseAuth
-                                                                .instance
-                                                                .currentUser!
-                                                                .uid
-                                                        ? const Color.fromARGB(
-                                                            255, 99, 9, 3)
-                                                        : Colors.blue,
+                                                    width: 3.0),
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                        Radius.circular(25)),
                                               ),
-                                            ),
-                                            subtitle: Text(
-                                              snapshot.data?.docs[index]
-                                                  ['message'],
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                    return Container();
+                                              child: Container(
+                                                margin: EdgeInsets.only(
+                                                    left: widthVar / 30,
+                                                    right: widthVar / 30),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      snapshot.data.docs[index]
+                                                          ['username'],
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: snapshot.data.docs[
+                                                                        index]
+                                                                    ['uid'] ==
+                                                                FirebaseAuth
+                                                                    .instance
+                                                                    .currentUser!
+                                                                    .uid
+                                                            ? Colors.black
+                                                            : Colors.red,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      snapshot.data.docs[index]
+                                                          ['message'],
+                                                      style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 10),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ));
+                                        });
                                   },
                                 ),
                               ),

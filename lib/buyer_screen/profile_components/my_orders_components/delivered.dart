@@ -195,63 +195,40 @@ class _DeliveredState extends State<Delivered> {
                                 children: [
                                   Expanded(
                                     child: Container(
-                                      alignment: Alignment.centerRight,
-                                      margin:
-                                          EdgeInsets.only(right: widthVar / 25),
-                                      child: transacData['isReviewed'] == false
-                                          ? TextButton(
-                                              style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty
-                                                        .all<Color>(const Color(
-                                                            0xFFC21010)),
-                                                padding: MaterialStateProperty
-                                                    .all<EdgeInsets>(
-                                                  EdgeInsets.symmetric(
-                                                      horizontal: widthVar / 20,
-                                                      vertical: 12),
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                print(transacData[
-                                                    'transactionId']);
-                                                showBarModalBottomSheet(
-                                                  expand: true,
-                                                  context: context,
-                                                  backgroundColor: Colors.white,
-                                                  builder: (context) =>
-                                                      AddReview(
-                                                    transactionId: transacData[
-                                                        'transactionId'],
-                                                  ),
-                                                );
-                                              },
-                                              child: const Text(
-                                                "Add Review",
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                            )
-                                          : TextButton(
-                                              style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty.all<
-                                                        Color>(Colors.grey),
-                                                padding: MaterialStateProperty
-                                                    .all<EdgeInsets>(
-                                                  EdgeInsets.symmetric(
-                                                      horizontal: widthVar / 20,
-                                                      vertical: 12),
-                                                ),
-                                              ),
-                                              onPressed: null,
-                                              child: const Text(
-                                                "Add Review",
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                              ),
+                                        alignment: Alignment.centerRight,
+                                        margin: EdgeInsets.only(
+                                            right: widthVar / 25),
+                                        child: TextButton(
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                        Color>(
+                                                    const Color(0xFFC21010)),
+                                            padding: MaterialStateProperty.all<
+                                                EdgeInsets>(
+                                              EdgeInsets.symmetric(
+                                                  horizontal: widthVar / 20,
+                                                  vertical: 12),
                                             ),
-                                    ),
+                                          ),
+                                          onPressed: () {
+                                            print(transacData['transactionId']);
+                                            showBarModalBottomSheet(
+                                              expand: true,
+                                              context: context,
+                                              backgroundColor: Colors.white,
+                                              builder: (context) => AddReview(
+                                                transactionId: transacData[
+                                                    'transactionId'],
+                                              ),
+                                            );
+                                          },
+                                          child: const Text(
+                                            "Add Review",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        )),
                                   ),
                                 ],
                               ),

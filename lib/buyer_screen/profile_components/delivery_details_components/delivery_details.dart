@@ -69,7 +69,6 @@ class _DeliveryDetailsState extends State<DeliveryDetails> {
                   fontWeight: FontWeight.bold),
             ),
           ),
-        
           Container(
             padding:
                 EdgeInsets.symmetric(horizontal: widthVar / 25, vertical: 0),

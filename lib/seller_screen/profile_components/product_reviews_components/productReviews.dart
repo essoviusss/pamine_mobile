@@ -1,23 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-class ShopSoldProducts extends StatefulWidget {
-  const ShopSoldProducts({super.key});
+class ProductReviews extends StatefulWidget {
+  const ProductReviews({super.key});
 
   @override
-  State<ShopSoldProducts> createState() => _ShopSoldProductsState();
+  State<ProductReviews> createState() => _ProductReviewsState();
 }
 
-class _ShopSoldProductsState extends State<ShopSoldProducts> {
-  final transactionRef = FirebaseFirestore.instance.collectionGroup("sold");
+class _ProductReviewsState extends State<ProductReviews> {
+  final transactionRef = FirebaseFirestore.instance
+      .collection("seller_info")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .collection("sold");
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
-    return SafeArea(
-      child: Column(
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        centerTitle: true,
+        title: const Text("Product Reviews"),
+        backgroundColor: Colors.red,
+      ),
+      body: Column(
         children: [
           StreamBuilder<dynamic>(
               stream: transactionRef.snapshots(),
