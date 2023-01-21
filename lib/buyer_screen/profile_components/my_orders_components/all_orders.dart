@@ -19,7 +19,10 @@ class _AllOrdersState extends State<AllOrders> {
     double widthVar = MediaQuery.of(context).size.width;
     return SafeArea(
       child: StreamBuilder<dynamic>(
-        stream: transacList.snapshots(),
+        stream: transacList
+            .where("buyerUid",
+                isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             print("waiting...");
@@ -34,9 +37,7 @@ class _AllOrdersState extends State<AllOrders> {
                 return Expanded(
                   child: transacData['status'] == "accepted" ||
                           transacData['status'] == "processing" ||
-                          transacData['status'] == "delivered" &&
-                              transacData['buyerUid'] ==
-                                  FirebaseAuth.instance.currentUser!.uid
+                          transacData['status'] == "delivered"
                       ? Container(
                           decoration: BoxDecoration(
                             color: transacData['status'] == "accepted"

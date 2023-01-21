@@ -13,6 +13,7 @@ class CheckoutOffLive extends StatefulWidget {
 }
 
 class _CheckoutOffLiveState extends State<CheckoutOffLive> {
+  User? user = FirebaseAuth.instance.currentUser;
   int? subtotal;
   int? cartBaseTotal;
 
@@ -22,7 +23,9 @@ class _CheckoutOffLiveState extends State<CheckoutOffLive> {
     double widthVar = MediaQuery.of(context).size.width;
     return StreamBuilder<dynamic>(
       stream: FirebaseFirestore.instance
-          .collectionGroup("groupedItems")
+          .collection("buyer_info")
+          .doc(user?.uid)
+          .collection("cart")
           .snapshots(),
       builder: (context, snapshot) {
         int? count = snapshot.data?.docs.length;

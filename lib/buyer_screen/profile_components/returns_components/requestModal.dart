@@ -1,58 +1,44 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class ReturnActions extends StatefulWidget {
-  final String? buyerName, rUrl, returnDetails, transactionId;
-  final int? transactionTotalPrice, totalItems;
+class RequestModal extends StatefulWidget {
+  final String? businessName,
+      buyerName,
+      buyerUid,
+      cpNum,
+      logoUrl,
+      modeOfPayment,
+      transactionId,
+      sellerUid,
+      statId,
+      returnDetails,
+      rUrl;
   final List? itemList;
+  final int? totalCommision, totalSale, transactionTotalPrice;
 
-  const ReturnActions({
+  const RequestModal({
     super.key,
+    required this.businessName,
     required this.buyerName,
-    required this.rUrl,
-    required this.returnDetails,
+    required this.buyerUid,
+    required this.cpNum,
+    required this.logoUrl,
+    required this.modeOfPayment,
     required this.transactionId,
-    required this.transactionTotalPrice,
-    required this.totalItems,
     required this.itemList,
+    required this.totalCommision,
+    required this.totalSale,
+    required this.transactionTotalPrice,
+    required this.sellerUid,
+    required this.statId,
+    required this.returnDetails,
+    required this.rUrl,
   });
 
   @override
-  State<ReturnActions> createState() => _ReturnActionsState();
+  State<RequestModal> createState() => _RequestModalState();
 }
 
-class _ReturnActionsState extends State<ReturnActions> {
-  CollectionReference returnSuccess =
-      FirebaseFirestore.instance.collection('seller_info');
-  String? businessOwnerName, address, cpNum;
-  getData() async {
-    DocumentSnapshot snapshot =
-        await returnSuccess.doc(FirebaseAuth.instance.currentUser!.uid).get();
-    businessOwnerName = snapshot['businessOwnerName'];
-    address = snapshot['address'];
-    cpNum = snapshot['phoneNumber'];
-  }
-
-  acceptReturn() async {
-    await getData();
-    FirebaseFirestore.instance
-        .collection("seller_info")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection("returns")
-        .doc(widget.transactionId)
-        .set(
-      {
-        "returnStatus": "accepted",
-        "returnAddress": address,
-        "receiver": businessOwnerName,
-        "receiverNumber": cpNum,
-      },
-      SetOptions(merge: true),
-    );
-    Navigator.of(context).pop();
-  }
-
+class _RequestModalState extends State<RequestModal> {
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
@@ -91,8 +77,8 @@ class _ReturnActionsState extends State<ReturnActions> {
                         Text("Transaction Id: ${widget.transactionId!}"),
                         Text("Buyer Name: ${widget.buyerName!}"),
                         Text(
-                            "Total Price: ₱${widget.transactionTotalPrice!}.00"),
-                        Text("Total Item(s): ${widget.totalItems!}"),
+                            "Buyer Name: ₱${widget.transactionTotalPrice!}.00"),
+                        const Text("Status: Pending"),
                         SizedBox(
                           height: heightVar / 60,
                         ),
@@ -103,7 +89,7 @@ class _ReturnActionsState extends State<ReturnActions> {
                         ),
                         ListView.builder(
                           shrinkWrap: true,
-                          itemCount: widget.totalItems,
+                          itemCount: widget.itemList?.length,
                           itemBuilder: (context, index) {
                             return Container(
                               margin: EdgeInsets.only(
@@ -170,60 +156,6 @@ class _ReturnActionsState extends State<ReturnActions> {
             Image.network(widget.rUrl!),
             SizedBox(
               height: heightVar / 60,
-            ),
-            Expanded(
-              child: Container(
-                alignment: Alignment.bottomCenter,
-                child: Row(
-                  children: [
-                    TextButton(
-                      onPressed: () async {
-                        FirebaseFirestore.instance
-                            .collection("seller_info")
-                            .doc(FirebaseAuth.instance.currentUser!.uid)
-                            .collection("returns")
-                            .doc(widget.transactionId)
-                            .set(
-                          {
-                            "returnStatus": "rejected",
-                          },
-                          SetOptions(merge: true),
-                        );
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text(
-                        "Reject Request",
-                        style: TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.red),
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                              EdgeInsets.symmetric(
-                                  horizontal: widthVar / 12, vertical: 12),
-                            ),
-                          ),
-                          onPressed: () async {
-                            acceptReturn();
-                          },
-                          child: const Text(
-                            "Accept Request",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
           ],
         ),

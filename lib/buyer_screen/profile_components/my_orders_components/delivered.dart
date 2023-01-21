@@ -21,7 +21,10 @@ class _DeliveredState extends State<Delivered> {
     double widthVar = MediaQuery.of(context).size.width;
     return SafeArea(
       child: StreamBuilder<dynamic>(
-        stream: transacList.snapshots(),
+        stream: transacList
+            .where("buyerUid",
+                isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             print("waiting...");
@@ -34,9 +37,7 @@ class _DeliveredState extends State<Delivered> {
               itemBuilder: (context, index) {
                 final transacData = snapshot.data.docs[index];
                 return Expanded(
-                  child: transacData['status'] == "delivered" &&
-                          transacData['buyerUid'] ==
-                              FirebaseAuth.instance.currentUser!.uid
+                  child: transacData['status'] == "delivered"
                       ? Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -172,7 +173,7 @@ class _DeliveredState extends State<Delivered> {
                                                     Text(
                                                         "Product Name: ${transacData['itemList'][index]['productName'].toString()}"),
                                                     Text(
-                                                        "QTY: x${transacData['itemList'][index]['productQuantity'].toString()}"),
+                                                        "Quantity: ${transacData['itemList'][index]['productQuantity'].toString()}"),
                                                   ],
                                                 ),
                                               ),

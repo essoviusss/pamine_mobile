@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/return/return_product.dart';
+import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/return/return_details.dart';
 
 class Processing extends StatefulWidget {
   const Processing({super.key});
@@ -32,13 +32,18 @@ class _ProcessingState extends State<Processing> {
     });
   }
 
+  String? sellerUid, productId;
+
   @override
   Widget build(BuildContext context) {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
     return SafeArea(
       child: StreamBuilder<dynamic>(
-        stream: transacList.snapshots(),
+        stream: transacList
+            .where("buyerUid",
+                isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             print("waiting...");
@@ -47,13 +52,12 @@ class _ProcessingState extends State<Processing> {
           } else {
             return ListView.builder(
               shrinkWrap: true,
-              itemCount: snapshot.data.docs.length,
+              itemCount: snapshot.data?.docs.length,
               itemBuilder: (context, index) {
                 final transacData = snapshot.data.docs[index];
+
                 return Expanded(
-                  child: transacData['status'] == "processing" &&
-                          transacData['buyerUid'] ==
-                              FirebaseAuth.instance.currentUser!.uid
+                  child: transacData['status'] == "processing"
                       ? Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -158,6 +162,10 @@ class _ProcessingState extends State<Processing> {
                                 shrinkWrap: true,
                                 itemCount: transacData['itemList'].length,
                                 itemBuilder: (context, index) {
+                                  sellerUid = transacData['itemList'][index]
+                                      ['sellerUid'];
+                                  productId = transacData['itemList'][index]
+                                      ['productId'];
                                   return Container(
                                     margin: EdgeInsets.only(
                                       left: widthVar / 25,
@@ -189,7 +197,9 @@ class _ProcessingState extends State<Processing> {
                                                     Text(
                                                         "Product Name: ${transacData['itemList'][index]['productName'].toString()}"),
                                                     Text(
-                                                        "QTY: x${transacData['itemList'][index]['productQuantity'].toString()}"),
+                                                        "Quantity: ${transacData['itemList'][index]['productQuantity'].toString()}"),
+                                                    Text(
+                                                        "Item Price: ₱${transacData['itemList'][index]['productPrice'].toString()}.00"),
                                                   ],
                                                 ),
                                               ),
@@ -234,8 +244,27 @@ class _ProcessingState extends State<Processing> {
                                           expand: true,
                                           context: context,
                                           backgroundColor: Colors.white,
-                                          builder: (context) =>
-                                              const ReturnProduct(),
+                                          builder: (context) => ReturnDetails(
+                                            businessName:
+                                                transacData['businessName'],
+                                            buyerName: transacData['buyerName'],
+                                            buyerUid: FirebaseAuth
+                                                .instance.currentUser?.uid,
+                                            cpNum: transacData['cpNum'],
+                                            logoUrl: transacData['logoUrl'],
+                                            modeOfPayment:
+                                                transacData['modeOfPayment'],
+                                            totalCommision:
+                                                transacData['totalCommision'],
+                                            totalSale: transacData['totalSale'],
+                                            transactionId:
+                                                transacData['transactionId'],
+                                            transactionTotalPrice: transacData[
+                                                'transactionTotalPrice'],
+                                            sellerUid: sellerUid,
+                                            itemList: transacData['itemList'],
+                                            statId: transacData.id,
+                                          ),
                                         );
                                       },
                                       child: const Text(

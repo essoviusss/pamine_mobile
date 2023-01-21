@@ -106,12 +106,12 @@ class homePage extends StatelessWidget {
                             return InkWell(
                               onTap: () async {
                                 await FirestoreMethods()
-                                    .updateViewCount(post.channelId, true);
+                                    .updateViewCount(post.channelId!, true);
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (context) => Feed(
                                       isBroadcaster: false,
-                                      channelId: post.channelId,
+                                      channelId: post.channelId!,
                                     ),
                                   ),
                                 );
@@ -134,7 +134,7 @@ class homePage extends StatelessWidget {
                                           child: AspectRatio(
                                             aspectRatio: 1 / 1,
                                             child: Image.network(
-                                              post.image,
+                                              post.image!,
                                             ),
                                           ),
                                         ),
@@ -150,14 +150,14 @@ class homePage extends StatelessWidget {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  post.username,
+                                                  post.username!,
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 15,
                                                   ),
                                                 ),
                                                 Text(
-                                                  post.title,
+                                                  post.title!,
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                   ),

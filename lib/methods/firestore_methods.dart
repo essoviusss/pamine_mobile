@@ -15,6 +15,12 @@ class FirestoreMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final StorageMethods _storageMethods = StorageMethods();
   final _auth = FirebaseAuth.instance;
+  CollectionReference userBuyer =
+      FirebaseFirestore.instance.collection('users');
+  CollectionReference shopName =
+      FirebaseFirestore.instance.collection('seller_info');
+  DocumentSnapshot? snapshot, snapshot1;
+  String? displayName, businessName;
 
   Future<String> startLiveStream(BuildContext context, String title,
       Uint8List? image, List? selectedItems) async {
@@ -61,12 +67,21 @@ class FirestoreMethods {
     return channelId!;
   }
 
-  Future<void> chat(String text, String id, BuildContext context) async {
-    CollectionReference shopName =
-        FirebaseFirestore.instance.collection('seller_info');
-    DocumentSnapshot snapshot =
+  Future<void> getData() async {
+    snapshot =
+        await userBuyer.doc(FirebaseAuth.instance.currentUser!.uid).get();
+    displayName = snapshot?['role'];
+    snapshot1 =
         await shopName.doc(FirebaseAuth.instance.currentUser!.uid).get();
-    String businessName = snapshot['businessName'];
+    businessName = snapshot1?['businessName'];
+  }
+
+  Future<void> chat(String text, String id, BuildContext context) async {
+    CollectionReference userBuyer =
+        FirebaseFirestore.instance.collection('users');
+    DocumentSnapshot snapshot =
+        await userBuyer.doc(FirebaseAuth.instance.currentUser!.uid).get();
+    String displayName = snapshot['displayName'];
     try {
       String commentId = const Uuid().v1();
       await _firestore
@@ -75,7 +90,10 @@ class FirestoreMethods {
           .collection('comments')
           .doc(commentId)
           .set({
-        'username': businessName,
+        'username':
+            FirebaseAuth.instance.currentUser!.displayName == displayName
+                ? FirebaseAuth.instance.currentUser!.displayName
+                : displayName,
         'message': text,
         'uid': FirebaseAuth.instance.currentUser!.uid,
         'createdAt': DateTime.now(),

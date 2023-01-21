@@ -1,7 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +7,7 @@ import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkou
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/checkout_cart_components/checkout_off_live.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/delivery_details_components/choose_delivery_details.dart';
 import 'package:pamine_mobile/buyer_screen/homeScreen_bottomNav/category/place_order_components/place_order.dart';
+import 'package:pamine_mobile/buyer_screen/profile_components/delivery_details_components/delivery_details.dart';
 import 'package:pamine_mobile/model/cart_model.dart';
 import 'package:pamine_mobile/model/mined_cart_model.dart';
 import 'package:roundcheckbox/roundcheckbox.dart';
@@ -68,10 +66,15 @@ class _CheckOutState extends State<CheckOut> {
 
   final auth = FirebaseAuth.instance.currentUser;
 
+  User? user = FirebaseAuth.instance.currentUser;
+
   Future<void> getData() async {
     // Get docs from collection reference
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collectionGroup('groupedItems').get();
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection("buyer_info")
+        .doc(user?.uid)
+        .collection("cart")
+        .get();
     QuerySnapshot querySnapshot1 =
         await FirebaseFirestore.instance.collectionGroup('minedProducts').get();
 
@@ -89,8 +92,8 @@ class _CheckOutState extends State<CheckOut> {
     minedProducts = querySnapshot1.docs.map((doc) => doc.id).toList();
     cartItemsList = querySnapshot.docs.map((doc) => doc.data()).toList();
     minedItemsList = querySnapshot1.docs.map((doc) => doc.data()).toList();
-    sellerId = sellerUid.docs.map((doc) => doc.id).toList();
-    sellerId1 = sellerUid1.docs.map((doc) => doc.id).toList();
+    sellerId = sellerUid.docs.map((doc) => doc['sellerUid']).toList();
+    sellerId1 = sellerUid1.docs.map((doc) => doc['sellerUid']).toList();
   }
 
   Future update() async {
@@ -180,7 +183,10 @@ class _CheckOutState extends State<CheckOut> {
 
   Future delete() async {
     await set();
-    var collection = FirebaseFirestore.instance.collectionGroup('groupedItems');
+    var collection = FirebaseFirestore.instance
+        .collection('buyer_info')
+        .doc(user?.uid)
+        .collection("cart");
     var snapshots = await collection.get();
     for (var doc in snapshots.docs) {
       await doc.reference.delete();
@@ -604,16 +610,12 @@ class _CheckOutState extends State<CheckOut> {
                     .doc("default")
                     .snapshots(),
                 builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                  buyerName = snapshot.data?['fullName'];
-                  cpNum = snapshot.data?['cpNumber'];
-                  shippingAddress = snapshot.data?['shippingAddress'];
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     print("waiting...");
                   }
                   if (snapshot.data?.exists == false) {
                     return Container(
                       width: double.infinity,
-                      height: heightVar / 8,
                       decoration: BoxDecoration(
                         border: Border.all(
                           width: 2,
@@ -638,13 +640,32 @@ class _CheckOutState extends State<CheckOut> {
                                     return SizedBox(
                                       height: heightVar / 2,
                                       child: Column(
-                                        children: const [
-                                          Icon(
+                                        children: [
+                                          const Icon(
                                             Icons.linear_scale_sharp,
                                             size: 50,
                                             color: Colors.grey,
                                           ),
-                                          ChooseDeliveryDetails(),
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                right: widthVar / 25),
+                                            alignment: Alignment.centerRight,
+                                            child: InkWell(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const DeliveryDetails()));
+                                              },
+                                              child: Icon(
+                                                Icons.add_circle_outline,
+                                                size: 50,
+                                                color: const Color(0xFFC21010)
+                                                    .withOpacity(0.9),
+                                              ),
+                                            ),
+                                          ),
+                                          const ChooseDeliveryDetails(),
                                         ],
                                       ),
                                     );
@@ -662,6 +683,9 @@ class _CheckOutState extends State<CheckOut> {
                       ),
                     );
                   } else {
+                    buyerName = snapshot.data?['fullName'];
+                    cpNum = snapshot.data?['cpNumber'];
+                    shippingAddress = snapshot.data?['shippingAddress'];
                     return Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -852,100 +876,6 @@ class _CheckOutState extends State<CheckOut> {
                         ),
                       ),
                     ),
-                    InkWell(
-                      onTap: () {
-                        if (paymentOption2 == false) {
-                          setState(() {
-                            modeOfPayment = "Cash On Pickup";
-                            paymentOption2 = true;
-                            firestore
-                                .collection("payment_methods")
-                                .doc("default_payment_method")
-                                .set({"paymentMethod": "Cash On Pickup"}).then(
-                                    (value) {
-                              Fluttertoast.showToast(msg: "Cash on Pickup");
-                            });
-                          });
-                        } else if (paymentOption2 == true) {
-                          setState(() {
-                            paymentOption2 = false;
-                            firestore
-                                .collection("payment_methods")
-                                .doc("default_payment_method")
-                                .delete()
-                                .then((value) {
-                              Fluttertoast.showToast(
-                                  msg: "Payment method removed");
-                            });
-                          });
-                        }
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              width: 2,
-                              color: paymentOption2 == true
-                                  ? const Color(0xFFC21010)
-                                  : const Color.fromARGB(255, 200, 200, 200)),
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                          color: paymentOption2 == true
-                              ? Colors.red.withOpacity(0.2)
-                              : Colors.white,
-                        ),
-                        width: widthVar / 4,
-                        margin: EdgeInsets.only(
-                            top: heightVar / 100,
-                            bottom: heightVar / 100,
-                            left: widthVar / 30),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(
-                              Icons.price_check_rounded,
-                              size: 50,
-                              color: Color(0xFFC21010),
-                            ),
-                            Text(
-                              "Cash on Pickup",
-                              style:
-                                  TextStyle(fontSize: 10, color: Colors.black),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 2,
-                            color: const Color.fromARGB(255, 200, 200, 200)),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(10),
-                        ),
-                        color: Colors.white,
-                      ),
-                      width: widthVar / 4,
-                      margin: EdgeInsets.only(
-                          top: heightVar / 100,
-                          bottom: heightVar / 100,
-                          left: widthVar / 30),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.network(
-                            "https://img.icons8.com/plasticine/400/gcash.png",
-                            height: 60,
-                            width: 60,
-                          ),
-                          const Text(
-                            "Gcash",
-                            style: TextStyle(fontSize: 10),
-                          )
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -967,7 +897,9 @@ class _CheckOutState extends State<CheckOut> {
               alignment: Alignment.centerRight,
               child: StreamBuilder<dynamic>(
                 stream: FirebaseFirestore.instance
-                    .collectionGroup("groupedItems")
+                    .collection("buyer_info")
+                    .doc(user?.uid)
+                    .collection("cart")
                     .snapshots(),
                 builder: (context, snapshot) {
                   final cartItems =

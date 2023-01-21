@@ -8,6 +8,7 @@ import 'package:animated_icon/animate_icon.dart';
 import 'package:animated_icon/animate_icons.dart';
 import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -24,6 +25,7 @@ import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:provider/provider.dart';
+import 'package:auto_scroll_text/auto_scroll_text.dart';
 
 import '../../provider/user_provider.dart';
 import '../../widgets/custom_textfield.dart';
@@ -143,8 +145,6 @@ class _FeedState extends State<Feed> {
   }
 
   final TextEditingController _chatController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-  bool _needsScroll = false;
 
   @override
   void dispose() {
@@ -178,6 +178,15 @@ class _FeedState extends State<Feed> {
         .update({
       "productStatus": "pinned",
     });
+  }
+
+  CollectionReference shopName =
+      FirebaseFirestore.instance.collection('seller_info');
+  DocumentSnapshot? snapshot;
+  String? shopLogo;
+  getData() async {
+    snapshot = await shopName.doc(widget.channelId).get();
+    shopLogo = snapshot?['logoUrl'];
   }
 
   @override
@@ -227,8 +236,8 @@ class _FeedState extends State<Feed> {
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(25))),
                         margin: EdgeInsets.only(
-                            left: widthVar / 3.5,
-                            right: widthVar / 3.5,
+                            left: widthVar / 2.3,
+                            right: widthVar / 2.3,
                             top: heightVar / 180),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -238,7 +247,7 @@ class _FeedState extends State<Feed> {
                               color: Colors.white,
                             ),
                             Text(
-                              '${post.viewers} watching',
+                              '${post.viewers}',
                               style: const TextStyle(color: Colors.white),
                             ),
                           ],
@@ -254,23 +263,22 @@ class _FeedState extends State<Feed> {
                   margin: EdgeInsets.only(top: heightVar / 12),
                   padding: EdgeInsets.only(left: widthVar / 40),
                   child: StreamBuilder<DocumentSnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection("livestream")
-                          .doc(widget.channelId)
-                          .collection("pinned_item")
-                          .doc("pinnedItem")
-                          .snapshots(),
-                      builder:
-                          (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.none) {
-                          return const CircularProgressIndicator();
-                        }
-                        if (!snapshot.data!.exists) {
-                          return SizedBox(
-                            width: widthVar / 1.5,
-                            child: const Text(""),
-                          );
-                        }
+                    stream: FirebaseFirestore.instance
+                        .collection("livestream")
+                        .doc(widget.channelId)
+                        .collection("pinned_item")
+                        .doc("pinnedItem")
+                        .snapshots(),
+                    builder:
+                        (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.none) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.data?.exists == false) {
+                        return SizedBox(
+                          width: widthVar / 1.5,
+                          child: const Text(""),
+                        );
+                      } else {
                         productId = snapshot.data?['productId'];
                         productName = snapshot.data?['productName'];
                         productCategory = snapshot.data?['productCategory'];
@@ -282,88 +290,235 @@ class _FeedState extends State<Feed> {
                         return Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(35),
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment(0.8, 1),
-                              colors: <Color>[
-                                Color(0xffca485c),
-                                Color(0xffe16b5c),
-                                Color(0xfff39060),
-                                Color(0xffffb56b),
-                              ], // Gradient from https://learnui.design/tools/gradient-generator.html
-                              tileMode: TileMode.mirror,
-                            ),
+                            color: const Color.fromARGB(255, 132, 33, 26),
                           ),
                           height: heightVar / 18,
                           child: Container(
                             alignment: Alignment.center,
                             width: widthVar / 1.5,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: widthVar / 60,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: <Widget>[
+                                  AutoScrollText(
+                                    "       Product Name: ${snapshot.data?['productName']},     Price: ₱${snapshot.data?['productPrice']}      ",
+                                    style: const TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 20,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                    mode: AutoScrollTextMode.bouncing,
                                   ),
-                                  CircleAvatar(
-                                    backgroundColor:
-                                        Color.fromARGB(255, 255, 4, 4),
-                                    child: AnimateIcon(
-                                      key: UniqueKey(),
-                                      onTap: () {},
-                                      iconType: IconType.continueAnimation,
-                                      height: 30,
-                                      width: 30,
-                                      color: Colors.white,
-                                      animateIcon: AnimateIcons.bell,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: widthVar / 50,
-                                  ),
-                                  Wrap(
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    spacing: 20,
-                                    children: [
-                                      Text(
-                                        "Product: ${snapshot.data?['productName']}",
-                                        style: const TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                            fontStyle: FontStyle.italic,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        "Price: ₱${snapshot.data?['productPrice']}",
-                                        style: const TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.white,
-                                            fontStyle: FontStyle.italic,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  )
                                 ],
                               ),
                             ),
                           ),
                         );
-                      }),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: heightVar / 20),
-                  padding: EdgeInsets.only(right: widthVar / 40),
-                  child: IconButton(
-                    onPressed: () {
-                      _leaveChannel();
+                      }
                     },
-                    icon: const Icon(
-                      Icons.exit_to_app,
-                      color: Colors.white,
-                      size: 40,
-                    ),
                   ),
+                ),
+                Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(top: heightVar / 20),
+                      padding: EdgeInsets.only(right: widthVar / 40),
+                      child: IconButton(
+                        onPressed: () {
+                          _leaveChannel();
+                        },
+                        icon: const Icon(
+                          Icons.exit_to_app,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: heightVar / 3),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Container(
+                              height: heightVar / 2,
+                              color: Colors.white,
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: heightVar / 60),
+                                      ),
+                                    ),
+                                    const Text(
+                                      'Mined Items',
+                                      style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: heightVar / 60),
+                                      ),
+                                    ),
+                                    StreamBuilder<dynamic>(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('buyer_info')
+                                          .doc(FirebaseAuth
+                                              .instance.currentUser!.uid)
+                                          .collection("mined_products")
+                                          .doc(widget.channelId)
+                                          .collection("minedProducts")
+                                          .snapshots(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const CircularProgressIndicator();
+                                        }
+                                        return Expanded(
+                                          child: GridView.builder(
+                                            gridDelegate:
+                                                SliverGridDelegateWithFixedCrossAxisCount(
+                                              childAspectRatio:
+                                                  ((widthVar / 2.2) /
+                                                      (heightVar / 3.8)),
+                                              crossAxisCount: 2,
+                                              mainAxisSpacing: 5,
+                                              crossAxisSpacing: 5,
+                                            ),
+                                            shrinkWrap: true,
+                                            itemCount:
+                                                snapshot.data?.docs.length,
+                                            itemBuilder: (context, index) {
+                                              Products post = Products.fromMap(
+                                                  snapshot.data?.docs[index]
+                                                      .data());
+                                              return Card(
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        width: 3.0,
+                                                        color: Colors
+                                                            .grey.shade300),
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(
+                                                                5.0)),
+                                                  ),
+                                                  child: Stack(
+                                                    children: [
+                                                      Column(
+                                                        children: [
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              AspectRatio(
+                                                                aspectRatio:
+                                                                    1 / 1,
+                                                                child: Image
+                                                                    .network(post
+                                                                        .productImageUrl!),
+                                                              ),
+                                                              SizedBox(
+                                                                child: Padding(
+                                                                    padding: EdgeInsets.only(
+                                                                        top: heightVar /
+                                                                            99)),
+                                                              ),
+                                                              Container(
+                                                                margin: EdgeInsets.only(
+                                                                    left:
+                                                                        widthVar /
+                                                                            25),
+                                                                child: Text(
+                                                                  post.productName!,
+                                                                  style: const TextStyle(
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontSize:
+                                                                          20,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                margin: EdgeInsets.only(
+                                                                    left:
+                                                                        widthVar /
+                                                                            25),
+                                                                child: Text(
+                                                                    "₱${post.productPrice!}.00",
+                                                                    style: const TextStyle(
+                                                                        color: Colors
+                                                                            .red,
+                                                                        fontSize:
+                                                                            15,
+                                                                        fontWeight:
+                                                                            FontWeight.bold)),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: StreamBuilder(
+                        stream: FirebaseFirestore.instance
+                            .collection("buyer_info")
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .collection("mined_products")
+                            .doc(widget.channelId)
+                            .collection("minedProducts")
+                            .snapshots(),
+                        builder:
+                            (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                          int? count = snapshot.data?.docs.length;
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            print("waiting...");
+                          }
+                          if (snapshot.hasData) {
+                            return Badge(
+                              animationDuration: const Duration(seconds: 1),
+                              badgeContent: Text('$count'),
+                              child: const Icon(
+                                Icons.shopping_bag,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            );
+                          }
+                          return Container();
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -396,72 +551,98 @@ class _FeedState extends State<Feed> {
                                       .orderBy('createdAt', descending: false)
                                       .snapshots(),
                                   builder: (context, snapshot) {
+                                    Timer(
+                                      const Duration(milliseconds: 500),
+                                      () => _myController.jumpTo(_myController
+                                          .position.maxScrollExtent),
+                                    );
                                     if (snapshot.connectionState ==
                                         ConnectionState.none) {
                                       return const CircularProgressIndicator();
-                                    }
-                                    Timer(
-                                        const Duration(milliseconds: 500),
-                                        () => _myController.jumpTo(_myController
-                                            .position.maxScrollExtent));
-                                    return ListView.builder(
-                                        shrinkWrap: true,
-                                        controller: _myController,
-                                        itemCount: snapshot.data.docs.length,
-                                        itemBuilder: (context, index) {
-                                          return Container(
-                                              height: heightVar / 15,
-                                              margin: EdgeInsets.only(
-                                                  top: 5, right: widthVar / 2),
-                                              decoration: BoxDecoration(
-                                                color: Colors.black
-                                                    .withOpacity(0.2),
-                                                border: Border.all(
-                                                    color: Colors.transparent,
-                                                    width: 3.0),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                        Radius.circular(25)),
-                                              ),
-                                              child: Container(
+                                    } else if (!snapshot.hasData) {
+                                      return const CircularProgressIndicator();
+                                    } else {
+                                      return FadingEdgeScrollView
+                                          .fromScrollView(
+                                        gradientFractionOnStart: 0.9,
+                                        gradientFractionOnEnd: 0.0,
+                                        child: ListView.builder(
+                                          shrinkWrap: true,
+                                          controller: _myController,
+                                          itemCount: snapshot.data?.docs.length,
+                                          itemBuilder: (context, index) {
+                                            return Container(
                                                 margin: EdgeInsets.only(
-                                                    left: widthVar / 30,
-                                                    right: widthVar / 30),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      snapshot.data.docs[index]
-                                                          ['username'],
-                                                      style: TextStyle(
-                                                        fontSize: 13,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: snapshot.data.docs[
-                                                                        index]
-                                                                    ['uid'] ==
-                                                                FirebaseAuth
-                                                                    .instance
-                                                                    .currentUser!
-                                                                    .uid
-                                                            ? Colors.black
-                                                            : Colors.red,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      snapshot.data.docs[index]
-                                                          ['message'],
-                                                      style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 10),
-                                                    ),
-                                                  ],
+                                                    top: 5,
+                                                    right: widthVar / 2),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black
+                                                      .withOpacity(0.2),
+                                                  border: Border.all(
+                                                      color: Colors.transparent,
+                                                      width: 3.0),
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.circular(25)),
                                                 ),
-                                              ));
-                                        });
+                                                child: Container(
+                                                    margin: EdgeInsets.only(
+                                                        left: widthVar / 30,
+                                                        right: widthVar / 30),
+                                                    child: Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              snapshot.data
+                                                                          ?.docs[
+                                                                      index]
+                                                                  ['username'],
+                                                              style: TextStyle(
+                                                                fontSize: 13,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                color: snapshot.data?.docs[index]
+                                                                            [
+                                                                            'uid'] ==
+                                                                        FirebaseAuth
+                                                                            .instance
+                                                                            .currentUser!
+                                                                            .uid
+                                                                    ? Colors
+                                                                        .white
+                                                                    : Colors
+                                                                        .white,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              snapshot.data
+                                                                          ?.docs[
+                                                                      index]
+                                                                  ['message'],
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 10),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    )));
+                                          },
+                                        ),
+                                      );
+                                    }
                                   },
                                 ),
                               ),
@@ -587,6 +768,7 @@ class _FeedState extends State<Feed> {
                                                           productCategory,
                                                       "productPrice":
                                                           productPrice,
+                                                      "productQuantity": 1,
                                                       "commission": commission,
                                                       "productOrigPrice":
                                                           productOrigPrice,
@@ -830,180 +1012,6 @@ class _FeedState extends State<Feed> {
                                         );
                                       }
                                     },
-                                  ),
-                                  //mined items
-                                  InkWell(
-                                    onTap: () {
-                                      showModalBottomSheet<void>(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return Container(
-                                            height: heightVar / 2,
-                                            color: Colors.white,
-                                            child: Center(
-                                              child: Column(
-                                                children: [
-                                                  SizedBox(
-                                                    child: Padding(
-                                                      padding: EdgeInsets.only(
-                                                          top: heightVar / 60),
-                                                    ),
-                                                  ),
-                                                  const Text(
-                                                    'Mined Items',
-                                                    style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  SizedBox(
-                                                    child: Padding(
-                                                      padding: EdgeInsets.only(
-                                                          top: heightVar / 60),
-                                                    ),
-                                                  ),
-                                                  StreamBuilder<dynamic>(
-                                                    stream: FirebaseFirestore
-                                                        .instance
-                                                        .collection(
-                                                            'buyer_info')
-                                                        .doc(FirebaseAuth
-                                                            .instance
-                                                            .currentUser!
-                                                            .uid)
-                                                        .collection(
-                                                            "mined_products")
-                                                        .doc(widget.channelId)
-                                                        .collection(
-                                                            "minedProducts")
-                                                        .snapshots(),
-                                                    builder:
-                                                        (context, snapshot) {
-                                                      if (snapshot
-                                                              .connectionState ==
-                                                          ConnectionState
-                                                              .waiting) {
-                                                        return const CircularProgressIndicator();
-                                                      }
-                                                      return Expanded(
-                                                        child: GridView.builder(
-                                                          gridDelegate:
-                                                              SliverGridDelegateWithFixedCrossAxisCount(
-                                                            childAspectRatio:
-                                                                ((widthVar /
-                                                                        2.2) /
-                                                                    (heightVar /
-                                                                        3.8)),
-                                                            crossAxisCount: 2,
-                                                            mainAxisSpacing: 5,
-                                                            crossAxisSpacing: 5,
-                                                          ),
-                                                          shrinkWrap: true,
-                                                          itemCount: snapshot
-                                                              .data.docs.length,
-                                                          itemBuilder:
-                                                              (context, index) {
-                                                            Products post =
-                                                                Products.fromMap(
-                                                                    snapshot
-                                                                        .data
-                                                                        .docs[
-                                                                            index]
-                                                                        .data());
-                                                            return Card(
-                                                              child: Container(
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  border: Border.all(
-                                                                      width:
-                                                                          3.0,
-                                                                      color: Colors
-                                                                          .grey
-                                                                          .shade300),
-                                                                  borderRadius: const BorderRadius
-                                                                          .all(
-                                                                      Radius.circular(
-                                                                          5.0)),
-                                                                ),
-                                                                child: Stack(
-                                                                  children: [
-                                                                    Column(
-                                                                      children: [
-                                                                        Column(
-                                                                          crossAxisAlignment:
-                                                                              CrossAxisAlignment.start,
-                                                                          children: [
-                                                                            AspectRatio(
-                                                                              aspectRatio: 1 / 1,
-                                                                              child: Image.network(post.productImageUrl!),
-                                                                            ),
-                                                                            SizedBox(
-                                                                              child: Padding(padding: EdgeInsets.only(top: heightVar / 99)),
-                                                                            ),
-                                                                            Container(
-                                                                              margin: EdgeInsets.only(left: widthVar / 25),
-                                                                              child: Text(
-                                                                                post.productName!,
-                                                                                style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-                                                                              ),
-                                                                            ),
-                                                                            Container(
-                                                                              margin: EdgeInsets.only(left: widthVar / 25),
-                                                                              child: Text("₱${post.productPrice!}.00", style: const TextStyle(color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold)),
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            );
-                                                          },
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: StreamBuilder(
-                                      stream: FirebaseFirestore.instance
-                                          .collection("buyer_info")
-                                          .doc(FirebaseAuth
-                                              .instance.currentUser!.uid)
-                                          .collection("mined_products")
-                                          .doc(widget.channelId)
-                                          .collection("minedProducts")
-                                          .snapshots(),
-                                      builder: (context,
-                                          AsyncSnapshot<QuerySnapshot>
-                                              snapshot) {
-                                        int? count = snapshot.data?.docs.length;
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          print("waiting...");
-                                        }
-                                        if (snapshot.hasData) {
-                                          return Badge(
-                                            animationDuration:
-                                                const Duration(seconds: 1),
-                                            badgeContent: Text('$count'),
-                                            child: const Icon(
-                                              Icons.shopping_bag,
-                                              color: Colors.white,
-                                              size: 55,
-                                            ),
-                                          );
-                                        }
-                                        return Container();
-                                      },
-                                    ),
                                   ),
                                 ],
                               ),

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:pamine_mobile/buyer_screen/profile_components/delivery_details_components/add_delivery_details.dart';
 import 'package:pamine_mobile/model/delivery_details_model.dart';
 
 class ChooseDeliveryDetails extends StatefulWidget {
@@ -29,14 +28,15 @@ class _ChooseDeliveryDetailsState extends State<ChooseDeliveryDetails> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.none) {
           print("waiting...");
-        }
-        if (snapshot.hasData) {
+        } else if (!snapshot.hasData) {
+          return const CircularProgressIndicator();
+        } else {
           return Expanded(
             child: ListView.builder(
-              itemCount: snapshot.data.docs.length,
+              itemCount: snapshot.data?.docs.length,
               itemBuilder: (context, index) {
                 DeliveryDetailsModel ship = DeliveryDetailsModel.fromMap(
-                    snapshot.data.docs[index].data());
+                    snapshot.data?.docs[index].data());
                 if (snapshot.hasData) {
                   return InkWell(
                     onTap: () {
@@ -46,7 +46,7 @@ class _ChooseDeliveryDetailsState extends State<ChooseDeliveryDetails> {
                           .set({
                         "fullName": ship.fullName,
                         "cpNumber": ship.cpNumber,
-                        "shippingAddress": snapshot.data.docs[index]
+                        "shippingAddress": snapshot.data?.docs[index]
                             ['shippingAddress'],
                       }).then((value) {
                         Fluttertoast.showToast(
@@ -105,7 +105,7 @@ class _ChooseDeliveryDetailsState extends State<ChooseDeliveryDetails> {
                                 SizedBox(
                                   height: heightVar / 150,
                                 ),
-                                Text(snapshot.data.docs[index]
+                                Text(snapshot.data?.docs[index]
                                     ["shippingAddress"]),
                               ],
                             ),

@@ -10,6 +10,7 @@ import 'package:pamine_mobile/seller_screen/profile_components/profilemenu.dart'
 import 'package:pamine_mobile/seller_screen/profile_components/profilepage_contents/buyerslist.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/profilepage_contents/myproducts.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/profilepic.dart';
+import 'package:pamine_mobile/seller_screen/profile_components/returnRequest_components/returnedOrders.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/returnRequest_components/returns.dart';
 import 'package:pamine_mobile/seller_screen/profile_components/transactions_components/seller_transactions.dart';
 
@@ -54,23 +55,12 @@ class _BodyState extends State<Body> {
             },
           ),
           ProfileMenu(
-            text: "Transactions",
-            icon: const Icon(Icons.list, color: Colors.red),
-            press: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const SellerTransactions(),
-                ),
-              );
-            },
-          ),
-          ProfileMenu(
-            text: "Return Requests",
+            text: "Returned Orders",
             icon: const Icon(Icons.keyboard_return, color: Colors.red),
             press: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const Returns(),
+                  builder: (context) => const ReturnedOrders(),
                 ),
               );
             },

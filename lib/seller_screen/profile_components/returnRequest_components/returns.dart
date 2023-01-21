@@ -21,12 +21,6 @@ class _ReturnsState extends State<Returns> {
     double heightVar = MediaQuery.of(context).size.height;
     double widthVar = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        centerTitle: true,
-        title: const Text("Return Requests"),
-        backgroundColor: Colors.red,
-      ),
       body: Column(
         children: [
           StreamBuilder<dynamic>(
@@ -52,11 +46,13 @@ class _ReturnsState extends State<Returns> {
                                 backgroundColor: Colors.white,
                                 builder: (context) => ReturnActions(
                                   buyerName: ret['buyerName'],
-                                  productId: ret['productId'],
-                                  productName: ret['productName'],
-                                  rUrl: ret['rURl'],
+                                  rUrl: ret['rUrl'],
                                   returnDetails: ret['returnDetails'],
-                                  productImageUrl: ret['productImageUrl'],
+                                  totalItems: ret['itemList'].length,
+                                  transactionId: ret['transactionId'],
+                                  transactionTotalPrice:
+                                      ret['transactionTotalPrice'],
+                                  itemList: ret['itemList'],
                                 ),
                               );
                             },
@@ -86,13 +82,13 @@ class _ReturnsState extends State<Returns> {
                                             SizedBox(
                                               width: widthVar / 35,
                                             ),
-                                            Image.network(
-                                              ret['productImageUrl'],
-                                              height: 60,
-                                              width: 60,
+                                            const Icon(
+                                              Icons.notifications,
+                                              color: Colors.red,
+                                              size: 30,
                                             ),
                                             SizedBox(
-                                              width: widthVar / 15,
+                                              width: widthVar / 10,
                                             ),
                                             Column(
                                               children: [

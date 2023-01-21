@@ -12,6 +12,7 @@ class CartButton extends StatefulWidget {
 }
 
 class _CartButtonState extends State<CartButton> {
+  User? user = FirebaseAuth.instance.currentUser;
   int? count1;
   int? count;
   @override
@@ -32,7 +33,9 @@ class _CartButtonState extends State<CartButton> {
         },
         child: StreamBuilder(
           stream: FirebaseFirestore.instance
-              .collectionGroup("groupedItems")
+              .collection("buyer_info")
+              .doc(user?.uid)
+              .collection("cart")
               .snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
             count = snapshot.data?.docs.length;

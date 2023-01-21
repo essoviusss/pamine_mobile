@@ -15,22 +15,29 @@ class CustomTextField extends StatelessWidget {
     double widthVar = MediaQuery.of(context).size.width;
     return Container(
       alignment: Alignment.center,
-      width: widthVar / 2,
+      width: widthVar / 1.5,
       height: heightVar / 18,
-      padding: EdgeInsets.only(right: widthVar / 50, left: widthVar / 50),
+      padding: EdgeInsets.only(right: widthVar / 70, left: widthVar / 70),
       child: TextField(
         textInputAction: TextInputAction.done,
-        decoration: const InputDecoration(
-          prefixIcon: Icon(Icons.comment),
+        decoration: InputDecoration(
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.white, width: 2.0),
+            borderRadius: BorderRadius.circular(25.0),
+          ),
+          prefixIcon: const Icon(
+            Icons.comment,
+            color: Colors.white,
+          ),
           hintText: 'Comments....',
-          hintStyle: TextStyle(fontSize: 15.0, color: Colors.red),
-          contentPadding: EdgeInsets.all(15),
+          hintStyle: const TextStyle(fontSize: 15.0, color: Colors.white),
+          contentPadding: const EdgeInsets.all(15),
           isDense: true,
           filled: true,
-          fillColor: Color(0xffF7F5F2),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5)),
-            borderSide: BorderSide(width: 0, color: Colors.white),
+          fillColor: Colors.transparent,
+          enabledBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            borderSide: BorderSide(width: 2, color: Colors.white),
           ),
         ),
         onSubmitted: onTap,

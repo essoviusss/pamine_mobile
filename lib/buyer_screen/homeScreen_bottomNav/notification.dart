@@ -32,7 +32,10 @@ class _notificationPageState extends State<notificationPage> {
         backgroundColor: const Color(0xFFC21010),
       ),
       body: StreamBuilder<dynamic>(
-        stream: buyerOrderStatus.snapshots(),
+        stream: buyerOrderStatus
+            .where("buyerUid",
+                isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             print("waiting...");
@@ -44,12 +47,12 @@ class _notificationPageState extends State<notificationPage> {
               itemCount: snapshot.data.docs.length,
               itemBuilder: (context, index) {
                 final orderData = snapshot.data.docs[index];
+                String? buyerName = orderData['buyerName'];
                 final checkBuyer = orderData['buyerUid'];
                 final buyerUid = FirebaseAuth.instance.currentUser!.uid;
                 final checkStatus = orderData['status'];
                 return Expanded(
-                  child: checkBuyer == buyerUid && checkStatus == "accepted" ||
-                          checkStatus == "rejected"
+                  child: checkStatus == "accepted" || checkStatus == "rejected"
                       ? InkWell(
                           onTap: () {
                             checkStatus == "accepted"
@@ -60,7 +63,140 @@ class _notificationPageState extends State<notificationPage> {
                                         expand: true,
                                         context: context,
                                         backgroundColor: Colors.white,
-                                        builder: (context) => Container(),
+                                        builder: (context) => Container(
+                                          margin: EdgeInsets.only(
+                                              left: widthVar / 25,
+                                              right: widthVar / 25),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                height: heightVar / 60,
+                                              ),
+                                              Container(
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                  "Rejection Details",
+                                                  style: TextStyle(
+                                                      color: Color(0xFFC21010),
+                                                      fontSize: 25,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: heightVar / 60,
+                                              ),
+                                              Text(
+                                                "Hi,$buyerName, we are deeply sorry about the rejection of your order, due to the following reasons;",
+                                                textAlign: TextAlign.justify,
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              Text(
+                                                "      • ${orderData['rejectionDetails']}",
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              SizedBox(
+                                                height: heightVar / 60,
+                                              ),
+                                              const Text(
+                                                "Order Details",
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              SizedBox(
+                                                height: heightVar / 60,
+                                              ),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                      "Transaction Id: ${orderData['transactionId']}"),
+                                                  Text(
+                                                      "Buyer: ${orderData['buyerName']}"),
+                                                  Text(
+                                                      "Total Price: ₱${orderData['transactionTotalPrice']}.00"),
+                                                  Text(
+                                                      "Total Items: ${orderData['itemList'].length.toString()}"),
+                                                  SizedBox(
+                                                    height: heightVar / 60,
+                                                  ),
+                                                  const Text(
+                                                    "Ordered Items:",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 20),
+                                                  ),
+                                                  ListView.builder(
+                                                    shrinkWrap: true,
+                                                    itemCount:
+                                                        orderData['itemList']
+                                                            .length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          SizedBox(
+                                                            height:
+                                                                heightVar / 80,
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Image.network(
+                                                                orderData['itemList']
+                                                                        [index][
+                                                                    'productImageUrl'],
+                                                                height: 60,
+                                                                width: 60,
+                                                              ),
+                                                              Expanded(
+                                                                child:
+                                                                    Container(
+                                                                  alignment:
+                                                                      Alignment
+                                                                          .centerRight,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                          "Product Name: ${orderData['itemList'][index]['productName'].toString()}"),
+                                                                      Text(
+                                                                          "QTY: x${orderData['itemList'][index]['productQuantity'].toString()}"),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          SizedBox(
+                                                            height:
+                                                                heightVar / 60,
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       )
                                     : Container();
                           },

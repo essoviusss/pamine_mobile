@@ -114,7 +114,7 @@ class _PendingOrdersState extends State<PendingOrders> {
                                             Text(
                                                 "Product Name: ${transacData['itemList'][index]['productName'].toString()}"),
                                             Text(
-                                                "QTY: x${transacData['itemList'][index]['productQuantity'].toString()}"),
+                                                "Quantity: ${transacData['itemList'][index]['productQuantity'].toString()}"),
                                             Image.network(
                                               transacData['itemList'][index]
                                                   ['productImageUrl'],

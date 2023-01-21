@@ -5,11 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pamine_mobile/buyer_screen/profile_components/delivery_details_components/add_delivery_details.dart';
 import 'package:pamine_mobile/buyer_screen/profile_components/my_orders_components/my_orders.dart';
-import 'package:pamine_mobile/buyer_screen/profile_components/payment_methods_components/add_payment_method.dart';
+import 'package:pamine_mobile/buyer_screen/profile_components/returns_components/returns.dart';
 import 'package:pamine_mobile/buyer_screen/profile_components/profilemenu.dart';
 import 'package:pamine_mobile/buyer_screen/profile_components/profilepic.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:pamine_mobile/buyer_screen/profile_components/delivery_details_components/delivery_details.dart';
 
 import '../../screens/front.dart';
 
@@ -63,12 +62,12 @@ class _BodyState extends State<Body> {
             },
           ),
           ProfileMenu(
-            text: "Payment Methods",
+            text: "Returns/Cancellation",
             icon: const Icon(Icons.payment, color: Color(0xFFC21010)),
             press: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const AddPaymentMethod(),
+                  builder: (context) => const ReturnsCancellations(),
                 ),
               );
             },

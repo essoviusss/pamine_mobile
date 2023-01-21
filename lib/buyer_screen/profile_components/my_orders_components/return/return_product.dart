@@ -63,23 +63,6 @@ class _ReturnProductState extends State<ReturnProduct> {
                                 return InkWell(
                                   onTap: () {
                                     print(reviewData1['productId']);
-                                    showBarModalBottomSheet(
-                                      expand: true,
-                                      context: context,
-                                      backgroundColor: Colors.white,
-                                      builder: (context) => ReturnDetails(
-                                        productId: reviewData1['productId'],
-                                        productImageUrl:
-                                            reviewData1['productImageUrl'],
-                                        productName: reviewData1['productName'],
-                                        sellerUid: reviewData1['sellerUid'],
-                                        subtotal: reviewData1['subtotal'],
-                                        quantity:
-                                            reviewData1['productQuantity'],
-                                        shopName: reviewData['businessName'],
-                                        buyerName: reviewData['buyerName'],
-                                      ),
-                                    );
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(

@@ -12,6 +12,7 @@ class OffLiveCart extends StatefulWidget {
 }
 
 class _OffLiveCartState extends State<OffLiveCart> {
+  User? user = FirebaseAuth.instance.currentUser;
   int? basetotal;
   int? subtotal1;
 
@@ -19,7 +20,9 @@ class _OffLiveCartState extends State<OffLiveCart> {
     WriteBatch batch = FirebaseFirestore.instance.batch();
 
     FirebaseFirestore.instance
-        .collectionGroup("groupedItems")
+        .collection("buyer_info")
+        .doc(user?.uid)
+        .collection("cart")
         .get()
         .then((value) {
       for (var cartProd in value.docs) {
@@ -56,7 +59,9 @@ class _OffLiveCartState extends State<OffLiveCart> {
             ),
             StreamBuilder<dynamic>(
               stream: FirebaseFirestore.instance
-                  .collectionGroup("groupedItems")
+                  .collection("buyer_info")
+                  .doc(user?.uid)
+                  .collection("cart")
                   .snapshots(),
               builder: (context, snapshot) {
                 final cartItems = snapshot.data?.docs.map(
@@ -166,7 +171,9 @@ class _OffLiveCartState extends State<OffLiveCart> {
               margin: EdgeInsets.only(top: heightVar / 30),
               child: StreamBuilder<dynamic>(
                 stream: FirebaseFirestore.instance
-                    .collectionGroup("groupedItems")
+                    .collection("buyer_info")
+                    .doc(user?.uid)
+                    .collection("cart")
                     .snapshots(),
                 builder: (context, snapshot) {
                   final cartItems =

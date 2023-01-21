@@ -6,28 +6,38 @@ import 'package:dropdown_plus/dropdown_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ReturnDetails extends StatefulWidget {
-  final String? productId;
-  final String? productImageUrl;
-  final String? productName;
-  final int? subtotal;
-  final int? quantity;
-  final String? sellerUid;
-  final String? shopName;
-  final String? buyerName;
+  final String? businessName,
+      buyerName,
+      buyerUid,
+      cpNum,
+      logoUrl,
+      modeOfPayment,
+      transactionId,
+      sellerUid,
+      statId;
+  final List? itemList;
+  final int? totalCommision, totalSale, transactionTotalPrice;
+
   const ReturnDetails({
     super.key,
-    required this.productId,
-    required this.productImageUrl,
-    required this.productName,
-    required this.subtotal,
-    required this.quantity,
-    required this.sellerUid,
-    required this.shopName,
+    required this.businessName,
     required this.buyerName,
+    required this.buyerUid,
+    required this.cpNum,
+    required this.logoUrl,
+    required this.modeOfPayment,
+    required this.transactionId,
+    required this.itemList,
+    required this.totalCommision,
+    required this.totalSale,
+    required this.transactionTotalPrice,
+    required this.sellerUid,
+    required this.statId,
   });
 
   @override
@@ -74,20 +84,49 @@ class _ReturnDetailsState extends State<ReturnDetails> {
         .collection("seller_info")
         .doc(widget.sellerUid)
         .collection("returns")
-        .doc(widget.productId)
+        .doc(widget.transactionId)
         .set(
       {
-        "productId": widget.productId,
+        "businessName": widget.businessName,
         "buyerName": widget.buyerName,
-        "productName": widget.productName,
-        "productImageUrl": widget.productImageUrl,
-        "quantity": widget.quantity,
+        "buyerUid": widget.buyerUid,
+        "cpNum": widget.cpNum,
+        "logoUrl": widget.logoUrl,
+        "modeOfPayment": widget.modeOfPayment,
+        "transactionId": widget.transactionId,
+        "itemList": widget.itemList,
+        "totalCommision": widget.totalCommision,
+        "totalSale": widget.totalSale,
+        "transactionTotalPrice": widget.transactionTotalPrice,
+        "sellerUid": widget.sellerUid,
+        "rUrl": rUrl,
         "returnDetails": resController?.value,
-        "rURl": rUrl,
-        "returnStatus": "none"
+        "returnStatus": "none",
       },
       SetOptions(merge: false),
     );
+  }
+
+  final transacList =
+      FirebaseFirestore.instance.collectionGroup("transactionList");
+
+  Future updateStatus(String id) async {
+    await returnRefund();
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    await transacList.get().then((value) {
+      for (var orderList in value.docs) {
+        if (orderList.id.contains(id)) {
+          batch.update(orderList.reference, {
+            "status": "return",
+          });
+        }
+      }
+      return batch.commit().then((value) {
+        Fluttertoast.showToast(msg: "return details submitted");
+        Navigator.of(context).pop();
+      });
+    });
   }
 
   @override
@@ -191,7 +230,7 @@ class _ReturnDetailsState extends State<ReturnDetails> {
                   ),
                 ),
                 onPressed: () {
-                  returnRefund();
+                  updateStatus(widget.statId!);
                 },
                 child: const Text(
                   "Submit",

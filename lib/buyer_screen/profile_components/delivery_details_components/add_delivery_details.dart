@@ -69,7 +69,6 @@ class _AddDeliveryDetailsState extends State<AddDeliveryDetails> {
                     child: Column(
                       children: [
                         Container(
-                          height: heightVar / 10,
                           margin: EdgeInsets.only(
                             top: heightVar / 100,
                             left: widthVar / 25,

@@ -1,23 +1,43 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+
 class LiveStream {
-  String title;
-  String image;
-  String uid;
-  String username;
+  String? title;
+  String? image;
+  String? uid;
+  String? username;
   final startedAt;
-  int viewers;
-  String channelId;
+  int? viewers;
+  String? channelId;
   List? category = [];
 
   LiveStream({
-    required this.title,
-    required this.image,
-    required this.uid,
-    required this.username,
-    required this.viewers,
-    required this.channelId,
-    required this.startedAt,
-    required this.category,
+    this.title,
+    this.image,
+    this.uid,
+    this.username,
+    this.viewers,
+    this.channelId,
+    this.startedAt,
+    this.category,
   });
+
+  List<LiveStream> dataListFromSnapshot(QuerySnapshot querySnapshot) {
+    return querySnapshot.docs.map((snapshot) {
+      final Map<String, dynamic> dataMap =
+          snapshot.data() as Map<String, dynamic>;
+
+      return LiveStream(
+          title: dataMap['title'],
+          image: dataMap['image'],
+          uid: dataMap['uid'],
+          username: dataMap['username'],
+          viewers: dataMap['viewers'],
+          channelId: dataMap['channelId'],
+          startedAt: dataMap['startedAt'],
+          category: dataMap['category']);
+    }).toList();
+  }
 
   Map<String, dynamic> toMap() {
     return {

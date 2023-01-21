@@ -67,24 +67,20 @@ class _ProductDescriptionState extends State<ProductDescription> {
         .collection("buyer_info")
         .doc(user?.uid)
         .collection("cart")
-        .doc(widget.sellerUid)
-        .collection("groupedItems")
         .doc(widget.productId)
         .set(cartModel.toMap())
         .then(
-            (value) => {Fluttertoast.showToast(msg: "Product added to cart")});
-  }
-
-  addSellerInfo() async {
-    FirebaseFirestore.instance
-        .collection("buyer_info")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection("cart")
-        .doc(sellerUid)
-        .set({
-      "businessName": businessName,
-      "logoUrl": logoUrl,
-    });
+      (value) {
+        Fluttertoast.showToast(msg: "Product added to cart");
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => Cart(
+              sellerUid: widget.sellerUid,
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -424,11 +420,6 @@ class _ProductDescriptionState extends State<ProductDescription> {
                               setState(() {
                                 isAddedToCart = false;
                                 addToCart();
-                                addSellerInfo();
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => Cart(
-                                          sellerUid: widget.sellerUid,
-                                        )));
                               });
                             }
                           },

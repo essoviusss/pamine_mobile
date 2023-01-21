@@ -18,7 +18,10 @@ class _RejectedState extends State<Rejected> {
     double widthVar = MediaQuery.of(context).size.width;
     return SafeArea(
       child: StreamBuilder<dynamic>(
-        stream: transacList.snapshots(),
+        stream: transacList
+            .where("buyerUid",
+                isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             print("waiting...");
@@ -31,9 +34,7 @@ class _RejectedState extends State<Rejected> {
               itemBuilder: (context, index) {
                 final transacData = snapshot.data.docs[index];
                 return Expanded(
-                  child: transacData['status'] == "rejected" &&
-                          transacData['buyerUid'] ==
-                              FirebaseAuth.instance.currentUser!.uid
+                  child: transacData['status'] == "rejected"
                       ? Container(
                           decoration: BoxDecoration(
                             color: Colors.red.withOpacity(0.2),

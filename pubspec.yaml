@@ -78,6 +78,9 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   dashboard: ^0.0.3+1
   dropdown_textfield: ^1.0.7
+  firestore_search: ^0.1.9
+  auto_scroll_text: ^0.0.6
+  fading_edge_scrollview: ^3.0.0
 
 flutter_icons:
   android: "launcher_icon"

@@ -134,7 +134,7 @@ class _ShippedState extends State<Shipped> {
                                                             Text(
                                                                 "Product Name: ${transacData['itemList'][index]['productName'].toString()}"),
                                                             Text(
-                                                                "QTY: x${transacData['itemList'][index]['productQuantity'].toString()}"),
+                                                                "Quantity: ${transacData['itemList'][index]['productQuantity'].toString()}"),
                                                           ],
                                                         ),
                                                       ),
